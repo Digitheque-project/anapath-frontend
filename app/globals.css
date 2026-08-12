@@ -1,0 +1,237 @@
+/* cspell:ignore wght opsz Csvg Crect Glassmorphism */
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+@layer base {
+  :root {
+    --primary: #00478d;
+    --primary-container: #005eb8;
+    --surface: #f9f9ff;
+    --surface-container-lowest: #ffffff;
+    --surface-container-low: #f2f3fb;
+    --surface-container: #ecedf6;
+    --surface-container-high: #e7e8f0;
+    --surface-container-highest: #e1e2ea;
+    --on-surface: #191c21;
+    --on-surface-variant: #424752;
+    --outline-variant: #c2c6d4;
+    --tertiary: #950000;
+    --tertiary-container: #c20000;
+    --secondary: #4a5f83;
+    --error: #ba1a1a;
+    --error-container: #ffdad6;
+    --primary-fixed: #d6e3ff;
+    --secondary-fixed: #d6e3ff;
+    --tertiary-fixed: #ffdad4;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--surface);
+    color: var(--on-surface);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  html.dark body,
+  html[data-theme='dark'] body {
+    background-color: #0f172a;
+    color: #e2e8f0;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Manrope', sans-serif;
+  }
+
+  /* Dark theme variable overrides - used when html has class 'dark' or data-theme='dark' */
+  html.dark,
+  html[data-theme='dark'] {
+    --primary: #9fc5ff;
+    --primary-container: #1f6fbf;
+    --surface: #071226;
+    --surface-container-lowest: #04111b;
+    --surface-container-low: #081826;
+    --surface-container: #0b2030;
+    --surface-container-high: #0f2736;
+    --surface-container-highest: #122b3d;
+    --on-surface: #e6eef8;
+    --on-surface-variant: #cbd6e4;
+    --outline-variant: #334155;
+    --tertiary: #ff9b9b;
+    --tertiary-container: #7a1a1a;
+    --secondary: #7f98b8;
+    --error: #ffb4b4;
+    --error-container: #5b1414;
+    --primary-fixed: #08345a;
+    --secondary-fixed: #08345a;
+    --tertiary-fixed: #3b1212;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--outline-variant);
+    border-radius: 10px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--on-surface-variant);
+  }
+}
+
+/* Material Symbols */
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+/* Grain overlay for "The Clinical Sanctuary" texture */
+.grain-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  opacity: 0.02;
+  z-index: 9999;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
+
+/* Pulse animation for STAT alerts */
+@keyframes stat-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(186, 26, 26, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 8px rgba(186, 26, 26, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(186, 26, 26, 0);
+  }
+}
+
+.stat-pulse {
+  animation: stat-pulse 2s infinite;
+}
+
+/* Glassmorphism utility */
+.glass-effect {
+  background: rgba(249, 249, 255, 0.8);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+}
+
+/* Gradient primary buttons */
+.btn-primary-gradient {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-container) 100%);
+  color: white;
+  transition: all 0.2s ease;
+}
+
+.btn-primary-gradient:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.btn-primary-gradient:active {
+  transform: translateY(0);
+}
+
+/* No-line rule */
+.card-elevated {
+  background: var(--surface-container-lowest);
+  border-radius: 0.75rem;
+}
+
+.card-flat {
+  background: var(--surface-container-low);
+  border-radius: 0.75rem;
+}
+
+.card-subtle {
+  background: var(--surface-container);
+  border-radius: 0.75rem;
+}
+
+/* ============================================
+   AMÉLIORATION : Contraste des champs de formulaire
+   ============================================ */
+input, textarea, select {
+  color: #000000 !important;
+}
+
+input::placeholder, textarea::placeholder {
+  color: #9ca3af !important; /* Gris clair pour les placeholders */
+}
+
+/* Garder le texte en blanc sur fond bleu pour les boutons */
+button {
+  color: inherit;
+}
+
+/* Pour le select, s'assurer que l'option sélectionnée est en noir */
+select option {
+  color: #000000 !important;
+}
+
+/* ============================================
+   AMÉLIORATION : Contraste des labels (options radio/checkbox)
+   ============================================ */
+/* Forcer le texte des labels qui contiennent des inputs radio ou checkbox en noir */
+label:has(input[type="radio"]), 
+label:has(input[type="checkbox"]) {
+  color: #000000 !important;
+}
+
+/* Exception pour les titres de section (restent en gris) */
+label.text-xs {
+  color: #6b7280 !important; /* Gris pour les petits labels (titres) */
+}
+/* Toast d'apparition (message de succès/erreur) */
+@keyframes toastIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.toast-in { animation: toastIn 0.2s ease-out; }
+
+/* Fenêtres modales (thème bleu marine/blanc) : fondu + léger zoom à l'ouverture */
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.96) translateY(4px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+.modal-in { animation: modalIn 0.18s ease-out; }
+
+@keyframes overlayIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.overlay-in { animation: overlayIn 0.15s ease-out; }
+
+@keyframes cardRise {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.card-rise { animation: cardRise 0.3s ease-out both; }
