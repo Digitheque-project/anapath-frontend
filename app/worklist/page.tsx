@@ -20,7 +20,9 @@ import { API_BASE, getPatientForExamen } from '@/lib/api';
 import { matchesAnapathSearch } from '@/lib/searchAnapath';
 import { sortByUrgencyThenArrival, getUrgenceLevel, type UrgenceLevel } from '@/lib/urgencySort';
 import { formatDateTime, formatRelativeTime } from '@/lib/dateFormat';
-import { statusLabels, statusColors } from '@/lib/statusLabels';
+import { statusLabel, statusColors, typeExamenLabel, prescripteurLabel, TYPE_EXAMEN_LABELS } from '@/lib/statusLabels';
+import { siteOf } from '@/lib/prescriptionContent';
+import FloatingModal from '@/components/FloatingModal';
 import { isTechnicienUser } from '@/lib/roles';
 
 interface AnapathRequest {
@@ -56,16 +58,6 @@ const TECHNICAL_STATUSES = ['EN_COURS'];
 // l'examen demandé — et résultats déjà saisis (autosave) encore en attente
 // de validation/signature finale.
 const PATHOLOGIST_STATUSES = ['EN_ATTENTE_DIAGNOSTIC', 'EN_ATTENTE_PATHOLOGUE', 'RESULTAT_DISPONIBLE'];
-
-const TYPE_LABELS: Record<string, string> = {
-  BIOPSIE: 'Biopsie',
-  FCV_PAP: 'FCV / Pap test',
-  CYT0PONCTION: 'Cytoponction',
-  LIQUIDE: 'Liquide',
-  EXTEMPORANE_STAT: 'Extemporané',
-  POS: 'POS',
-  POC: 'POC',
-};
 
 const URGENCE_LABELS: Record<UrgenceLevel, string> = {
   STAT: 'Très urgent',
@@ -167,7 +159,7 @@ export default function WorklistPage() {
     }
   };
 
-  const getTypeLabel = (type: string) => TYPE_LABELS[type] || type;
+  const getTypeLabel = (type: string) => typeExamenLabel(type);
 
   const handleSaisirResultat = (id: string) => {
     router.push(`/worklist/${id}`);
@@ -294,7 +286,7 @@ export default function WorklistPage() {
           </div>
 
           {!isTechnicien && (
-            <div className="flex gap-1 p-1 bg-slate-100 rounded-xl mb-4 w-fit">
+            <div className="sticky top-[60px] z-40 w-fit mb-4 flex gap-1 p-1 bg-slate-100 rounded-xl shadow-md ring-1 ring-slate-300/50">
               <button
                 type="button"
                 onClick={() => setTab('suivre')}
@@ -342,7 +334,7 @@ export default function WorklistPage() {
                   label: "Type d'examen",
                   placeholder: 'Tous les examens',
                   multiple: true,
-                  options: Object.entries(TYPE_LABELS).map(([code, label]) => ({ value: code, label })),
+                  options: Object.entries(TYPE_EXAMEN_LABELS).map(([code, label]) => ({ value: code, label })),
                   value: filterTypes,
                   onChange: setFilterTypes,
                 },
@@ -352,7 +344,7 @@ export default function WorklistPage() {
                   placeholder: 'Tous les statuts',
                   options: visibleStatuts.map((statut) => ({
                     value: statut,
-                    label: statusLabels[statut] || statut,
+                    label: statusLabel(statut),
                   })),
                   value: filterStatuts,
                   onChange: setFilterStatuts,
@@ -397,15 +389,27 @@ export default function WorklistPage() {
                               </span>
                             )}
                           </span>
+                          {prescripteurLabel(req.metadata) && (
+                            <span className="block mt-1 text-[10px] font-semibold text-slate-500">{prescripteurLabel(req.metadata)}</span>
+                          )}
                         </td>
-                        <td className="p-4 text-xs text-slate-500">{req.prelevement?.site || '-'}</td>
+                        <td className="p-4 text-xs text-slate-500">
+                          {siteOf(req) ? (
+                            <div>
+                              <span className="font-semibold text-slate-700">{siteOf(req)}</span>
+                              {req.prelevement?.description && (
+                                <span className="block text-slate-400 mt-0.5">{req.prelevement.description}</span>
+                              )}
+                            </div>
+                          ) : '-'}
+                        </td>
                         <td className="p-4">
                           <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
                             req.statut === 'RESULTAT_DISPONIBLE'
                               ? 'bg-amber-100 text-amber-800'
                               : statusColors[req.statut] || 'bg-gray-100 text-gray-700'
                           }`}>
-                            {statusLabels[req.statut] || req.statut}
+                            {statusLabel(req.statut)}
                           </span>
                         </td>
                         <td className="p-4 text-slate-500 text-xs">
@@ -434,27 +438,13 @@ export default function WorklistPage() {
       </main>
 
       {selectedRequest && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
-          onClick={() => setSelectedRequest(null)}
+        <FloatingModal
+          open
+          onClose={() => setSelectedRequest(null)}
+          icon="description"
+          title="Détail de la prescription"
         >
-          <div
-            className="bg-white rounded-xl shadow-xl max-w-6xl w-[95vw] max-h-[90vh] overflow-y-auto"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between p-4 sticky top-0 bg-gradient-to-r from-[#00284d] to-[#00478d] z-10">
-              <h3 className="font-bold text-lg text-white">Détail de la prescription</h3>
-              <button
-                type="button"
-                onClick={() => setSelectedRequest(null)}
-                className="text-white/70 hover:text-white transition-colors"
-                aria-label="Fermer"
-              >
-                <span className="material-symbols-outlined">close</span>
-              </button>
-            </div>
-            <div className="p-5">
-              <PrescriptionDetails
+          <PrescriptionDetails
                 request={selectedRequest}
                 patient={modalPatient}
                 patientLoading={modalPatientLoading}
@@ -517,9 +507,7 @@ export default function WorklistPage() {
                   </>
                 )}
               </div>
-            </div>
-          </div>
-        </div>
+        </FloatingModal>
       )}
 
       {speculumRequest && isTechnicien && (
