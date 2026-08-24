@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import axios from 'axios';
 import { API_BASE } from '@/lib/api';
+import FloatingModal from '@/components/FloatingModal';
 
 interface DiagnosticCytoponctionData {
   sitePreleve?: string;
@@ -59,26 +60,22 @@ export default function DiagnosticCytoponctionForm({
   const inputCls =
     'w-full p-3 bg-surface-container-low border border-outline-variant rounded-lg text-sm text-on-surface resize-none focus:ring-2 focus:ring-primary/20 outline-none disabled:bg-slate-100 disabled:cursor-not-allowed';
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={onClose}>
-      <div
-        className="bg-white rounded-xl shadow-xl max-w-lg w-full max-h-[90vh] flex flex-col overflow-hidden"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex items-center justify-between p-4 bg-gradient-to-r from-[#00284d] to-[#00478d]">
-          <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-white">biotech</span>
-            <h3 className="font-bold text-lg text-white">Diagnostic cytoponction</h3>
-          </div>
-          <button type="button" onClick={onClose} className="text-white/70 hover:text-white transition-colors" aria-label="Fermer">
-            <span className="material-symbols-outlined">close</span>
-          </button>
-        </div>
+  const sousTitre = [anapathId, patientName].filter(Boolean).join(' — ');
 
-        <div className="p-4 space-y-4 overflow-y-auto">
+  return (
+    <FloatingModal
+      open
+      onClose={onClose}
+      icon="biotech"
+      title="Diagnostic cytoponction"
+      subtitle={sousTitre || undefined}
+      maxWidthPx={672}
+      bodyClassName="p-4 space-y-4"
+    >
+      <div>
           <p className="text-xs text-on-surface-variant bg-primary/5 border border-primary/10 rounded-lg p-2.5">
-            {anapathId ? `${anapathId} — ` : ''}{patientName || 'Patient'} — diagnostic anticipé par le pathologiste
-            avant l&apos;examen technique. La validation notifie le technicien que le patient est prêt pour un examen technique.
+            Diagnostic anticipé par le pathologiste avant l&apos;examen technique. La validation
+            notifie le technicien que le patient est prêt pour un examen technique.
           </p>
 
           <div className="flex flex-col gap-1.5">
@@ -89,7 +86,7 @@ export default function DiagnosticCytoponctionForm({
               value={sitePreleve}
               onChange={(e) => setSitePreleve(e.target.value)}
               readOnly={alreadyValidated}
-              placeholder="Site prélevé (champ libre)..."
+              placeholder="Localisation précise du prélèvement — ex. : sein droit, quadrant supéro-externe ; ganglion cervical gauche…"
               rows={2}
               className={inputCls}
             />
@@ -103,7 +100,7 @@ export default function DiagnosticCytoponctionForm({
               value={organe}
               onChange={(e) => setOrgane(e.target.value)}
               readOnly={alreadyValidated}
-              placeholder="Organe concerné (champ libre)..."
+              placeholder="Organe ponctionné — ex. : sein, ganglion lymphatique, thyroïde, glande salivaire…"
               rows={2}
               className={inputCls}
             />
@@ -117,7 +114,7 @@ export default function DiagnosticCytoponctionForm({
               value={fixation}
               onChange={(e) => setFixation(e.target.value)}
               readOnly={alreadyValidated}
-              placeholder="Type de fixateur utilisé (champ libre)..."
+              placeholder="Fixateur utilisé — ex. : alcool absolu, spray fixateur, formol 10 %, frottis à l'air sec…"
               rows={2}
               className={inputCls}
             />
@@ -159,7 +156,6 @@ export default function DiagnosticCytoponctionForm({
             </button>
           )}
         </div>
-      </div>
-    </div>
+    </FloatingModal>
   );
 }
