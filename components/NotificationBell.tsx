@@ -17,7 +17,12 @@ import {
 import { useAuth } from './AuthProvider';
 import { isTechnicienUser, userRecipientGroup, notificationVisible, isMajorRole } from '@/lib/roles';
 import { playUrgenceSound, playReportSound, playExtemporaneAlarm } from '@/lib/sounds';
-import { exportMajorReportPDF } from '@/lib/majorReport';
+import { exportMajorReportExcel } from '@/lib/majorReport';
+import { typeExamenLabel } from '@/lib/statusLabels';
+import PrescriptionDetails from '@/components/PrescriptionDetails';
+import FloatingModal from '@/components/FloatingModal';
+import { type PatientInfo } from '@/components/PatientIdentitySection';
+import { getPatientForExamen, getPrescriptionExterneDetails } from '@/lib/api';
 import { getMondayOfWeek, formatWeekLabel } from '@/lib/weekUtils';
 
 // URL de la Gateway socket.io du backend (namespace /anapath). En local :
@@ -105,24 +110,17 @@ function getTypeExamen(n: any): string {
   const t = n.enriched?.typeExamen
     ?? n.metadata?.typeExamen
     ?? n.typeExamen ?? '';
-  const map: Record<string, string> = {
-    BIOPSIE:          'Biopsie',
-    FCV_PAP:          'FCV / Pap test',
-    CYT0PONCTION:     'Cytoponction',
-    LIQUIDE:          'Liquide',
-    POS:              'POS',
-    POC:              'POC',
-    EXTEMPORANE_STAT: '⚡ Extemporané STAT',
-  };
-  return map[t] ?? t;
+  return typeExamenLabel(t);
 }
 
 function getServiceNom(n: any): string {
   return n.enriched?.serviceNom
     ?? n.metadata?.serviceNom
-    ?? n.metadata?.serviceId
-    ?? n.metadata?.serviceIdSource
     ?? '—';
+}
+
+function getAllergies(n: any): string {
+  return n.enriched?.allergies ?? '';
 }
 
 function getMessage(n: any): string {
@@ -198,6 +196,9 @@ export default function NotificationBell() {
   const [notifs, setNotifs] = useState<any[]>([]);
   const [open, setOpen] = useState(false);
   const [detailNotif, setDetailNotif] = useState<any>(null);
+  const [modalPatient, setModalPatient] = useState<PatientInfo | null>(null);
+  const [modalPatientLoading, setModalPatientLoading] = useState(false);
+  const [detailRefreshing, setDetailRefreshing] = useState(false);
   const [refuserMode, setRefuserMode] = useState(false);
   const [motif, setMotif] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -208,6 +209,8 @@ export default function NotificationBell() {
   const [inlineSubmittingId, setInlineSubmittingId] = useState<string | null>(null);
   const [inlineError, setInlineError] = useState<string | null>(null);
   const [inlineErrorId, setInlineErrorId] = useState<string | null>(null);
+  const [visibleCount, setVisibleCount] = useState(3);
+  const [showUnreadOnly, setShowUnreadOnly] = useState(false);
   const known = useRef<Set<string>>(new Set());
   const extemporaneTimers =
     useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
@@ -215,6 +218,7 @@ export default function NotificationBell() {
   // présentes sont marquées connues SANS son : un son n'est joué que pour une
   // notification réellement nouvelle, reçue après l'ouverture de la page.
   const initializedRef = useRef(false);
+  const containerRef = useRef<HTMLDivElement | null>(null);
   const router = useRouter();
 
   const cancelExtemporaneTimer = useCallback((aid: string) => {
@@ -437,7 +441,87 @@ export default function NotificationBell() {
     };
   }, [fetchNotifs]);
 
+  useEffect(() => {
+    if (!open) return;
+    const onPointerDown = (e: PointerEvent) => {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(e.target as Node)
+      ) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener('pointerdown', onPointerDown);
+    return () => document.removeEventListener('pointerdown', onPointerDown);
+  }, [open]);
+
+  useEffect(() => {
+    if (!detailNotif) { setModalPatient(null); return; }
+    const pid = getPatientId(detailNotif);
+    if (!pid) { setModalPatient(null); return; }
+    let cancelled = false;
+    setModalPatientLoading(true);
+    getPatientForExamen(pid)
+      .then(p => { if (!cancelled) setModalPatient(p as PatientInfo); })
+      .catch(() => {})
+      .finally(() => { if (!cancelled) setModalPatientLoading(false); });
+    return () => { cancelled = true; };
+  }, [detailNotif?.id ?? detailNotif?._id]);
+
+  // Détail de prescription : complète le snapshot du pull avec les données à
+  // jour du service Prescription (GET externe) pour afficher TOUTES les
+  // informations saisies, même si la notification a été créée avant.
+  useEffect(() => {
+    if (!detailNotif) return;
+    const prescriptionId = detailNotif.metadata?.prescriptionId;
+    const demandeId = detailNotif.metadata?.demandeId;
+    if (!prescriptionId || !demandeId) return;
+    let cancelled = false;
+    setDetailRefreshing(true);
+    getPrescriptionExterneDetails(prescriptionId, demandeId)
+      .then(details => {
+        if (cancelled || !details) return;
+        const { prescription, demande } = details;
+        setDetailNotif((prev: any) => {
+          if (!prev || (prev.id ?? prev._id) !== (detailNotif.id ?? detailNotif._id)) return prev;
+          return {
+            ...prev,
+            metadata: {
+              ...prev.metadata,
+              ...(demande?.data ? { data: demande.data } : {}),
+              ...(demande?.typeExamen ? { typeExamen: demande.typeExamen } : {}),
+              ...(demande?.statut ? { demandeStatut: demande.statut } : {}),
+              ...(prescription.urgence ? { urgence: prescription.urgence } : {}),
+              ...(typeof prescription.alertes === 'string' ? { alertes: prescription.alertes } : {}),
+              ...(prescription.renseignements != null ? { renseignements: prescription.renseignements } : {}),
+              ...(prescription.nomMedecinPrescripteur != null ? { nomMedecinPrescripteur: prescription.nomMedecinPrescripteur } : {}),
+              ...(prescription.numeroONM != null ? { numeroONM: prescription.numeroONM } : {}),
+            },
+          };
+        });
+      })
+      .catch(() => {})
+      .finally(() => { if (!cancelled) setDetailRefreshing(false); });
+    return () => { cancelled = true; };
+  }, [detailNotif?.id ?? detailNotif?._id]);
+
+  useEffect(() => {
+    if (!open) {
+      setVisibleCount(3);
+      setShowUnreadOnly(false);
+    }
+  }, [open]);
+
   const unreadCount = notifs.filter(n => !isLue(n)).length;
+
+  // Le filtre « non lues » se désactive seul quand il n'y a plus rien à voir
+  useEffect(() => {
+    if (showUnreadOnly && unreadCount === 0) setShowUnreadOnly(false);
+  }, [showUnreadOnly, unreadCount]);
+
+  const filteredNotifs = showUnreadOnly
+    ? notifs.filter(n => !isLue(n))
+    : notifs;
 
   const maxUrg = notifs
     .filter(n => !isLue(n))
@@ -452,8 +536,8 @@ export default function NotificationBell() {
     : 'bg-[#e41e3f]';
 
   const handleClick = async (n: any) => {
-    // Rapport hebdomadaire : génère et télécharge automatiquement le PDF du
-    // rapport de la semaine en cours, sans quitter la page.
+    // Rapport hebdomadaire : génère et télécharge automatiquement le fichier Excel
+    // du rapport de la semaine en cours, sans quitter la page.
     const type = n.type ?? n.enriched?.type ?? '';
     if (type === 'RAPPORT_HEBDOMADAIRE' || type === 'RAPPORT') {
       setOpen(false);
@@ -472,7 +556,7 @@ export default function NotificationBell() {
             const d = new Date(r.createdAt ?? r.date ?? 0);
             return d >= monday && d <= sunday;
           });
-          await exportMajorReportPDF(
+          await exportMajorReportExcel(
             weekRequests,
             formatWeekLabel(monday),
           );
@@ -632,7 +716,7 @@ export default function NotificationBell() {
   };
 
   return (
-    <div className="relative">
+    <div className="relative" ref={containerRef}>
       <button
         onClick={() => setOpen(!open)}
         className="relative p-2 rounded-full
@@ -681,12 +765,21 @@ export default function NotificationBell() {
                   Notifications
                 </h3>
                 {unreadCount > 0 && (
-                  <span className="bg-blue-100
-                    text-blue-700 text-xs font-bold
-                    px-2 py-0.5 rounded-full">
+                  <button
+                    onClick={() => setShowUnreadOnly(v => !v)}
+                    title={showUnreadOnly
+                      ? 'Afficher toutes les notifications'
+                      : 'Afficher uniquement les non lues'}
+                    className={`text-xs font-bold px-2 py-0.5 rounded-full transition-colors ${
+                      showUnreadOnly
+                        ? 'bg-blue-600 text-white hover:bg-blue-700'
+                        : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+                    }`}
+                  >
                     {unreadCount} non lue
                     {unreadCount > 1 ? 's' : ''}
-                  </span>
+                    {showUnreadOnly ? ' ✕' : ''}
+                  </button>
                 )}
               </div>
               {unreadCount > 0 && (
@@ -700,7 +793,7 @@ export default function NotificationBell() {
             </div>
 
             <div className="max-h-[500px] overflow-y-auto">
-              {notifs.length === 0 ? (
+              {filteredNotifs.length === 0 ? (
                 <div className="flex flex-col
                   items-center justify-center
                   py-12 text-gray-400">
@@ -718,10 +811,15 @@ export default function NotificationBell() {
                          11-6 0v-1m6 0H9"/>
                   </svg>
                   <p className="text-sm">
-                    Aucune notification
+                    Aucune notification non lue
                   </p>
                 </div>
-              ) : notifs.map(n => {
+              ) : (() => {
+                const visible = filteredNotifs.slice(0, visibleCount);
+                const remaining = filteredNotifs.length - visibleCount;
+                return (
+                  <>
+                    {visible.map(n => {
                 const urg  = getUrgence(n);
                 const lue  = isLue(n);
                 const rel  = isRelance(n);
@@ -738,6 +836,8 @@ export default function NotificationBell() {
                 const enAttente = isPrescriptionEnAttente(n);
                 const isRefusingThis = inlineRefuseId === id;
                 const isSubmittingThis = inlineSubmittingId === id;
+                const isRapport = (n.type ?? n.enriched?.type ?? '') === 'RAPPORT_HEBDOMADAIRE'
+                  || (n.type ?? n.enriched?.type ?? '') === 'RAPPORT';
 
                 const bg = lue
                   ? 'bg-gray-50 opacity-70'
@@ -789,7 +889,29 @@ export default function NotificationBell() {
                     <div className="flex items-start
                       justify-between gap-2">
                       <div className="flex-1 min-w-0">
-
+                        <span className="text-[10px]
+                          text-gray-400 whitespace-nowrap"
+                          title={heure}>
+                          {relatif}
+                        </span>
+                        {isRapport ? (
+                          <>
+                            <p className="text-sm font-semibold text-[#00478d]">
+                              📊 Rapport hebdomadaire
+                            </p>
+                            <p className="text-xs text-gray-600 mt-0.5 font-medium">
+                              {formatWeekLabel(
+                                getMondayOfWeek(new Date(n.createdAt ?? n.date ?? 0)),
+                              )}
+                            </p>
+                            {getMessage(n) && (
+                              <p className="text-xs text-slate-700 mt-1 leading-snug">
+                                {getMessage(n)}
+                              </p>
+                            )}
+                          </>
+                        ) : (
+                        <>
                         {!lue && urg !== 'NORMALE' && (
                           <span className={`
                             inline-block text-xs
@@ -829,6 +951,14 @@ export default function NotificationBell() {
                           📍 {svc}
                         </p>
 
+                        {getAllergies(n) && (
+                          <p className="text-xs
+                            text-red-600 mt-0.5
+                            font-medium">
+                            ⚠️ {getAllergies(n)}
+                          </p>
+                        )}
+
                         {getMessage(n) && (
                           <p className="text-xs
                             text-slate-700 mt-1
@@ -836,31 +966,20 @@ export default function NotificationBell() {
                             {getMessage(n)}
                           </p>
                         )}
-
+                        </>
+                        )}
                       </div>
 
                       <div
                         className="flex items-center
                           gap-1.5 flex-shrink-0"
-                        title={heure}
                       >
-                        <span className="text-[10px]
-                          text-gray-400 whitespace-nowrap">
-                          {relatif}
-                        </span>
                         {!lue && !enAttente && (
                           <div className="w-2.5 h-2.5
                             bg-blue-600 rounded-full"/>
                         )}
                       </div>
                     </div>
-
-                    {enAttente && !canActOnPrescriptions && (
-                      <p className="mt-2 text-[11px] text-slate-400 italic">
-                        En attente de traitement (accepter/refuser réservé au
-                        service technique)
-                      </p>
-                    )}
 
                     {enAttente && canActOnPrescriptions && !isRefusingThis && (
                       <div className="flex items-center
@@ -955,6 +1074,29 @@ export default function NotificationBell() {
                   </div>
                 );
               })}
+              {remaining > 0 && (
+                <button
+                  onClick={() => setVisibleCount(c => c + 3)}
+                  className="w-full px-4 py-2 text-xs text-[#00478d]
+                    font-medium hover:bg-gray-50 transition-colors
+                    border-t border-gray-100"
+                >
+                  Afficher les anciennes notifications ({remaining} restante{remaining > 1 ? 's' : ''})
+                </button>
+              )}
+              {visibleCount > 3 && remaining === 0 && (
+                <button
+                  onClick={() => setVisibleCount(3)}
+                  className="w-full px-4 py-2 text-xs text-gray-500
+                    font-medium hover:bg-gray-50 transition-colors
+                    border-t border-gray-100"
+                >
+                  Masquer les anciennes notifications
+                </button>
+              )}
+              </>
+                );
+              })()}
             </div>
           </div>
         </>
@@ -962,140 +1104,17 @@ export default function NotificationBell() {
 
       {detailNotif &&
         createPortal(
-        <div
-          className="fixed inset-0 z-[60] flex items-center
-            justify-center bg-black/40 p-4"
-          onClick={closeDetail}
-        >
-          <div
-            className="bg-white rounded-xl shadow-xl
-              max-w-md w-full overflow-hidden"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between
-              px-5 py-4 bg-gradient-to-r from-[#00284d] to-[#00478d]">
-              <h3 className="font-semibold text-white">
-                Nouvelle prescription
-              </h3>
-              <button
-                onClick={closeDetail}
-                disabled={submitting}
-                className="text-white/70 hover:text-white transition-colors
-                  disabled:opacity-40"
-              >
-                ✕
-              </button>
-            </div>
-
-            <div className="px-5 py-4 space-y-3">
-              <div>
-                <p className="text-xs text-gray-500">
-                  Type d'examen
-                </p>
-                <p className="text-sm font-semibold
-                  text-gray-800">
-                  {getTypeExamen(detailNotif)}
-                </p>
-              </div>
-
-              <div>
-                <p className="text-xs text-gray-500">
-                  Patient
-                </p>
-                <p className="text-sm font-semibold
-                  text-gray-800">
-                  {getPatientName(detailNotif) || '—'}
-                </p>
-              </div>
-
-              <div>
-                <p className="text-xs text-gray-500">
-                  Urgence
-                </p>
-                <p className="text-sm text-gray-800">
-                  {detailNotif.metadata?.urgence ?? 'NORMALE'}
-                </p>
-              </div>
-
-              {detailNotif.metadata?.alertes && (
-                <div>
-                  <p className="text-xs text-gray-500">
-                    Alertes
-                  </p>
-                  <p className="text-sm text-gray-800">
-                    {detailNotif.metadata.alertes}
-                  </p>
-                </div>
-              )}
-
-              {detailNotif.metadata?.data
-                && Object.keys(detailNotif.metadata.data).length > 0 && (
-                <div>
-                  <p className="text-xs text-gray-500 mb-1">
-                    Détails cliniques
-                  </p>
-                  <div className="text-sm text-gray-700
-                    bg-gray-50 rounded-lg p-3 space-y-1">
-                    {Object.entries(detailNotif.metadata.data).map(
-                      ([k, v]) => (
-                        <p key={k}>
-                          <span className="text-gray-500">
-                            {k} :
-                          </span>{' '}
-                          {String(v)}
-                        </p>
-                      ),
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {actionError && (
-                <p className="text-sm text-red-600
-                  bg-red-50 rounded-lg px-3 py-2">
-                  {actionError}
-                </p>
-              )}
-
-              {refuserMode && (
-                <div>
-                  <label className="text-xs text-gray-500">
-                    Motif de refus *
-                  </label>
-                  <textarea
-                    value={motif}
-                    onChange={(e) => setMotif(e.target.value)}
-                    rows={3}
-                    autoFocus
-                    className="mt-1 w-full border
-                      border-gray-300 rounded-lg px-3 py-2
-                      text-sm focus:outline-none
-                      focus:ring-2 focus:ring-blue-500"
-                    placeholder="Expliquez pourquoi cette
-                      demande est refusée..."
-                  />
-                </div>
-              )}
-            </div>
-
-            <div className="flex items-center justify-end
-              gap-2 px-5 py-4 border-t bg-gray-50
-              rounded-b-xl">
-              {!canActOnPrescriptions ? (
-                <>
-                  <p className="flex-1 text-xs text-slate-400 italic">
-                    Accepter/refuser réservé au service technique.
-                  </p>
-                  <button
-                    onClick={closeDetail}
-                    className="px-4 py-2 text-sm
-                      font-medium text-gray-600
-                      hover:text-gray-800"
-                  >
-                    Fermer
-                  </button>
-                </>
-              ) : refuserMode ? (
+        <FloatingModal
+          open
+          onClose={closeDetail}
+          zIndex={60}
+          icon="description"
+          title="Nouvelle prescription"
+          maxWidthPx={672}
+          bodyClassName="px-5 py-4"
+          footer={
+            <div className="flex items-center justify-end gap-2 px-5 py-4 border-t bg-gray-50">
+              {refuserMode ? (
                 <>
                   <button
                     onClick={() => { setRefuserMode(false); setMotif(''); }}
@@ -1144,8 +1163,48 @@ export default function NotificationBell() {
                 </>
               )}
             </div>
+          }
+        >
+          <div className="max-h-[65vh] overflow-y-auto">
+            <PrescriptionDetails
+              request={{
+                typeExamen: detailNotif.metadata?.typeExamen ?? '',
+                createdAt: detailNotif.createdAt ?? detailNotif.date ?? '',
+                patientId: getPatientId(detailNotif),
+                metadata: detailNotif.metadata ?? {},
+              }}
+              patient={modalPatient}
+              patientLoading={modalPatientLoading}
+            />
+
+            {actionError && (
+              <p className="text-sm text-red-600
+                bg-red-50 rounded-lg px-3 py-2 mt-3">
+                {actionError}
+              </p>
+            )}
+
+            {refuserMode && (
+              <div>
+                <label className="text-xs text-gray-500">
+                  Motif de refus *
+                </label>
+                <textarea
+                  value={motif}
+                  onChange={(e) => setMotif(e.target.value)}
+                  rows={3}
+                  autoFocus
+                  className="mt-1 w-full border
+                    border-gray-300 rounded-lg px-3 py-2
+                    text-sm focus:outline-none
+                    focus:ring-2 focus:ring-blue-500"
+                  placeholder="Expliquez pourquoi cette
+                    demande est refusée..."
+                />
+              </div>
+            )}
           </div>
-        </div>,
+        </FloatingModal>,
         document.body,
       )}
     </div>
