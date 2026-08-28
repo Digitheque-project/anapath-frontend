@@ -23,7 +23,7 @@ import { formatDateTime, formatRelativeTime } from '@/lib/dateFormat';
 import { statusLabel, statusColors, typeExamenLabel, prescripteurLabel, TYPE_EXAMEN_LABELS } from '@/lib/statusLabels';
 import { siteOf } from '@/lib/prescriptionContent';
 import FloatingModal from '@/components/FloatingModal';
-import { isTechnicienUser } from '@/lib/roles';
+import { isTechnicienUser, isSecretaireUser, isPathologisteUser } from '@/lib/roles';
 
 interface AnapathRequest {
   id: string;
@@ -58,6 +58,9 @@ const TECHNICAL_STATUSES = ['EN_COURS'];
 // l'examen demandé — et résultats déjà saisis (autosave) encore en attente
 // de validation/signature finale.
 const PATHOLOGIST_STATUSES = ['EN_ATTENTE_DIAGNOSTIC', 'EN_ATTENTE_PATHOLOGUE', 'RESULTAT_DISPONIBLE'];
+// Fil de travail de la secrétaire : saisie du résultat d'examen uniquement —
+// ni diagnostic cytoponction (pathologiste), ni validation finale.
+const SECRETARY_STATUSES = ['EN_ATTENTE_PATHOLOGUE', 'RESULTAT_DISPONIBLE'];
 
 const URGENCE_LABELS: Record<UrgenceLevel, string> = {
   STAT: 'Très urgent',
@@ -76,13 +79,20 @@ function patientDisplayName(req: { patientInfo?: { nomComplet?: string | null; n
 
 export default function WorklistPage() {
   const router = useRouter();
-  const { hasPermission, user } = useAuth();
-  // Fil de travail accessible en lecture seule (Histotechnicien, Secrétaire) :
-  // seuls UPDATE / OBSERVATION_WRITE peuvent réellement saisir un résultat.
-  const canWrite = hasPermission('anapath:update') || hasPermission('anapath:observation:write');
+  const { user } = useAuth();
+  // Fil de travail accessible en lecture seule (Histotechnicien, Secrétaire).
+  // La SAISIE du résultat d'examen est réservée à la SECRÉTAIRE et au
+  // PATHOLOGISTE — le technicien prépare l'examen technique mais ne peut ni
+  // saisir ni valider le résultat (aligné avec la page détail).
+  const canWrite = isSecretaireUser(user) || isPathologisteUser(user);
   // Seul le technicien/histotechnicien traite l'examen technique au quotidien ;
   // le pathologiste peut aussi le prendre (second onglet) mais PAS le spéculum.
   const isTechnicien = isTechnicienUser(user);
+  // La secrétaire saisit les résultats mais ne valide rien : pas d'onglet
+  // « Examen technique », pas de diagnostic cytoponction (réservés au
+  // pathologiste) — uniquement la liste des résultats à saisir.
+  const isSecretaire = isSecretaireUser(user);
+  const isPathologiste = isPathologisteUser(user);
   const { searchQuery } = useSearch();
   const [localQuery, setLocalQuery] = useState('');
   const [filterTypes, setFilterTypes] = useState<string[]>([]);
@@ -104,9 +114,11 @@ export default function WorklistPage() {
   // Statuts affichés selon le rôle et l'onglet actif.
   const visibleStatuts = isTechnicien
     ? TECHNICAL_STATUSES
-    : tab === 'suivre'
-      ? PATHOLOGIST_STATUSES
-      : TECHNICAL_STATUSES;
+    : isSecretaire
+      ? SECRETARY_STATUSES
+      : tab === 'suivre'
+        ? PATHOLOGIST_STATUSES
+        : TECHNICAL_STATUSES;
 
   useEffect(() => {
     fetchData();
@@ -186,7 +198,7 @@ export default function WorklistPage() {
   const renderActions = (req: AnapathRequest) => {
     // Cytoponction : diagnostic anticipé par le pathologiste avant l'examen technique.
     if (req.statut === 'EN_ATTENTE_DIAGNOSTIC') {
-      return canWrite ? (
+      return isPathologiste ? (
         <button
           type="button"
           onClick={(e) => {
@@ -281,11 +293,13 @@ export default function WorklistPage() {
             <p className="text-slate-500 text-sm mt-1">
               {isTechnicien
                 ? "Examens en cours d'examen technique — la validation du compte rendu clôt votre travail et notifie le pathologiste"
-                : "Commencez l'examen demandé pour les prélèvements prêts — la saisie du résultat puis la validation s'effectuent dans l'onglet « Commencer l'examen »"}
+                : isSecretaire
+                  ? "Saisissez le résultat d'examen — la validation finale reste réservée au pathologiste"
+                  : "Commencez l'examen demandé pour les prélèvements prêts — la saisie du résultat puis la validation s'effectuent dans l'onglet « Commencer l'examen »"}
             </p>
           </div>
 
-          {!isTechnicien && (
+          {!isTechnicien && !isSecretaire && (
             <div className="sticky top-[60px] z-40 w-fit mb-4 flex gap-1 p-1 bg-slate-100 rounded-xl shadow-md ring-1 ring-slate-300/50">
               <button
                 type="button"
@@ -456,7 +470,7 @@ export default function WorklistPage() {
               />
               <div className="flex flex-col items-center gap-2 mt-6">
                 {selectedRequest.statut === 'EN_ATTENTE_DIAGNOSTIC' ? (
-                  canWrite ? (
+                  isPathologiste ? (
                     <button
                       onClick={() => openDiagnosticCytoponction(selectedRequest)}
                       className="px-8 py-3 bg-cyan-700 text-white font-bold rounded-full shadow-md hover:bg-cyan-800 transition-colors flex items-center gap-2"

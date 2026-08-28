@@ -1,16 +1,15 @@
 'use client';
 
 import PatientIdentitySection, { PatientInfo } from '@/components/PatientIdentitySection';
+import PatientDossierButton from '@/components/PatientDossierButton';
 import { formatDateLong } from '@/lib/dateFormat';
 import {
-  getClinicalNotes,
-  getSuspicion,
-  getTreatmentType,
-  rawDataOf,
-  detailsOf,
-  val,
-  type PrescriptionLike,
-} from '@/lib/prescriptionFields';
+  contentEntriesOf,
+  siteOf,
+  type FieldEntry,
+} from '@/lib/prescriptionContent';
+import { type PrescriptionLike } from '@/lib/prescriptionFields';
+import { typeExamenLabel } from '@/lib/statusLabels';
 
 interface PrescriptionRequest extends PrescriptionLike {
   typeExamen: string;
@@ -25,27 +24,6 @@ interface PrescriptionDetailsProps {
   historiqueButton?: React.ReactNode;
 }
 
-/** Motif lisible : description déjà lisible, sinon composition depuis les données brutes. */
-function motif(request: PrescriptionRequest): string {
-  const description = request.prelevement?.description;
-  if (description && !description.startsWith('{')) return description;
-  const raw = rawDataOf(request);
-  const details = detailsOf(raw);
-  const primary = getClinicalNotes(request);
-  if (primary) return primary;
-  const composed = [
-    raw.details?.bioNature ?? raw.bioNature,
-    raw.details?.bioOrgane ?? raw.bioOrgane,
-    raw.details?.bioSuspicion ?? raw.bioSuspicion,
-    raw.details?.bioAtcd ?? raw.bioAtcd,
-    raw.details?.bioExamAnt ?? raw.bioExamAnt,
-    raw.details?.bioResAnt ?? raw.bioResAnt,
-  ]
-    .filter((part): part is string => typeof part === 'string' && part.trim().length > 0)
-    .map((part) => part.trim());
-  return composed.join(' — ') || 'Non renseigné';
-}
-
 function display(value: string): string {
   return value || '—';
 }
@@ -54,123 +32,42 @@ function Field({ label, value }: { label: string; value: string }) {
   return (
     <div className="bg-surface-container-low rounded-lg p-3">
       <label className="text-xs text-slate-400 block">{label}</label>
-      <p className="font-medium text-on-surface">{display(value)}</p>
+      <p className="font-medium text-on-surface break-words">{display(value)}</p>
     </div>
   );
 }
 
-/** Champs cliniques par type d'examen : libellés et ordre exacts du service Prescription.
- *  Clés de lecture : préfixées (fcv, cyto, liq, bio, ext) puis champs plats du DTO. */
-const TYPE_FIELDS: Record<string, { label: string; keys: string[] }[]> = {
-  FCV_PAP: [
-    { label: 'GPA', keys: ['fcvGPA', 'gpa'] },
-    { label: 'DDR', keys: ['fcvDDR', 'ddr'] },
-    { label: 'Ménopause', keys: ['fcvMeno', 'menopause'] },
-    { label: 'Ménarche', keys: ['fcvMenarche', 'menarche'] },
-    { label: 'Rapports', keys: ['fcvRapport', 'rapport'] },
-    { label: 'Contraception', keys: ['fcvContraception', 'contraception'] },
-    { label: 'Traitement', keys: ['fcvTraitement', 'traitement'] },
-    { label: 'ATCD', keys: ['fcvAtcd', 'atcd'] },
-    { label: 'Méthode', keys: ['fcvMethode', 'methode'] },
-    { label: 'État du col', keys: ['etat_col'] },
-    { label: 'Résultat du dernier frottis / PAP', keys: ['papResultat', 'fcvPapRes', 'papRes'] },
-    { label: 'Date PAP', keys: ['fcvPapDate', 'papDate'] },
-    { label: 'Nb PAP', keys: ['fcvPapNb', 'papNb'] },
-    { label: 'Lieu PAP', keys: ['fcvPapLieu', 'papLieu'] },
-    { label: 'Note', keys: ['fcvNote'] },
-  ],
-  CYT0PONCTION: [
-    { label: 'Organe', keys: ['cytoOrgane', 'organe'] },
-    { label: 'Siège', keys: ['cytoSiege', 'siege'] },
-    { label: 'Fixateur', keys: ['cytoFix', 'fixateur'] },
-    { label: 'Fixateur (autre)', keys: ['cytoFixAutre', 'fixateurAutre'] },
-    { label: 'Note', keys: ['cytoNotes'] },
-  ],
-  LIQUIDE: [
-    { label: 'Nature du liquide', keys: ['liqNat', 'type_liquide', 'nature', 'bioNature'] },
-    { label: 'Unité', keys: ['liqUnite', 'unite'] },
-    { label: 'Volume (ml)', keys: ['liqVolume', 'volume'] },
-    { label: 'Nature (autre)', keys: ['liqNatAutre', 'natureAutre'] },
-    { label: 'Note', keys: ['liqNotes'] },
-  ],
-  BIOPSIE: [
-    { label: 'Organe', keys: ['bioOrgane', 'organe'] },
-    { label: 'Localisation', keys: ['bioLocalisation', 'localisation'] },
-    { label: 'Nature', keys: ['bioNature', 'nature'] },
-    { label: 'Nature (autre)', keys: ['bioNatureAutre', 'natureAutre'] },
-    { label: 'Examen antérieur', keys: ['bioExamAnt', 'examAnt'] },
-    { label: 'Résultat antérieur', keys: ['bioResAnt', 'resAnt'] },
-    { label: 'GPA', keys: ['bioGPA', 'gpa'] },
-    { label: 'DDR', keys: ['bioDDR', 'ddr'] },
-    { label: 'Ménopause', keys: ['bioMeno', 'menopause'] },
-    { label: 'ATCD', keys: ['bioAtcd', 'atcd'] },
-    { label: 'Date prélèvement', keys: ['bioDatePrelev', 'datePrelev'] },
-    { label: 'Fixateur', keys: ['bioFixateur', 'fixateur'] },
-    { label: 'Suspicion', keys: ['bioSuspicion', 'suspicion'] },
-    { label: 'Prélèvement fait à', keys: ['bioFaitA', 'faitA'] },
-    { label: 'Prélèvement fait le', keys: ['bioFaitLe', 'faitLe'] },
-    { label: 'Note', keys: ['bioNote'] },
-  ],
-  POS: [
-    { label: 'Organe', keys: ['bioOrgane', 'organe'] },
-    { label: 'Localisation', keys: ['bioLocalisation', 'localisation'] },
-    { label: 'Nature', keys: ['bioNature', 'nature'] },
-    { label: 'Nature (autre)', keys: ['bioNatureAutre', 'natureAutre'] },
-    { label: 'Examen antérieur', keys: ['bioExamAnt', 'examAnt'] },
-    { label: 'Résultat antérieur', keys: ['bioResAnt', 'resAnt'] },
-    { label: 'GPA', keys: ['bioGPA', 'gpa'] },
-    { label: 'DDR', keys: ['bioDDR', 'ddr'] },
-    { label: 'Ménopause', keys: ['bioMeno', 'menopause'] },
-    { label: 'ATCD', keys: ['bioAtcd', 'atcd'] },
-    { label: 'Date prélèvement', keys: ['bioDatePrelev', 'datePrelev'] },
-    { label: 'Fixateur', keys: ['bioFixateur', 'fixateur'] },
-    { label: 'Suspicion', keys: ['bioSuspicion', 'suspicion'] },
-    { label: 'Prélèvement fait à', keys: ['bioFaitA', 'faitA'] },
-    { label: 'Prélèvement fait le', keys: ['bioFaitLe', 'faitLe'] },
-    { label: 'Note', keys: ['bioNote'] },
-  ],
-  POC: [
-    { label: 'Organe', keys: ['bioOrgane', 'organe'] },
-    { label: 'Localisation', keys: ['bioLocalisation', 'localisation'] },
-    { label: 'Nature', keys: ['bioNature', 'nature'] },
-    { label: 'Nature (autre)', keys: ['bioNatureAutre', 'natureAutre'] },
-    { label: 'Examen antérieur', keys: ['bioExamAnt', 'examAnt'] },
-    { label: 'Résultat antérieur', keys: ['bioResAnt', 'resAnt'] },
-    { label: 'GPA', keys: ['bioGPA', 'gpa'] },
-    { label: 'DDR', keys: ['bioDDR', 'ddr'] },
-    { label: 'Ménopause', keys: ['bioMeno', 'menopause'] },
-    { label: 'ATCD', keys: ['bioAtcd', 'atcd'] },
-    { label: 'Date prélèvement', keys: ['bioDatePrelev', 'datePrelev'] },
-    { label: 'Fixateur', keys: ['bioFixateur', 'fixateur'] },
-    { label: 'Suspicion', keys: ['bioSuspicion', 'suspicion'] },
-    { label: 'Prélèvement fait à', keys: ['bioFaitA', 'faitA'] },
-    { label: 'Prélèvement fait le', keys: ['bioFaitLe', 'faitLe'] },
-    { label: 'Note', keys: ['bioNote'] },
-  ],
-  EXTEMPORANE_STAT: [
-    { label: 'Chirurgien', keys: ['extChirurgien', 'chirurgien'] },
-    { label: 'Intervention', keys: ['extIntervention', 'intervention'] },
-    { label: 'Organe', keys: ['extOrgane', 'organe'] },
-    { label: 'Question posée', keys: ['extQuestion', 'question'] },
-    { label: 'Date prévue', keys: ['extDatePrevue', 'datePrevue'] },
-    { label: 'Heure', keys: ['extHeure', 'heure'] },
-    { label: 'Nature du prélèvement', keys: ['extNature', 'nature'] },
-    { label: 'Urgence chirurgicale', keys: ['urgence_chirurgicale'] },
-    { label: 'Note', keys: ['extNote'] },
-  ],
-};
-
-function clinicalFields(request: PrescriptionRequest): { label: string; value: string }[] {
-  return (TYPE_FIELDS[request.typeExamen] ?? [])
-    .map((field) => ({ label: field.label, value: val(request, field.keys) }))
-    .filter((field) => field.value !== '');
+function GroupHeader({ label }: { label: string }) {
+  return (
+    <div className="col-span-full mt-1">
+      <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider border-b border-outline-variant/40 pb-1">
+        {label}
+      </p>
+    </div>
+  );
 }
 
-/** Détails d'une prescription (identité patient, type d'examen, motif, infos cliniques par type). */
-export default function PrescriptionDetails({ request, patient, patientLoading, historiqueButton }: PrescriptionDetailsProps) {
-  const suspicion = getSuspicion(request);
-  const clinicalNotes = getClinicalNotes(request);
+/** Contenu de la prescription affiché dans l'ordre du formulaire du service
+ *  Prescription, avec les libellés du formulaire et les valeurs telles que reçues. */
+function ContentFields({ entries }: { entries: FieldEntry[] }) {
+  if (entries.length === 0) {
+    return <p className="text-sm text-slate-400 italic">Aucun champ reçu du service Prescription.</p>;
+  }
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      {entries.map((entry, index) =>
+        entry.group ? (
+          <GroupHeader key={`group-${entry.group}`} label={entry.group} />
+        ) : (
+          <Field key={index} label={entry.label} value={entry.value} />
+        ),
+      )}
+    </div>
+  );
+}
 
+/** Détails d'une prescription : identité patient, provenance et champs reçus affichés dynamiquement. */
+export default function PrescriptionDetails({ request, patient, patientLoading, historiqueButton }: PrescriptionDetailsProps) {
   return (
     <div className="bg-white p-6 rounded-xl shadow-sm border border-outline-variant/20">
       <div className="flex items-center gap-2 mb-4">
@@ -185,28 +82,22 @@ export default function PrescriptionDetails({ request, patient, patientLoading, 
             <div className="grid grid-cols-2 gap-4 text-sm mt-4 pt-4 border-t border-outline-variant/30">
               <div>
                 <p className="text-xs text-slate-400">Type d'examen</p>
-                <p className="font-medium text-on-surface">
-                  {request.typeExamen === 'FCV_PAP' && 'FCV / Pap test'}
-                  {request.typeExamen === 'CYT0PONCTION' && 'Cytoponction'}
-                  {request.typeExamen === 'LIQUIDE' && 'Liquide'}
-                  {request.typeExamen === 'BIOPSIE' && 'Biopsie'}
-                  {request.typeExamen === 'POS' && 'POS'}
-                  {request.typeExamen === 'POC' && 'POC'}
-                  {request.typeExamen === 'EXTEMPORANE_STAT' && 'Extemporané'}
-                </p>
+                <p className="font-medium text-on-surface">{typeExamenLabel(request.typeExamen)}</p>
               </div>
               <div>
-                <p className="text-xs text-slate-400">Date Prélèvement</p>
+                <p className="text-xs text-slate-400">Date de réception</p>
                 <p className="font-medium text-on-surface">{formatDateLong(request.createdAt)}</p>
               </div>
-              <div>
-                <p className="text-xs text-slate-400">Site de prélèvement</p>
-                <p className="font-medium text-on-surface">{request.prelevement?.site || '-'}</p>
-              </div>
+              {siteOf(request) && (
+                <div>
+                  <p className="text-xs text-slate-400">Site de prélèvement</p>
+                  <p className="font-medium text-on-surface">{siteOf(request)}</p>
+                </div>
+              )}
             </div>
           </div>
 
-          {/* Service demandeur / CHU / données cliniques renseignées par la Prescription */}
+          {/* Provenance de la prescription (métadonnées reçues) */}
           <div className="bg-white border border-outline-variant/30 rounded-lg p-4">
             <div className="flex items-start gap-2">
               <span className="material-symbols-outlined text-secondary">stethoscope</span>
@@ -222,55 +113,41 @@ export default function PrescriptionDetails({ request, patient, patientLoading, 
                 <p className="font-medium text-on-surface">{(request.metadata?.chuNom as string) ?? '—'}</p>
               </div>
             </div>
-            <hr className="border-outline-variant/30 my-3" />
-
-            <div className="mb-3">
-              <p className="text-xs text-slate-400">Type de traitement</p>
-              <p className="font-medium text-on-surface">{getTreatmentType(request) || '—'}</p>
-            </div>
-            <div className="mb-3">
-              <p className="text-xs text-slate-400">Suspicion diagnostique</p>
-              <p className="font-medium text-on-surface italic leading-relaxed">{display(suspicion)}</p>
-            </div>
-            <div>
-              <p className="text-xs text-slate-400">Renseignements cliniques</p>
-              <p className="font-medium text-on-surface italic leading-relaxed">{display(clinicalNotes)}</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="space-y-5">
-          {historiqueButton && (
-            <div className="flex justify-end">
-              {historiqueButton}
-            </div>
-          )}
-
-          {/* Motif de prescription */}
-          <div className="bg-blue-50/70 border border-blue-100 rounded-lg p-4">
-            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1 mb-1">
-              <span className="material-symbols-outlined text-sm">medical_services</span>
-              Motif de prescription
-            </label>
-            <p className="text-base font-medium text-on-surface leading-relaxed">
-              {motif(request)}
-            </p>
-          </div>
-
-          {/* Détails spécifiques par type */}
-          <div className="space-y-4">
-            <div className="border-b border-outline-variant/30 pb-2">
-              <h5 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Informations cliniques</h5>
-            </div>
-
-            {clinicalFields(request).length > 0 && (
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                {clinicalFields(request).map((field) => (
-                  <Field key={field.label} label={field.label} value={field.value} />
-                ))}
+            {(request.metadata?.nomMedecinPrescripteur as string) && (
+              <div className="flex items-start gap-2 mt-3">
+                <span className="material-symbols-outlined text-secondary">local_hospital</span>
+                <div>
+                  <p className="text-xs text-slate-400">Médecin prescripteur</p>
+                  <p className="font-medium text-on-surface">{request.metadata?.nomMedecinPrescripteur as string}</p>
+                </div>
               </div>
             )}
           </div>
+
+          {(request.metadata?.alertes as string)?.trim() && (
+            <div className="bg-white border border-outline-variant/30 rounded-lg p-4">
+              <div className="flex items-start gap-2">
+                <span className="material-symbols-outlined text-red-500">warning</span>
+                <div>
+                  <p className="text-xs text-slate-400">Précautions & alertes</p>
+                  <p className="font-medium text-on-surface">{request.metadata?.alertes as string}</p>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="space-y-5">
+          <div className="flex items-center justify-end gap-2 flex-wrap">
+            <PatientDossierButton
+              patientId={request.patientId}
+              chuId={request.metadata?.chuId as string | undefined}
+            />
+            {historiqueButton}
+          </div>
+
+          {/* Contenu de la prescription, dans l'ordre du formulaire du service Prescription */}
+          <ContentFields entries={contentEntriesOf(request)} />
         </div>
       </div>
     </div>

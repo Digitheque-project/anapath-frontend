@@ -6,19 +6,21 @@ import Link from 'next/link';
 import Sidebar from '@/components/Sidebar';
 import PatientAvatar from '@/components/PatientAvatar';
 import PrescriptionDetails from '@/components/PrescriptionDetails';
+import FloatingModal from '@/components/FloatingModal';
 import ExamenSpeculumForm from '@/components/ExamenSpeculumForm';
 import ExamenTechniqueForm from '@/components/ExamenTechniqueForm';
 import DiagnosticCytoponctionForm from '@/components/DiagnosticCytoponctionForm';
 import PatientHistoriqueButton, { type HistoriqueEntry } from '@/components/PatientHistoriqueButton';
-import VoiceInputButton from '@/components/VoiceInputButton';
+import VoiceRecorder from '@/components/VoiceRecorder';
+import { appendFinalSegment } from '@/lib/formatTranscript';
 import { PatientInfo } from '@/components/PatientIdentitySection';
 import { useAuth } from '@/components/AuthProvider';
 import { useToast } from '@/components/ToastContext';
 import axios from 'axios';
 import { getPatientForExamen, marquerNotifLue, API_BASE } from '@/lib/api';
 import { formatDateLong } from '@/lib/dateFormat';
-import { statusLabels, statusColors } from '@/lib/statusLabels';
-import { isTechnicienUser } from '@/lib/roles';
+import { statusLabel, statusColors } from '@/lib/statusLabels';
+import { isSecretaireUser, isTechnicienUser, isPathologisteUser } from '@/lib/roles';
 
 interface AnapathRequest {
   id: string;
@@ -65,10 +67,12 @@ export default function WorklistDetailPage() {
   const id = params.id as string;
   const { hasPermission, user } = useAuth();
   const toast = useToast();
-  // Lecture seule pour Histotechnicien/Secrétaire : seuls UPDATE /
-  // OBSERVATION_WRITE peuvent réellement saisir un résultat.
-  const canWrite = hasPermission('anapath:update') || hasPermission('anapath:observation:write');
-  // La validation/signature finale est réservée au pathologiste.
+  // Saisie du résultat d'examen : réservée aux SECRÉTAIRES et au PATHOLOGISTE.
+  // Le technicien prépare l'examen (spéculum, examen technique), le major
+  // consulte : pour les autres, la saisie est masquée.
+  const canWrite = isSecretaireUser(user) || isPathologisteUser(user);
+  // La validation/signature finale est réservée au pathologiste (seul à
+  // porter anapath:validate — contrôlé aussi côté backend).
   const canSign = hasPermission('anapath:validate');
   // Le spéculum reste réservé au technicien/histotechnicien.
   const isTechnicien = isTechnicienUser(user);
@@ -81,9 +85,9 @@ export default function WorklistDetailPage() {
   const [showSpeculum, setShowSpeculum] = useState(false);
   const [showTech, setShowTech] = useState(false);
   const [showDiag, setShowDiag] = useState(false);
-  // Détail de la prescription affiché par défaut ; le pathologiste peut le
-  // masquer pour se concentrer sur la saisie du résultat.
-  const [showPrescriptionDetails, setShowPrescriptionDetails] = useState(true);
+  // Détail de la prescription masqué par défaut ; le technicien/pathologiste
+  // peut l'afficher si besoin en cliquant sur le bouton dédié.
+  const [showPrescriptionDetails, setShowPrescriptionDetails] = useState(false);
 
   const [resultData, setResultData] = useState({ details: '', conclusion: '' });
   // Transcription vocale en direct : mots provisoires affichés en plus du texte définitif.
@@ -429,7 +433,7 @@ export default function WorklistDetailPage() {
             </Link>
             <h2 className="text-lg font-black text-blue-900">Détail de la prescription</h2>
             <span className={`px-3 py-1 rounded-full text-xs font-bold ${statusColors[request.statut] || 'bg-gray-100 text-gray-700'}`}>
-              {statusLabels[request.statut] || request.statut}
+              {statusLabel(request.statut)}
             </span>
           </div>
           <div className="flex items-center gap-2">
@@ -504,7 +508,7 @@ export default function WorklistDetailPage() {
 
               {isDiagnosticPhase ? (
                 <div className="flex flex-col items-center gap-2 mt-8">
-                  {canWrite ? (
+                  {isPathologisteUser(user) ? (
                     <button
                       onClick={() => setShowDiag(true)}
                       className="px-8 py-3 bg-cyan-700 text-white font-bold rounded-full shadow-md hover:bg-cyan-800 transition-colors flex items-center gap-2"
@@ -593,14 +597,20 @@ export default function WorklistDetailPage() {
                       <div className="flex items-center justify-between mb-2">
                         <p className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">RÉSULTAT : <span className="text-red-500">*</span></p>
                         {canWrite && (
-                          <VoiceInputButton
-                            onResult={(text) =>
+                          <VoiceRecorder
+                            hideTextArea
+                            statusIdleText="Dicter (transcription vocale)"
+                            onTranscriptChange={(data) => setInterimDetails(data.interim ?? '')}
+                            onRestart={() => {
+                              setResultData((prev) => ({ ...prev, details: '' }));
+                              setInterimDetails('');
+                            }}
+                            onFinalTranscript={(text, meta) =>
                               setResultData((prev) => ({
                                 ...prev,
-                                details: prev.details.trim() ? `${prev.details} ${text}` : text,
+                                details: appendFinalSegment(prev.details, text, meta?.startsAfterPause ?? false),
                               }))
                             }
-                            onInterim={(t) => setInterimDetails(t ?? '')}
                           />
                         )}
                       </div>
@@ -622,14 +632,20 @@ export default function WorklistDetailPage() {
                       <div className="flex items-center justify-between mb-2">
                         <p className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">CONCLUSION : <span className="text-red-500">*</span></p>
                         {canWrite && (
-                          <VoiceInputButton
-                            onResult={(text) =>
+                          <VoiceRecorder
+                            hideTextArea
+                            statusIdleText="Dicter (transcription vocale)"
+                            onTranscriptChange={(data) => setInterimConclusion(data.interim ?? '')}
+                            onRestart={() => {
+                              setResultData((prev) => ({ ...prev, conclusion: '' }));
+                              setInterimConclusion('');
+                            }}
+                            onFinalTranscript={(text, meta) =>
                               setResultData((prev) => ({
                                 ...prev,
-                                conclusion: prev.conclusion.trim() ? `${prev.conclusion} ${text}` : text,
+                                conclusion: appendFinalSegment(prev.conclusion, text, meta?.startsAfterPause ?? false),
                               }))
                             }
-                            onInterim={(t) => setInterimConclusion(t ?? '')}
                           />
                         )}
                       </div>
@@ -791,47 +807,15 @@ export default function WorklistDetailPage() {
       </main>
 
       {showNoteModal && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
-          onClick={() => setShowNoteModal(false)}
-        >
-          <div
-            className="bg-white rounded-xl shadow-xl max-w-lg w-full max-h-[85vh] flex flex-col overflow-hidden"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between p-4 bg-gradient-to-r from-[#00284d] to-[#00478d]">
-              <h3 className="font-bold text-lg text-white">Note (brouillon)</h3>
-              <button
-                type="button"
-                onClick={() => setShowNoteModal(false)}
-                className="text-white/70 hover:text-white transition-colors"
-                aria-label="Fermer"
-              >
-                <span className="material-symbols-outlined">close</span>
-              </button>
-            </div>
-            <div className="p-4 overflow-y-auto">
-              <div className="flex justify-end mb-2">
-                <VoiceInputButton
-                  onResult={(text) => updateNoteText(noteText.trim() ? `${noteText} ${text}` : text)}
-                  onInterim={(t) => setNoteInterim(t ?? '')}
-                />
-              </div>
-              <textarea
-                value={withInterim(noteText, noteInterim)}
-                onChange={(e) => {
-                  updateNoteText(e.target.value);
-                  setNoteInterim('');
-                }}
-                rows={8}
-                placeholder="Écrivez ou dictez votre brouillon ici..."
-                className="w-full p-2 border rounded-lg bg-surface-container-low border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all font-medium text-on-surface"
-              />
-              <p className="flex items-center gap-1 text-[11px] text-slate-400 mt-1.5">
-                <span className="material-symbols-outlined text-xs">cloud_done</span>
-                Enregistré automatiquement sur cet appareil
-              </p>
-            </div>
+        <FloatingModal
+          open
+          onClose={() => setShowNoteModal(false)}
+          icon="edit_note"
+          title="Note (brouillon)"
+          maxWidthPx={576}
+          heightPct={0.85}
+          bodyClassName="p-4"
+          footer={
             <div className="flex justify-end gap-2 p-4 border-t border-outline-variant/20">
               <button
                 type="button"
@@ -841,8 +825,41 @@ export default function WorklistDetailPage() {
                 OK
               </button>
             </div>
+          }
+        >
+          <div className="flex justify-end mb-2">
+            <VoiceRecorder
+              hideTextArea
+              statusIdleText="Dicter votre brouillon"
+              onTranscriptChange={(data) => setNoteInterim(data.interim ?? '')}
+              onRestart={() => {
+                updateNoteText('');
+                setNoteInterim('');
+              }}
+              onFinalTranscript={(text, meta) => {
+                setNoteText((prev) => {
+                  const next = appendFinalSegment(prev, text, meta?.startsAfterPause ?? false);
+                  if (request) localStorage.setItem(`anapath_note_${request.id}`, next);
+                  return next;
+                });
+              }}
+            />
           </div>
-        </div>
+          <textarea
+            value={withInterim(noteText, noteInterim)}
+            onChange={(e) => {
+              updateNoteText(e.target.value);
+              setNoteInterim('');
+            }}
+            rows={8}
+            placeholder="Écrivez ou dictez votre brouillon ici..."
+            className="w-full p-2 border rounded-lg bg-surface-container-low border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all font-medium text-on-surface"
+          />
+          <p className="flex items-center gap-1 text-[11px] text-slate-400 mt-1.5">
+            <span className="material-symbols-outlined text-xs">cloud_done</span>
+            Enregistré automatiquement sur cet appareil
+          </p>
+        </FloatingModal>
       )}
 
       {showSpeculum && request && isTechnicien && (

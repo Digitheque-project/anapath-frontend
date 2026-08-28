@@ -14,7 +14,8 @@ import axios from 'axios';
 import { API_BASE, getPatientForExamen } from '@/lib/api';
 import { filterAndSortAnapathRequests } from '@/lib/searchAnapath';
 import { formatDateTime, formatDateLong, formatRelativeTime } from '@/lib/dateFormat';
-import { statusLabels, statusColors } from '@/lib/statusLabels';
+import { statusLabel, statusColors, PENDING_STATUSES, typeExamenLabel, prescripteurLabel } from '@/lib/statusLabels';
+import FloatingModal from '@/components/FloatingModal';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 
 interface AnapathRequest {
@@ -32,6 +33,7 @@ interface AnapathRequest {
   } | null;
   resultat?: { conclusion?: string; details?: string } | null;
   validatedByUserId?: string | null;
+  validatedByName?: string | null;
   validatedAt?: string | null;
   metadata?: Record<string, unknown> | null;
   patientInfo?: PatientInfo | null;
@@ -106,30 +108,17 @@ export default function DashboardPage() {
       d.getDate() === now.getDate()
     );
   }).length;
-  const enAttenteSTAT = filteredRequests.filter(r => r.statut === 'CREEE' || r.statut === 'EN_ATTENTE').length;
-  const enValidation = filteredRequests.filter(r => r.statut === 'RESULTAT_DISPONIBLE').length;
+  const enAttenteSTAT = filteredRequests.filter((r) => PENDING_STATUSES.includes(r.statut)).length;
   const valides = filteredRequests.filter(r => r.statut === 'VALIDE').length;
-  const autres = totalExamens - enAttenteSTAT - enValidation - valides;
+  const autres = totalExamens - enAttenteSTAT - valides;
 
   const repartitionData = [
     { name: 'En attente', value: enAttenteSTAT, color: '#f59e0b' },
-    { name: 'En validation', value: enValidation, color: '#2563eb' },
     { name: 'Validés', value: valides, color: '#10b981' },
     { name: 'Autres', value: autres, color: '#94a3b8' },
   ].filter((d) => d.value > 0);
 
-  const getTypeLabel = (type: string) => {
-    const labels: Record<string, string> = {
-      BIOPSIE: 'Biopsie',
-      FCV_PAP: 'FCV / Pap test',
-      CYT0PONCTION: 'Cytoponction',
-      LIQUIDE: 'Liquide',
-      EXTEMPORANE_STAT: 'Extemporané',
-      POS: 'POS',
-      POC: 'POC',
-    };
-    return labels[type] || type;
-  };
+  const getTypeLabel = (type: string) => typeExamenLabel(type);
 
   const handleSaisirResultat = (id: string) => {
     router.push(`/worklist/${id}`);
@@ -159,7 +148,7 @@ export default function DashboardPage() {
             <h2 className="text-2xl font-extrabold text-[#191c21] tracking-tight">Tableau de bord</h2>
             <p className="text-slate-500 text-sm mt-1">Vue d'ensemble de l'activité du laboratoire</p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
             <div className="relative overflow-hidden bg-gradient-to-br from-primary to-blue-900 p-6 rounded-xl shadow-md flex justify-between items-center text-white">
               <div className="relative z-10">
                 <p className="text-xs font-bold uppercase tracking-wider text-white/80">Total examens</p>
@@ -185,21 +174,6 @@ export default function DashboardPage() {
                 )}
               </div>
               <span className="material-symbols-outlined text-tertiary bg-tertiary/10 rounded-full p-2 text-xl">schedule</span>
-            </div>
-            <div className="bg-white p-5 rounded-xl shadow-sm border border-outline-variant/20 flex justify-between items-start">
-              <div>
-                <p className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">En validation</p>
-                <p className="text-3xl font-extrabold text-primary mt-1">{enValidation}</p>
-                {!isMajor && (
-                  <Link
-                    href="/worklist"
-                    className="mt-2 inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-[11px] font-bold hover:bg-primary/20 transition-colors"
-                  >
-                    Valider maintenant
-                  </Link>
-                )}
-              </div>
-              <span className="material-symbols-outlined text-primary bg-primary/10 rounded-full p-2 text-xl">fact_check</span>
             </div>
             <div className="bg-white p-5 rounded-xl shadow-sm border border-outline-variant/20 flex justify-between items-start">
               <div>
@@ -263,8 +237,11 @@ export default function DashboardPage() {
                               <span className="px-1 py-px rounded-full bg-red-600 text-white text-[7px] leading-normal font-bold stat-pulse">TRES URGENT</span>
                             )}
                           </span>
+                          {prescripteurLabel(req.metadata) && (
+                            <span className="block mt-1 text-[10px] font-semibold text-slate-500">{prescripteurLabel(req.metadata)}</span>
+                          )}
                         </td>
-                        <td className="p-4"><span className={`px-2 py-0.5 rounded text-[10px] font-bold ${statusColors[req.statut] || 'bg-gray-100 text-gray-700'}`}>{statusLabels[req.statut] || req.statut}</span></td>
+                        <td className="p-4"><span className={`px-2 py-0.5 rounded text-[10px] font-bold ${statusColors[req.statut] || 'bg-gray-100 text-gray-700'}`}>{statusLabel(req.statut)}</span></td>
                         <td className="p-4 text-slate-500 text-xs">
                           <div>{formatDateTime(req.createdAt)}</div>
                           <div className="text-[10px] text-slate-400">{formatRelativeTime(req.createdAt)}</div>
@@ -324,38 +301,22 @@ export default function DashboardPage() {
       </main>
 
       {selectedRequest && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
-          onClick={() => setSelectedRequest(null)}
+        <FloatingModal
+          open
+          onClose={() => setSelectedRequest(null)}
+          icon="description"
+          title={isTerminee(selectedRequest.statut) ? "Détails de l'examen" : 'Détail de la prescription'}
         >
-          <div
-            className="bg-white rounded-xl shadow-xl max-w-6xl w-[95vw] max-h-[90vh] overflow-y-auto"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between p-4 sticky top-0 bg-gradient-to-r from-[#00284d] to-[#00478d] z-10">
-              <h3 className="font-bold text-lg text-white">
-                {isTerminee(selectedRequest.statut) ? "Détails de l'examen" : 'Détail de la prescription'}
-              </h3>
-              <button
-                type="button"
-                onClick={() => setSelectedRequest(null)}
-                className="text-white/70 hover:text-white transition-colors"
-                aria-label="Fermer"
-              >
-                <span className="material-symbols-outlined">close</span>
-              </button>
-            </div>
-            <div className="p-5">
-              <PrescriptionDetails
-                request={selectedRequest}
-                patient={modalPatient}
-                patientLoading={modalPatientLoading}
-                historiqueButton={
-                  <PatientHistoriqueButton
-                    entries={requests.filter((r) => r.patientId === selectedRequest.patientId && r.id !== selectedRequest.id)}
-                  />
-                }
+          <PrescriptionDetails
+            request={selectedRequest}
+            patient={modalPatient}
+            patientLoading={modalPatientLoading}
+            historiqueButton={
+              <PatientHistoriqueButton
+                entries={requests.filter((r) => r.patientId === selectedRequest.patientId && r.id !== selectedRequest.id)}
               />
+            }
+          />
 
               {isTerminee(selectedRequest.statut) ? (
                 <div className="bg-green-50 border border-green-100 rounded-lg p-4 mt-5">
@@ -374,7 +335,7 @@ export default function DashboardPage() {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <p className="text-xs text-slate-500">Validé par</p>
-                      <p className="font-medium text-on-surface">{selectedRequest.validatedByUserId || '—'}</p>
+                       <p className="font-medium text-on-surface">{selectedRequest.validatedByName || selectedRequest.validatedByUserId || '—'}</p>
                     </div>
                     <div>
                       <p className="text-xs text-slate-500">Date de validation</p>
@@ -411,10 +372,8 @@ export default function DashboardPage() {
                     </p>
                   </div>
                 )
-              )}
-            </div>
-          </div>
-        </div>
+               )}
+        </FloatingModal>
       )}
     </div>
   );

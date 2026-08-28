@@ -25,6 +25,37 @@ export const statusLabels: Record<string, string> = {
   /** Statuts clôturés (terminé/archivé/annulé). */
   export const CLOSED_STATUSES = ['VALIDE', 'ARCHIVE', 'ANNULEE'];
   
+  /** Libellé d'affichage d'un statut : label lisible si connu, sinon le statut brut
+   *  avec les tirets bas remplacés par des espaces (aucun « _ » ne doit apparaître). */
+  export function statusLabel(status: string): string {
+    return statusLabels[status] ?? status.replace(/_/g, ' ');
+  }
+
+  /** Libellé lisible d'un type d'examen (jamais de « _ »). */
+  export const TYPE_EXAMEN_LABELS: Record<string, string> = {
+    BIOPSIE: 'Biopsie',
+    FCV_PAP: 'FCV / Pap test',
+    CYT0PONCTION: 'Cytoponction',
+    LIQUIDE: 'Liquide',
+    POS: 'POS',
+    POC: 'POC',
+    EXTEMPORANE_STAT: 'Extemporané STAT',
+  };
+
+  export function typeExamenLabel(type: string): string {
+    return TYPE_EXAMEN_LABELS[type] ?? type.replace(/_/g, ' ');
+  }
+
+  /** Nom du médecin prescripteur (celui qui suit le patient), même règle que
+   *  le frontend ORL : compte prescripteur, sinon nom saisi dans la demande.
+   *  Renvoie « Dr X » ou '' si inconnu. */
+  export function prescripteurLabel(metadata?: Record<string, unknown> | null): string {
+    const nomCompte = typeof metadata?.prescripteurNom === 'string' ? metadata.prescripteurNom.trim() : '';
+    const nomSaisi = typeof metadata?.nomMedecinPrescripteur === 'string' ? metadata.nomMedecinPrescripteur.trim() : '';
+    const nom = nomCompte || nomSaisi;
+    return nom ? `Dr ${nom}` : '';
+  }
+
   export const statusColors: Record<string, string> = {
     CREEE: 'bg-gray-100 text-gray-700',
     EN_ATTENTE: 'bg-blue-100 text-blue-700',

@@ -36,6 +36,9 @@ const PROTECTED_ROUTES: Array<{
 ];
 
 function isMajorService(permissions: string[]): boolean {
+  // La secrétaire (observation:write sans validate) n'est pas « major »
+  // même si elle a report:export — elle doit accéder au fil de travail.
+  if (permissions.includes('anapath:observation:write')) return false;
   return (
     permissions.includes('anapath:report:export') &&
     !permissions.includes('anapath:update')
@@ -112,6 +115,9 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/((?!auth/sso|api|_next/static|_next/image|favicon.ico|assets).*)',
+    // Exclus aussi docs/docs-json + les chemins « bruts » du contrat résultats
+    // (rewrites next.config.ts vers le backend) : ils doivent rester publics
+    // pour l'agrégateur dossier-patient et les vérificateurs d'écosystème.
+    '/((?!auth/sso|api|_next/static|_next/image|favicon.ico|assets|docs|docs-json|anapath/resultats|resultats/patient).*)',
   ],
 };

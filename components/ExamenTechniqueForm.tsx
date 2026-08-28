@@ -3,6 +3,9 @@
 import { useState } from 'react';
 import axios from 'axios';
 import { API_BASE } from '@/lib/api';
+import { appendFinalSegment } from '@/lib/formatTranscript';
+import VoiceRecorder from '@/components/VoiceRecorder';
+import FloatingModal from '@/components/FloatingModal';
 
 interface ExamenTechniqueData {
   compteRendu?: string;
@@ -29,9 +32,17 @@ export default function ExamenTechniqueForm({
 }: ExamenTechniqueFormProps) {
   const alreadyValidated = Boolean(initialData?.compteRendu);
   const [compteRendu, setCompteRendu] = useState(initialData?.compteRendu ?? '');
+  const [interim, setInterim] = useState('');
   const [saving, setSaving] = useState(false);
 
   const isValid = compteRendu.trim() !== '';
+
+  // Colle la transcription en direct au texte définitif, sans dédoubler les séparateurs.
+  const withInterim = (committed: string, interimText: string): string => {
+    if (!interimText) return committed;
+    if (interimText.startsWith('\n')) return committed + interimText;
+    return committed.trim() ? `${committed} ${interimText}` : interimText;
+  };
 
   const handleSubmit = async () => {
     if (!isValid || alreadyValidated) return;
@@ -50,22 +61,15 @@ export default function ExamenTechniqueForm({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={onClose}>
-      <div
-        className="bg-white rounded-xl shadow-xl max-w-lg w-full max-h-[90vh] flex flex-col overflow-hidden"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex items-center justify-between p-4 bg-gradient-to-r from-[#00284d] to-[#00478d]">
-          <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-white">science</span>
-            <h3 className="font-bold text-lg text-white">Examen technique</h3>
-          </div>
-          <button type="button" onClick={onClose} className="text-white/70 hover:text-white transition-colors" aria-label="Fermer">
-            <span className="material-symbols-outlined">close</span>
-          </button>
-        </div>
-
-        <div className="p-4 space-y-4 overflow-y-auto">
+    <FloatingModal
+      open
+      onClose={onClose}
+      icon="science"
+      title="Examen technique"
+      maxWidthPx={672}
+      bodyClassName="p-4 space-y-4"
+    >
+      <div>
           <p className="text-xs text-on-surface-variant bg-primary/5 border border-primary/10 rounded-lg p-2.5">
             {anapathId ? `${anapathId} — ` : ''}{patientName || 'Patient'} — compte rendu de l&apos;examen technique. La
             validation clôt le travail du technicien et notifie le pathologiste.
@@ -75,9 +79,28 @@ export default function ExamenTechniqueForm({
             <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">
               Compte rendu d&apos;examen technique <span className="text-red-500">*</span>
             </label>
+            {!alreadyValidated && (
+              <div className="flex justify-end">
+                <VoiceRecorder
+                  hideTextArea
+                  statusIdleText="Dicter le compte rendu"
+                  onTranscriptChange={(data) => setInterim(data.interim ?? '')}
+                  onRestart={() => {
+                    setCompteRendu('');
+                    setInterim('');
+                  }}
+                  onFinalTranscript={(text, meta) =>
+                    setCompteRendu((prev) => appendFinalSegment(prev, text, meta?.startsAfterPause ?? false))
+                  }
+                />
+              </div>
+            )}
             <textarea
-              value={compteRendu}
-              onChange={(e) => setCompteRendu(e.target.value)}
+              value={withInterim(compteRendu, interim)}
+              onChange={(e) => {
+                setCompteRendu(e.target.value);
+                setInterim('');
+              }}
               readOnly={alreadyValidated}
               placeholder="Techniques réalisées, qualité du matériel, macro/micro... (champ libre)"
               rows={8}
@@ -121,7 +144,6 @@ export default function ExamenTechniqueForm({
             </button>
           )}
         </div>
-      </div>
-    </div>
+    </FloatingModal>
   );
 }

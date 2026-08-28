@@ -6,6 +6,7 @@ import TopBar from '@/components/TopBar';
 import FilterButton from '@/components/FilterButton';
 import { useSearch } from '@/components/SearchContext';
 import { useAuth } from '@/components/AuthProvider';
+import FloatingModal from '@/components/FloatingModal';
 import axios from 'axios';
 import { API_BASE } from '@/lib/api';
 import {
@@ -14,7 +15,7 @@ import {
   isDateInWeek,
   getDailyVolumeForWeek,
 } from '@/lib/weekUtils';
-import { statusLabels } from '@/lib/statusLabels';
+import { statusLabel } from '@/lib/statusLabels';
 import { PENDING_STATUSES } from '@/lib/statusLabels';
 import { getServiceDisplayName } from '@/lib/serviceDisplay';
 import { generateReportPDF, type ReportPdfData } from '@/lib/reportPDF';
@@ -241,6 +242,24 @@ export default function ReportsPage() {
     .filter((req) => isDateInWeek(req.createdAt, weekStart))
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
+  // Variation hebdomadaire réelle du total d'examens (semaine en cours vs
+  // semaine précédente) pour le badge « Total examens ».
+  const prevWeekStart = new Date(weekStart);
+  prevWeekStart.setDate(prevWeekStart.getDate() - 7);
+  const currentWeekCount = weeklyRequests.length;
+  const prevWeekCount = requests.filter((req) => isDateInWeek(req.createdAt, prevWeekStart)).length;
+  const weekChangePct = prevWeekCount === 0
+    ? (currentWeekCount > 0 ? 100 : 0)
+    : Math.round(((currentWeekCount - prevWeekCount) / prevWeekCount) * 100);
+  const weekChangeBadgeClass = weekChangePct > 0
+    ? 'text-emerald-600 bg-emerald-50'
+    : weekChangePct < 0
+      ? 'text-red-600 bg-red-50'
+      : 'text-slate-500 bg-slate-100';
+  const weekChangeBadgeText = weekChangePct > 0
+    ? `+${weekChangePct}% cette semaine`
+    : `${weekChangePct}% cette semaine`;
+
   const weeklyValidated = weeklyRequests.filter((r) => r.statut === 'VALIDE');
   const weeklyPending = weeklyRequests.filter((r) => PENDING_STATUSES.includes(r.statut));
   let weeklyAvgDelay = 0;
@@ -338,7 +357,7 @@ export default function ReportsPage() {
     typeExamen: req.typeExamen,
     typeLabel: getTypeLabel(req.typeExamen),
     statut: req.statut,
-    statutLabel: statusLabels[req.statut] || req.statut,
+    statutLabel: statusLabel(req.statut),
     prescriber: getServiceDisplayName({ episodeId: req.episodeId }),
     createdAt: req.createdAt,
   });
@@ -499,7 +518,7 @@ export default function ReportsPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-5 mb-8">
             <div className="bg-white p-5 rounded-xl shadow-sm border border-outline-variant/20">
-              <div className="flex justify-between items-start mb-2"><span className="material-symbols-outlined text-primary text-2xl">analytics</span><span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">+{Math.floor(Math.random() * 20)}%</span></div>
+              <div className="flex justify-between items-start mb-2"><span className="material-symbols-outlined text-primary text-2xl">analytics</span><span className={`text-xs font-bold px-2 py-0.5 rounded-full ${weekChangeBadgeClass}`}>{weekChangeBadgeText}</span></div>
               <p className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Total examens</p><p className="text-3xl font-extrabold text-primary">{stats.total}</p>
             </div>
             <div className="bg-white p-5 rounded-xl shadow-sm border border-outline-variant/20">
@@ -799,27 +818,7 @@ export default function ReportsPage() {
             </div>
 
             <h4 className="font-bold mb-3">Représentation statistique des tableaux</h4>
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* PEC vs Résultats en cours par type (données du tableau 1) */}
-              <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
-                <h5 className="text-sm font-bold mb-3">Prise en charge vs résultats en cours (par type)</h5>
-                {pecVsEnCours.length > 0 ? (
-                  <ResponsiveContainer width="100%" height={240}>
-                    <BarChart data={pecVsEnCours}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="name" tick={{ fontSize: 8 }} interval={0} />
-                      <YAxis allowDecimals={false} />
-                      <Tooltip />
-                      <Legend wrapperStyle={{ fontSize: 10 }} />
-                      <Bar dataKey="Prise en charge (PEC)" fill="#00478d" radius={[4, 4, 0, 0]} />
-                      <Bar dataKey="Résultats en cours" fill="#f59e0b" radius={[4, 4, 0, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
-                ) : (
-                  <p className="text-sm text-slate-400 text-center py-10">Aucune donnée sur la période</p>
-                )}
-              </div>
-
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Répartition par sexe (données du tableau 2) */}
               <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
                 <h5 className="text-sm font-bold mb-3">Répartition par sexe (tableau 2)</h5>
@@ -873,6 +872,26 @@ export default function ReportsPage() {
                 )}
               </div>
             </div>
+
+            {/* PEC vs Résultats en cours par type (données du tableau 1) — pleine largeur */}
+            <div className="bg-slate-50 rounded-xl p-4 border border-slate-100 mt-6">
+              <h5 className="text-sm font-bold mb-3">Prise en charge vs résultats en cours (par type)</h5>
+              {pecVsEnCours.length > 0 ? (
+                <ResponsiveContainer width="100%" height={280}>
+                  <BarChart data={pecVsEnCours}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" tick={{ fontSize: 10 }} interval={0} />
+                    <YAxis allowDecimals={false} />
+                    <Tooltip />
+                    <Legend wrapperStyle={{ fontSize: 11 }} />
+                    <Bar dataKey="Prise en charge (PEC)" fill="#00478d" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="Résultats en cours" fill="#f59e0b" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              ) : (
+                <p className="text-sm text-slate-400 text-center py-10">Aucune donnée sur la période</p>
+              )}
+            </div>
           </div>
 
           {canManageAutoReport && (
@@ -907,42 +926,15 @@ export default function ReportsPage() {
       </main>
 
       {showCustomReportModal && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
-          onClick={() => setShowCustomReportModal(false)}
-        >
-          <div className="bg-white rounded-xl shadow-xl max-w-sm w-full overflow-hidden" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between p-4 bg-gradient-to-r from-[#00284d] to-[#00478d]">
-              <h3 className="font-bold text-lg text-white">Créer un rapport</h3>
-              <button
-                type="button"
-                onClick={() => setShowCustomReportModal(false)}
-                className="text-white/70 hover:text-white transition-colors"
-                aria-label="Fermer"
-              >
-                <span className="material-symbols-outlined">close</span>
-              </button>
-            </div>
-            <div className="p-4 space-y-3">
-              <div>
-                <label className="text-xs font-bold text-slate-400 uppercase">Du</label>
-                <input
-                  type="date"
-                  value={customStart}
-                  onChange={(e) => setCustomStart(e.target.value)}
-                  className="w-full mt-1 p-2 border border-outline-variant rounded-lg text-sm"
-                />
-              </div>
-              <div>
-                <label className="text-xs font-bold text-slate-400 uppercase">Au</label>
-                <input
-                  type="date"
-                  value={customEnd}
-                  onChange={(e) => setCustomEnd(e.target.value)}
-                  className="w-full mt-1 p-2 border border-outline-variant rounded-lg text-sm"
-                />
-              </div>
-            </div>
+        <FloatingModal
+          open
+          onClose={() => setShowCustomReportModal(false)}
+          icon="summarize"
+          title="Créer un rapport"
+          maxWidthPx={448}
+          heightPct={0.55}
+          bodyClassName="p-4 space-y-3"
+          footer={
             <div className="flex justify-end gap-2 p-4 border-t border-outline-variant/20">
               <button
                 type="button"
@@ -967,8 +959,27 @@ export default function ReportsPage() {
                 {generatingCustom ? 'Génération...' : 'Générer le PDF'}
               </button>
             </div>
+          }
+        >
+          <div>
+            <label className="text-xs font-bold text-slate-400 uppercase">Du</label>
+            <input
+              type="date"
+              value={customStart}
+              onChange={(e) => setCustomStart(e.target.value)}
+              className="w-full mt-1 p-2 border border-outline-variant rounded-lg text-sm"
+            />
           </div>
-        </div>
+          <div>
+            <label className="text-xs font-bold text-slate-400 uppercase">Au</label>
+            <input
+              type="date"
+              value={customEnd}
+              onChange={(e) => setCustomEnd(e.target.value)}
+              className="w-full mt-1 p-2 border border-outline-variant rounded-lg text-sm"
+            />
+          </div>
+        </FloatingModal>
       )}
 
       <button onClick={exportToPDF} className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-[#00478d] to-[#005eb8] text-white rounded-full font-bold text-sm shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200">

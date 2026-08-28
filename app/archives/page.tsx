@@ -14,6 +14,8 @@ import axios from 'axios';
 import { API_BASE, getPatientForExamen } from '@/lib/api';
 import { filterAndSortAnapathRequests, matchesAnapathSearch } from '@/lib/searchAnapath';
 import { formatDateTime, formatRelativeTime, formatDateLong } from '@/lib/dateFormat';
+import { typeExamenLabel, prescripteurLabel, TYPE_EXAMEN_LABELS } from '@/lib/statusLabels';
+import FloatingModal from '@/components/FloatingModal';
 
 interface AnapathRequest {
   id: string;
@@ -24,6 +26,7 @@ interface AnapathRequest {
   createdAt: string;
   validatedAt: string | null;
   validatedByUserId: string | null;
+  validatedByName?: string | null;
   resultat: { conclusion: string; details: string } | null;
   prelevement?: {
     site?: string;
@@ -35,15 +38,7 @@ interface AnapathRequest {
   patientInfo?: PatientInfo | null;
 }
 
-const TYPE_LABELS: Record<string, string> = {
-  BIOPSIE: 'Biopsie',
-  FCV_PAP: 'FCV / Pap test',
-  CYT0PONCTION: 'Cytoponction',
-  LIQUIDE: 'Liquide',
-  EXTEMPORANE_STAT: 'Extemporané',
-  POS: 'POS',
-  POC: 'POC',
-};
+const TYPE_LABELS = TYPE_EXAMEN_LABELS;
 
 /** Nom affichable du patient : nom complet enrichi (Accueil), sinon nom+prénom, sinon tiret. */
 function patientDisplayName(req: { patientInfo?: PatientInfo | null }): string {
@@ -121,7 +116,7 @@ export default function ArchivesPage() {
     }
   };
 
-  const getTypeLabel = (type: string) => TYPE_LABELS[type] || type;
+  const getTypeLabel = (type: string) => typeExamenLabel(type);
 
   const getTypeBadge = (type: string) => {
     const colors: Record<string, string> = {
@@ -231,9 +226,12 @@ export default function ArchivesPage() {
                         <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${getTypeBadge(req.typeExamen)}`}>
                           {getTypeLabel(req.typeExamen)}
                         </span>
+                        {prescripteurLabel(req.metadata) && (
+                          <span className="block mt-1 text-[10px] font-semibold text-slate-500">{prescripteurLabel(req.metadata)}</span>
+                        )}
                       </td>
                       <td className="p-4 max-w-xs truncate text-slate-600">{req.resultat?.conclusion || '-'}</td>
-                      <td className="p-4 text-slate-500 text-xs">{req.validatedByUserId || '-'}</td>
+                       <td className="p-4 text-slate-500 text-xs">{req.validatedByName || req.validatedByUserId || '-'}</td>
                       <td className="p-4 text-slate-500 text-xs">
                         {req.validatedAt ? (
                           <>
@@ -271,32 +269,18 @@ export default function ArchivesPage() {
       </main>
 
       {selectedRequest && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
-          onClick={() => setSelectedRequest(null)}
+        <FloatingModal
+          open
+          onClose={() => setSelectedRequest(null)}
+          icon="description"
+          title="Détails de l'examen"
         >
-          <div
-            className="bg-white rounded-xl shadow-xl max-w-6xl w-[95vw] max-h-[90vh] overflow-y-auto"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between p-4 sticky top-0 bg-gradient-to-r from-[#00284d] to-[#00478d] z-10">
-              <h3 className="font-bold text-lg text-white">Détails de l'examen</h3>
-              <button
-                type="button"
-                onClick={() => setSelectedRequest(null)}
-                className="text-white/70 hover:text-white transition-colors"
-                aria-label="Fermer"
-              >
-                <span className="material-symbols-outlined">close</span>
-              </button>
-            </div>
-            <div className="p-5">
-              <PrescriptionDetails
-                request={selectedRequest}
-                patient={modalPatient}
-                patientLoading={modalPatientLoading}
-                historiqueButton={<PatientHistoriqueButton entries={patientHistorique} />}
-              />
+          <PrescriptionDetails
+            request={selectedRequest}
+            patient={modalPatient}
+            patientLoading={modalPatientLoading}
+            historiqueButton={<PatientHistoriqueButton entries={patientHistorique} />}
+          />
 
               <div className="bg-green-50 border border-green-100 rounded-lg p-4 mt-5">
                 <div className="flex items-center gap-2 mb-3">
@@ -308,13 +292,13 @@ export default function ArchivesPage() {
                   <p className="font-medium text-on-surface">{selectedRequest.resultat?.conclusion || '—'}</p>
                 </div>
                 <div className="mb-3">
-                  <p className="text-xs text-slate-500">Détails</p>
+                  <p className="text-xs text-slate-500">Détails de résultat</p>
                   <p className="font-medium text-on-surface whitespace-pre-wrap">{selectedRequest.resultat?.details || '—'}</p>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <p className="text-xs text-slate-500">Validé par</p>
-                    <p className="font-medium text-on-surface">{selectedRequest.validatedByUserId || '—'}</p>
+                    <p className="font-medium text-on-surface">{selectedRequest.validatedByName || selectedRequest.validatedByUserId || '—'}</p>
                   </div>
                   <div>
                     <p className="text-xs text-slate-500">Date de validation</p>
@@ -337,9 +321,7 @@ export default function ArchivesPage() {
                   {exportingModal ? 'Génération...' : 'Exporter PDF'}
                 </button>
               </div>
-            </div>
-          </div>
-        </div>
+        </FloatingModal>
       )}
     </div>
   );

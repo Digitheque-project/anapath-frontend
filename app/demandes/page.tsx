@@ -8,9 +8,13 @@ import FilterButton from '@/components/FilterButton';
 import { useSearch } from '@/components/SearchContext';
 import { useToast } from '@/components/ToastContext';
 import StatCountdown from '@/components/StatCountdown';
-import { accepterPrescriptionNotif, refuserPrescriptionNotif, API_BASE } from '@/lib/api';
+import { accepterPrescriptionNotif, refuserPrescriptionNotif, getPatientForExamen, API_BASE } from '@/lib/api';
 import { formatDate, formatDateTime, formatRelativeTime } from '@/lib/dateFormat';
 import { getUrgenceLevel, sortByUrgencyThenArrival, type UrgenceLevel } from '@/lib/urgencySort';
+import { typeExamenLabel, prescripteurLabel, TYPE_EXAMEN_LABELS } from '@/lib/statusLabels';
+import PrescriptionDetails from '@/components/PrescriptionDetails';
+import FloatingModal from '@/components/FloatingModal';
+import { type PatientInfo } from '@/components/PatientIdentitySection';
 
 /* ---- Helpers (mêmes règles que la cloche de notification) ---- */
 const isPending = (n: any) =>
@@ -19,7 +23,7 @@ const isPending = (n: any) =>
 const getUrgence = (n: any): string =>
   n?.enriched?.urgence ?? n?.metadata?.urgence ?? 'NORMALE';
 const getTypeExamen = (n: any): string =>
-  n?.enriched?.typeExamen ?? n?.metadata?.typeExamen ?? n?.typeExamen ?? '';
+  typeExamenLabel(n?.enriched?.typeExamen ?? n?.metadata?.typeExamen ?? n?.typeExamen ?? '');
 const getServiceNom = (n: any): string =>
   n?.enriched?.serviceNom ?? n?.metadata?.serviceNom ?? '—';
 const getPatientId = (n: any): string =>
@@ -105,15 +109,7 @@ function StatCard({
   );
 }
 
-const TYPE_OPTIONS: Record<string, string> = {
-  BIOPSIE: 'Biopsie',
-  FCV_PAP: 'FCV / Pap test',
-  CYT0PONCTION: 'Cytoponction',
-  LIQUIDE: 'Liquide',
-  POS: 'POS',
-  POC: 'POC',
-  EXTEMPORANE_STAT: 'Extemporané STAT',
-};
+const TYPE_OPTIONS = TYPE_EXAMEN_LABELS;
 
 const URGENCE_OPTIONS: Record<UrgenceLevel, string> = {
   STAT: 'Très urgent',
@@ -138,6 +134,8 @@ export default function DemandesPage() {
   const [motifInput, setMotifInput] = useState('');
   const [refusing, setRefusing] = useState(false);
   const [detailTarget, setDetailTarget] = useState<any | null>(null);
+  const [modalPatient, setModalPatient] = useState<PatientInfo | null>(null);
+  const [modalPatientLoading, setModalPatientLoading] = useState(false);
 
   // Actualise les libellés relatifs ("il y a X") toutes les 30 s.
   const [, setTick] = useState(0);
@@ -148,6 +146,19 @@ export default function DemandesPage() {
 
   const openDetail = (n: any) => setDetailTarget(n);
   const closeDetail = () => setDetailTarget(null);
+
+  useEffect(() => {
+    if (!detailTarget) { setModalPatient(null); return; }
+    const pid = getPatientId(detailTarget);
+    if (!pid) { setModalPatient(null); return; }
+    let cancelled = false;
+    setModalPatientLoading(true);
+    getPatientForExamen(pid)
+      .then(p => { if (!cancelled) setModalPatient(p as PatientInfo); })
+      .catch(() => {})
+      .finally(() => { if (!cancelled) setModalPatientLoading(false); });
+    return () => { cancelled = true; };
+  }, [detailTarget?.id ?? detailTarget?._id]);
 
   const loadOnce = useCallback(async () => {
     const [notifs, acceptees, refusees] = await Promise.all([
@@ -438,7 +449,12 @@ export default function DemandesPage() {
                             {getPatientName(n) || '—'}
                           </p>
                         </td>
-                        <td className="p-4">{getTypeExamen(n) || '—'}</td>
+                        <td className="p-4">
+                          {getTypeExamen(n) || '—'}
+                          {prescripteurLabel(n?.metadata) && (
+                            <span className="block text-[10px] font-semibold text-slate-500 mt-0.5">{prescripteurLabel(n?.metadata)}</span>
+                          )}
+                        </td>
                         <td className="p-4 text-slate-600">{getServiceNom(n)}</td>
                         <td className="p-4">
                           <div className="flex flex-col items-start gap-0.5">
@@ -505,169 +521,60 @@ export default function DemandesPage() {
         </div>
       </main>
 
-      {/* Fenêtre de détails de la prescription — thème bleu marine/blanc */}
+      {/* Fenêtre de détails de la prescription — déplaçable et redimensionnable */}
       {detailTarget && (
-        <div
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-[#00203a]/50 backdrop-blur-sm p-4 overlay-in"
-          onClick={closeDetail}
-        >
-          <div
-            className="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden modal-in"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="bg-gradient-to-r from-[#00284d] to-[#00478d] px-5 py-4 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <span className="material-symbols-outlined text-white text-2xl">description</span>
-                <div>
-                  <h3 className="text-white font-bold text-base">Détails de la prescription</h3>
-                  <p className="text-white/60 text-xs mt-0.5">
-                    {getTypeExamen(detailTarget) || 'Examen'} — Patient{' '}
-                    {getPatientName(detailTarget) || '—'}
-                  </p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={closeDetail}
-                className="text-white/70 hover:text-white transition-colors"
-              >
-                <span className="material-symbols-outlined">close</span>
-              </button>
-            </div>
-
-            <div className="p-5 space-y-4 max-h-[65vh] overflow-y-auto">
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div className="bg-slate-50 rounded-lg p-3">
-                  <p className="text-xs text-slate-400">Patient</p>
-                  <p className="font-medium text-[#191c21]">{getPatientName(detailTarget) || '—'}</p>
-                </div>
-                <div className="bg-slate-50 rounded-lg p-3">
-                  <p className="text-xs text-slate-400">Type d'examen</p>
-                  <p className="font-medium text-[#191c21]">{getTypeExamen(detailTarget) || '—'}</p>
-                </div>
-                <div className="bg-slate-50 rounded-lg p-3">
-                  <p className="text-xs text-slate-400">Service demandeur</p>
-                  <p className="font-medium text-[#191c21]">{getServiceNom(detailTarget)}</p>
-                </div>
-                <div className="bg-slate-50 rounded-lg p-3">
-                  <p className="text-xs text-slate-400">Urgence</p>
-                  <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${urgenceBadge(getUrgence(detailTarget))}`}>
-                    {getUrgence(detailTarget)}
-                  </span>
-                </div>
-                <div className="bg-slate-50 rounded-lg p-3 col-span-2">
-                  <p className="text-xs text-slate-400">Reçue le</p>
-                  <p className="font-medium text-[#191c21]">
-                    {formatDateTime(getCreatedAt(detailTarget))}
-                  </p>
-                </div>
-              </div>
-
-              {(detailTarget.metadata?.anapathId || detailTarget.referenceId || detailTarget.examId) && (
-                <div className="bg-[#00478d]/5 border border-[#00478d]/15 rounded-lg p-3 text-sm">
-                  <p className="text-xs text-slate-400 mb-0.5">Référence examen</p>
-                  <p className="font-mono font-medium text-[#00478d]">
-                    {detailTarget.metadata?.anapathId ?? detailTarget.referenceId ?? detailTarget.examId}
-                  </p>
-                </div>
-              )}
-
-              {detailTarget.metadata?.alertes && (
-                <div className="bg-red-50 border border-red-100 rounded-lg p-3 text-sm">
-                  <p className="text-xs text-red-400 font-bold uppercase tracking-wider mb-0.5">
-                    Alertes
-                  </p>
-                  <p className="font-medium text-red-700">{detailTarget.metadata.alertes}</p>
-                </div>
-              )}
-
-              {detailTarget.message && (
-                <div className="bg-blue-50/70 border border-blue-100 rounded-lg p-3 text-sm">
-                  <p className="text-xs text-slate-400 font-bold uppercase tracking-wider mb-0.5">
-                    Message
-                  </p>
-                  <p className="font-medium text-[#191c21] leading-relaxed">{detailTarget.message}</p>
-                </div>
-              )}
-
-              {detailTarget.metadata?.data &&
-                Object.keys(detailTarget.metadata.data).length > 0 && (
-                  <div>
-                    <p className="text-xs text-slate-400 font-bold uppercase tracking-wider mb-1.5">
-                      Détails cliniques
-                    </p>
-                    <div className="grid grid-cols-2 gap-2 text-sm">
-                      {Object.entries(detailTarget.metadata.data).map(([k, v]) => (
-                        <div key={k} className="bg-slate-50 rounded-lg p-3">
-                          <p className="text-xs text-slate-400 capitalize">{k}</p>
-                          <p className="font-medium text-[#191c21] break-words">
-                            {String(v ?? '—')}
-                          </p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-            </div>
-
+        <FloatingModal
+          open
+          onClose={closeDetail}
+          zIndex={100}
+          icon="description"
+          title="Détails de la prescription"
+          subtitle={`${getTypeExamen(detailTarget) || 'Examen'}${prescripteurLabel(detailTarget?.metadata) ? ` · ${prescripteurLabel(detailTarget?.metadata)}` : ''} — Patient ${getPatientName(detailTarget) || '—'}`}
+          footer={
             <div className="flex items-center justify-end gap-2 px-5 py-4 bg-slate-50 border-t border-slate-100">
               <button
                 type="button"
-                onClick={closeDetail}
-                className="px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-[#00478d] to-[#005eb8] rounded-lg shadow-sm hover:opacity-90 active:scale-95 transition-all"
+                onClick={() => { closeDetail(); openRefuse(detailTarget); }}
+                disabled={busyId === (detailTarget?.id ?? detailTarget?._id)}
+                className="px-4 py-2 text-sm font-semibold text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors disabled:opacity-40"
               >
-                Fermer
+                Refuser
               </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Fenêtre de refus — thème bleu marine/blanc */}
-      {refuseTarget && (
-        <div
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-[#00203a]/50 backdrop-blur-sm p-4 overlay-in"
-          onClick={closeRefuse}
-        >
-          <div
-            className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden modal-in"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="bg-gradient-to-r from-[#00284d] to-[#00478d] px-5 py-4 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <span className="material-symbols-outlined text-white text-2xl">block</span>
-                <h3 className="text-white font-bold text-base">Refuser la demande</h3>
-              </div>
               <button
                 type="button"
-                onClick={closeRefuse}
-                disabled={refusing}
-                className="text-white/70 hover:text-white transition-colors disabled:opacity-40"
+                onClick={() => { closeDetail(); handleAccept(detailTarget); }}
+                disabled={busyId === (detailTarget?.id ?? detailTarget?._id)}
+                className="px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-[#00478d] to-[#005eb8] rounded-lg shadow-sm hover:opacity-90 active:scale-95 transition-all disabled:opacity-40"
               >
-                <span className="material-symbols-outlined">close</span>
+                {busyId === (detailTarget?.id ?? detailTarget?._id) ? '...' : 'Accepter'}
               </button>
             </div>
+          }
+        >
+          <PrescriptionDetails
+            request={{
+              typeExamen: detailTarget.metadata?.typeExamen ?? '',
+              createdAt: detailTarget.createdAt ?? detailTarget.date ?? '',
+              patientId: getPatientId(detailTarget),
+              metadata: detailTarget.metadata ?? {},
+            }}
+            patient={modalPatient}
+            patientLoading={modalPatientLoading}
+          />
+        </FloatingModal>
+      )}
 
-            <div className="p-5 space-y-3">
-              <p className="text-sm text-slate-600">
-                Patient <strong className="text-[#191c21]">{getPatientName(refuseTarget) || '—'}</strong>
-                {' — '}
-                {getTypeExamen(refuseTarget) || '—'}
-              </p>
-              <div>
-                <label className="text-xs font-bold text-slate-500 uppercase">Motif du refus *</label>
-                <textarea
-                  value={motifInput}
-                  onChange={(e) => setMotifInput(e.target.value)}
-                  rows={3}
-                  autoFocus
-                  placeholder="Expliquez pourquoi cette demande est refusée..."
-                  className="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm
-                    focus:outline-none focus:ring-2 focus:ring-[#00478d]/30 focus:border-[#00478d] transition-shadow"
-                />
-              </div>
-            </div>
-
+      {/* Fenêtre de refus — déplaçable et redimensionnable */}
+      {refuseTarget && (
+        <FloatingModal
+          open
+          onClose={closeRefuse}
+          zIndex={100}
+          maxWidthPx={512}
+          heightPct={0.6}
+          icon="block"
+          title="Refuser la demande"
+          footer={
             <div className="flex items-center justify-end gap-2 px-5 py-4 bg-slate-50 border-t border-slate-100">
               <button
                 type="button"
@@ -687,8 +594,28 @@ export default function DemandesPage() {
                 {refusing ? 'Envoi...' : 'Confirmer le refus'}
               </button>
             </div>
+          }
+        >
+          <div className="space-y-3">
+            <p className="text-sm text-slate-600">
+              Patient <strong className="text-[#191c21]">{getPatientName(refuseTarget) || '—'}</strong>
+              {' — '}
+              {getTypeExamen(refuseTarget) || '—'}
+            </p>
+            <div>
+              <label className="text-xs font-bold text-slate-500 uppercase">Motif du refus *</label>
+              <textarea
+                value={motifInput}
+                onChange={(e) => setMotifInput(e.target.value)}
+                rows={3}
+                autoFocus
+                placeholder="Expliquez pourquoi cette demande est refusée..."
+                className="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm
+                  focus:outline-none focus:ring-2 focus:ring-[#00478d]/30 focus:border-[#00478d] transition-shadow"
+              />
+            </div>
           </div>
-        </div>
+        </FloatingModal>
       )}
     </div>
   );
