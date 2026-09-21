@@ -7,18 +7,7 @@ export const api = axios.create({
   headers: { 'Content-Type': 'application/json' },
 });
 
-export const ANAPATH_SERVICE_ID = '14a94274-db57-49e3-9375-1e642729b92b';
-
 export const API_BASE = process.env.NEXT_PUBLIC_API_URL || '/api';
-
-export async function getExamen(id: string): Promise<any> {
-  try {
-    const { data } = await api.get(`/anapath/${id}`);
-    return data;
-  } catch {
-    return null;
-  }
-}
 
 export async function getPatientForExamen(examId: string): Promise<any> {
   try {
@@ -33,36 +22,9 @@ export async function getPatientForExamen(examId: string): Promise<any> {
   }
 }
 
-export async function getChus(): Promise<any[]> {
-  try {
-    const { data } = await api.get('/anapath/chu');
-    return Array.isArray(data) ? data : [];
-  } catch {
-    return [];
-  }
-}
-
-export async function getChuById(id: string): Promise<any> {
-  try {
-    const { data } = await api.get(`/anapath/chu/${id}`);
-    return data;
-  } catch {
-    return null;
-  }
-}
-
 export async function getPriseEnChargeById(id: string): Promise<any> {
   try {
     const { data } = await api.get(`/anapath/prise-en-charge/${id}`);
-    return data;
-  } catch {
-    return null;
-  }
-}
-
-export async function getAnapathServiceInfo(): Promise<any> {
-  try {
-    const { data } = await api.get('/anapath/service/anapath');
     return data;
   } catch {
     return null;
@@ -98,20 +60,6 @@ export async function getWsTicket(): Promise<string | null> {
     return typeof data?.token === 'string' ? data.token : null;
   } catch {
     return null;
-  }
-}
-
-export async function getUnreadNotifications(): Promise<any[]> {
-  try {
-    const res = await fetch(
-      `${API_BASE}/anapath/notifications/non-lues`,
-      { cache: 'no-store' },
-    );
-    if (!res.ok) return [];
-    const data = await res.json();
-    return Array.isArray(data) ? data : [];
-  } catch {
-    return [];
   }
 }
 
@@ -217,21 +165,6 @@ export async function getPrescriptionExterneDetails(
     );
     if (!res.ok) return null;
     return res.json();
-  } catch {
-    return null;
-  }
-}
-
-export async function getExamenStatut(
-  examId: string,
-): Promise<string | null> {
-  try {
-    const res = await fetch(`${API_BASE}/anapath/${examId}`, {
-      cache: 'no-store',
-    });
-    if (!res.ok) return null;
-    const d = await res.json();
-    return d?.statut ?? null;
   } catch {
     return null;
   }

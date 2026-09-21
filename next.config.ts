@@ -17,7 +17,7 @@ const nextConfig: NextConfig = {
   // Chemins « bruts » (sans préfixe /api) attendus par les outils de
   // l'écosystème : l'agrégateur dossier-patient interroge chaque service
   // paraclinique sur {service}/resultats/patient/:patientId (contrat ORL :
-  // gateway-bwm4.onrender.com/orl/resultats/patient/:id). Le front étant le
+  // gateway-5pqs.onrender.com/orl/resultats/patient/:id). Le front étant le
   // baseUrl enregistré, on proxifie ces chemins vers le backend — la
   // transparence d'hôte est ainsi totale, comme chez ORL.
   async rewrites() {
