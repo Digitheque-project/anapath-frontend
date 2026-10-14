@@ -5,8 +5,8 @@
 
 @layer base {
   :root {
-    --primary: #00478d;
-    --primary-container: #005eb8;
+    --primary: #006A8C;
+    --primary-container: #0A7EA4;
     --surface: #f9f9ff;
     --surface-container-lowest: #ffffff;
     --surface-container-low: #f2f3fb;
@@ -51,8 +51,8 @@
   /* Dark theme variable overrides - used when html has class 'dark' or data-theme='dark' */
   html.dark,
   html[data-theme='dark'] {
-    --primary: #9fc5ff;
-    --primary-container: #1f6fbf;
+    --primary: #7FD4E8;
+    --primary-container: #0E5A73;
     --surface: #071226;
     --surface-container-lowest: #04111b;
     --surface-container-low: #081826;

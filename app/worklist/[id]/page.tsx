@@ -449,8 +449,8 @@ export default function WorklistDetailPage() {
               aria-pressed={showPrescriptionDetails}
               className={`flex items-center gap-2.5 px-4 py-2 rounded-full border font-bold text-xs shadow-sm transition-all mb-4 ${
                 showPrescriptionDetails
-                  ? 'bg-gradient-to-r from-[#00284d] to-[#00478d] text-white border-[#00478d] hover:opacity-90'
-                  : 'bg-white text-[#00478d] border-[#00478d]/50 hover:bg-[#00478d]/5'
+                  ? 'bg-gradient-to-r from-[#00284d] to-[#006A8C] text-white border-[#006A8C] hover:opacity-90'
+                  : 'bg-white text-[#006A8C] border-[#006A8C]/50 hover:bg-[#006A8C]/5'
               }`}
             >
               <span className="material-symbols-outlined text-base">
@@ -459,7 +459,7 @@ export default function WorklistDetailPage() {
               {showPrescriptionDetails ? 'Masquer le détail de prescription' : 'Afficher le détail de prescription'}
               <span
                 className={`ml-1 w-2 h-2 rounded-full transition-colors ${
-                  showPrescriptionDetails ? 'bg-white/80' : 'bg-[#00478d]'
+                  showPrescriptionDetails ? 'bg-white/80' : 'bg-[#006A8C]'
                 }`}
               />
             </button>
@@ -701,7 +701,7 @@ export default function WorklistDetailPage() {
                     isTechnicien ? (
                       <button
                         onClick={() => setShowSpeculum(true)}
-                        className="px-8 py-3 bg-[#00478d] text-white font-bold rounded-full shadow-md hover:opacity-90 transition-colors flex items-center gap-2"
+                        className="px-8 py-3 bg-[#006A8C] text-white font-bold rounded-full shadow-md hover:opacity-90 transition-colors flex items-center gap-2"
                       >
                         <span className="material-symbols-outlined">visibility</span>
                         Examen au spéculum (préalable)

@@ -33,7 +33,7 @@ export default function ConfirmDialog({
         className="bg-white rounded-2xl shadow-2xl max-w-md w-[95vw] overflow-hidden modal-in"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="bg-gradient-to-r from-[#00284d] to-[#00478d] px-5 py-4 flex items-center gap-3">
+        <div className="bg-gradient-to-r from-[#00284d] to-[#006A8C] px-5 py-4 flex items-center gap-3">
           <span className="material-symbols-outlined text-white text-2xl">
             {danger ? 'warning' : 'help'}
           </span>
@@ -46,7 +46,7 @@ export default function ConfirmDialog({
           <button
             type="button"
             onClick={onCancel}
-            className="px-4 py-2 text-sm font-semibold text-[#00478d] hover:bg-[#00478d]/10 rounded-lg transition-colors"
+            className="px-4 py-2 text-sm font-semibold text-[#006A8C] hover:bg-[#006A8C]/10 rounded-lg transition-colors"
           >
             {cancelLabel}
           </button>
@@ -56,7 +56,7 @@ export default function ConfirmDialog({
             className={`px-4 py-2 text-sm font-semibold text-white rounded-lg shadow-sm transition-all hover:shadow-md active:scale-95 ${
               danger
                 ? 'bg-gradient-to-r from-red-600 to-red-700 hover:opacity-90'
-                : 'bg-gradient-to-r from-[#00478d] to-[#005eb8] hover:opacity-90'
+                : 'bg-gradient-to-r from-[#006A8C] to-[#0A7EA4] hover:opacity-90'
             }`}
           >
             {confirmLabel}

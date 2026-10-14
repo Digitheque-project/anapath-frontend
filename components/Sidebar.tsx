@@ -206,7 +206,7 @@ export default function Sidebar() {
                   </div>
                   <a
                     href={`tel:${contact.phone}`}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#00478d]/10 text-[#00478d] text-xs font-bold whitespace-nowrap hover:bg-[#00478d]/20 transition-colors"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#006A8C]/10 text-[#006A8C] text-xs font-bold whitespace-nowrap hover:bg-[#006A8C]/20 transition-colors"
                   >
                     <span className="material-symbols-outlined text-sm">call</span>
                     {contact.phone}

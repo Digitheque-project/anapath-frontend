@@ -159,7 +159,7 @@ export default function PatientDossierButton({ patientId, chuId, className = '' 
           subtitle={formatDateLong(detail.dateExamen ?? '')}
           maxWidthPx={576}
           heightPct={0.85}
-          headerClassName="bg-gradient-to-r from-[#00478d] to-[#00284d]"
+          headerClassName="bg-gradient-to-r from-[#006A8C] to-[#00284d]"
           bodyClassName="p-5 space-y-4 text-sm"
         >
           {detail.prescripteur?.trim() && (

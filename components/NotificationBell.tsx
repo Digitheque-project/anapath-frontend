@@ -977,7 +977,7 @@ export default function NotificationBell() {
                         </span>
                         {isRapport ? (
                           <>
-                            <p className="text-sm font-semibold text-[#00478d]">
+                            <p className="text-sm font-semibold text-[#006A8C]">
                               📊 Rapport hebdomadaire
                             </p>
                             <p className="text-xs text-gray-600 mt-0.5 font-medium">
@@ -1070,8 +1070,8 @@ export default function NotificationBell() {
                           disabled={isSubmittingThis}
                           className="flex-1 px-3 py-1.5
                             text-xs font-semibold text-white
-                            bg-gradient-to-r from-[#00478d]
-                            to-[#005eb8] rounded-lg
+                            bg-gradient-to-r from-[#006A8C]
+                            to-[#0A7EA4] rounded-lg
                             disabled:opacity-40"
                         >
                           {isSubmittingThis ? '...' : 'Accepter'}
@@ -1144,8 +1144,8 @@ export default function NotificationBell() {
                         onClick={(e) => handleValidateClick(n, e)}
                         className="mt-2 w-full px-3 py-1.5
                           text-xs font-semibold text-white
-                          bg-gradient-to-r from-[#00478d]
-                          to-[#005eb8] rounded-lg
+                          bg-gradient-to-r from-[#006A8C]
+                          to-[#0A7EA4] rounded-lg
                           hover:opacity-90 active:scale-[0.98]
                           transition"
                       >
@@ -1158,7 +1158,7 @@ export default function NotificationBell() {
               {remaining > 0 && (
                 <button
                   onClick={() => setVisibleCount(c => c + 3)}
-                  className="w-full px-4 py-2 text-xs text-[#00478d]
+                  className="w-full px-4 py-2 text-xs text-[#006A8C]
                     font-medium hover:bg-gray-50 transition-colors
                     border-t border-gray-100"
                 >
@@ -1235,8 +1235,8 @@ export default function NotificationBell() {
                     disabled={submitting}
                     className="px-4 py-2 text-sm
                       font-medium text-white
-                      bg-gradient-to-r from-[#00478d]
-                      to-[#005eb8] rounded-lg
+                      bg-gradient-to-r from-[#006A8C]
+                      to-[#0A7EA4] rounded-lg
                       disabled:opacity-40"
                   >
                     {submitting ? 'Envoi...' : 'Accepter'}

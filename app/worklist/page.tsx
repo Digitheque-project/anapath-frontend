@@ -367,13 +367,13 @@ export default function WorklistPage() {
             />
           </div>
 
-          <div className="bg-white rounded-[12px] shadow-sm overflow-hidden border-2 border-[#00478d] mx-[30px]">
+          <div className="bg-white rounded-[12px] shadow-sm overflow-hidden border-2 border-[#006A8C] mx-[30px]">
             <div className="overflow-x-auto">
               <table className="w-full text-sm text-[#1E293B]">
                 <thead className="bg-[#1E293B] text-[11px] font-bold text-white/90 uppercase">
                   <tr><th className="p-4 text-left">Patient</th><th className="p-4 text-left">Type examen</th><th className="p-4 text-left">Prélèvement</th><th className="p-4 text-left">Statut</th><th className="p-4 text-left">Date</th><th className="p-4 text-center">Actions</th></tr>
                 </thead>
-                <tbody className="divide-y divide-[#00478d]/40">
+                <tbody className="divide-y divide-[#006A8C]/40">
                   {filteredRequests.map((req) => {
                     const urgence = getUrgenceLevel(req);
                     return (
@@ -385,7 +385,7 @@ export default function WorklistPage() {
                             ? 'bg-red-50 hover:bg-red-100/60'
                             : urgence === 'URGENTE'
                               ? 'bg-amber-50 hover:bg-amber-100/60'
-                              : 'hover:bg-[#00478d]/5'
+                              : 'hover:bg-[#006A8C]/5'
                         }`}
                       >
                         <td className="p-4 font-medium">{patientDisplayName(req)}</td>
@@ -499,7 +499,7 @@ export default function WorklistPage() {
                       isTechnicien ? (
                         <button
                           onClick={() => openSpeculum(selectedRequest)}
-                          className="px-8 py-3 bg-[#00478d] text-white font-bold rounded-full shadow-md hover:opacity-90 transition-colors flex items-center gap-2"
+                          className="px-8 py-3 bg-[#006A8C] text-white font-bold rounded-full shadow-md hover:opacity-90 transition-colors flex items-center gap-2"
                         >
                           <span className="material-symbols-outlined">visibility</span>
                           Examen au spéculum (préalable)

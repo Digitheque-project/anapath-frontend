@@ -63,7 +63,7 @@ export default function TopBar() {
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1.5 text-right leading-tight mr-1">
             <div>
-              <div className="text-[13px] font-semibold text-[#00478d]">{dateLabel}</div>
+              <div className="text-[13px] font-semibold text-[#006A8C]">{dateLabel}</div>
               <div className="text-xs font-bold tabular-nums text-sky-500">{timeLabel}</div>
             </div>
           </div>
@@ -75,8 +75,8 @@ export default function TopBar() {
             title="Mon profil"
             className="flex items-center gap-2 pl-2"
           >
-            <div className="w-8 h-8 rounded-full bg-[#00478d]/10 flex items-center justify-center hover:bg-[#00478d]/20 transition-colors">
-              <span className="material-symbols-outlined text-[#00478d] text-sm">person</span>
+            <div className="w-8 h-8 rounded-full bg-[#006A8C]/10 flex items-center justify-center hover:bg-[#006A8C]/20 transition-colors">
+              <span className="material-symbols-outlined text-[#006A8C] text-sm">person</span>
             </div>
           </Link>
         </div>

@@ -73,7 +73,7 @@ function MultiSelectDropdown({ placeholder, options, value, onChange }: MultiSel
                 type="checkbox"
                 checked={value.includes(o.value)}
                 onChange={() => toggleValue(o.value)}
-                className="accent-[#00478d]"
+                className="accent-[#006A8C]"
               />
               <span className="text-sm text-slate-700">{o.label}</span>
             </label>

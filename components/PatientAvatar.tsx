@@ -20,9 +20,9 @@ export default function PatientAvatar({ nom, prenom, size = 'md', className = ''
   const sizeClass = SIZE_CLASSES[size];
   return (
     <div
-      className={`${sizeClass} rounded-full bg-[#00478d]/10 flex items-center justify-center shrink-0 ${className}`}
+      className={`${sizeClass} rounded-full bg-[#006A8C]/10 flex items-center justify-center shrink-0 ${className}`}
     >
-      <span className="text-[#00478d] font-bold tracking-tight">{initials}</span>
+      <span className="text-[#006A8C] font-bold tracking-tight">{initials}</span>
     </div>
   );
 }

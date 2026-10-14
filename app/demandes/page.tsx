@@ -85,7 +85,7 @@ function StatCard({
     <div
       className="card-rise group bg-white p-5 rounded-xl shadow-sm border border-outline-variant/20
         flex justify-between items-center transition-all duration-200
-        hover:shadow-lg hover:-translate-y-0.5 hover:border-[#00478d]/20"
+        hover:shadow-lg hover:-translate-y-0.5 hover:border-[#006A8C]/20"
       style={delay ? { animationDelay: `${delay}ms` } : undefined}
     >
       <div>
@@ -323,7 +323,7 @@ export default function DemandesPage() {
         <TopBar />
         <div className="flex-1 p-6 w-full">
           <div className="mb-6 flex items-center gap-3">
-            <div className="w-1.5 h-10 rounded-full bg-gradient-to-b from-[#00284d] to-[#00478d]" />
+            <div className="w-1.5 h-10 rounded-full bg-gradient-to-b from-[#00284d] to-[#006A8C]" />
             <div>
               <h2 className="text-2xl font-extrabold text-[#191c21] tracking-tight">
                 Nouvelles demandes
@@ -335,7 +335,7 @@ export default function DemandesPage() {
           </div>
 
           {loadError && (
-            <div className="mb-6 flex items-center justify-between gap-4 bg-gradient-to-r from-[#00284d] to-[#00478d] text-white rounded-xl px-5 py-4 shadow-sm modal-in">
+            <div className="mb-6 flex items-center justify-between gap-4 bg-gradient-to-r from-[#00284d] to-[#006A8C] text-white rounded-xl px-5 py-4 shadow-sm modal-in">
               <div className="flex items-center gap-3">
                 <span className="material-symbols-outlined">cloud_off</span>
                 <div>
@@ -349,7 +349,7 @@ export default function DemandesPage() {
               <button
                 type="button"
                 onClick={fetchData}
-                className="shrink-0 px-4 py-2 bg-white text-[#00478d] rounded-lg text-sm font-semibold hover:bg-white/90 transition-colors"
+                className="shrink-0 px-4 py-2 bg-white text-[#006A8C] rounded-lg text-sm font-semibold hover:bg-white/90 transition-colors"
               >
                 Réessayer
               </button>
@@ -416,7 +416,7 @@ export default function DemandesPage() {
           </div>
 
           {/* Liste des demandes en attente */}
-          <div className="bg-white rounded-[12px] shadow-sm overflow-hidden border-2 border-[#00478d] mx-[30px]">
+          <div className="bg-white rounded-[12px] shadow-sm overflow-hidden border-2 border-[#006A8C] mx-[30px]">
             <div className="overflow-x-auto">
               <table className="w-full text-sm text-[#1E293B]">
                 <thead className="bg-[#1E293B] text-[11px] font-bold text-white/90 uppercase">
@@ -429,7 +429,7 @@ export default function DemandesPage() {
                     <th className="p-4 text-center">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#00478d]/40">
+                <tbody className="divide-y divide-[#006A8C]/40">
                   {filtered.map((n) => {
                     const id = n.id ?? n._id;
                     const urg = getUrgence(n);
@@ -443,7 +443,7 @@ export default function DemandesPage() {
                             ? 'bg-red-50 hover:bg-red-100/60'
                             : urg === 'URGENTE'
                               ? 'bg-orange-50 hover:bg-orange-100/60'
-                              : 'hover:bg-[#00478d]/5'
+                              : 'hover:bg-[#006A8C]/5'
                         }`}
                       >
                         <td className="p-4">
@@ -482,7 +482,7 @@ export default function DemandesPage() {
                               type="button"
                               onClick={(e) => { e.stopPropagation(); handleAccept(n); }}
                               disabled={busy}
-                              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-gradient-to-r from-[#00478d] to-[#005eb8] text-white text-xs font-semibold hover:shadow-md active:scale-95 transition-all disabled:opacity-60"
+                              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-gradient-to-r from-[#006A8C] to-[#0A7EA4] text-white text-xs font-semibold hover:shadow-md active:scale-95 transition-all disabled:opacity-60"
                             >
                               <span className="material-symbols-outlined text-base">check</span>
                               Accepter
@@ -511,7 +511,7 @@ export default function DemandesPage() {
               )}
               {loading && (
                 <div className="flex flex-col items-center justify-center py-14 text-slate-400">
-                  <div className="w-8 h-8 border-2 border-[#00478d]/20 border-t-[#00478d] rounded-full animate-spin mb-3" />
+                  <div className="w-8 h-8 border-2 border-[#006A8C]/20 border-t-[#006A8C] rounded-full animate-spin mb-3" />
                   <p>Chargement…</p>
                 </div>
               )}
@@ -546,7 +546,7 @@ export default function DemandesPage() {
                 type="button"
                 onClick={() => { closeDetail(); handleAccept(detailTarget); }}
                 disabled={busyId === (detailTarget?.id ?? detailTarget?._id)}
-                className="px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-[#00478d] to-[#005eb8] rounded-lg shadow-sm hover:opacity-90 active:scale-95 transition-all disabled:opacity-40"
+                className="px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-[#006A8C] to-[#0A7EA4] rounded-lg shadow-sm hover:opacity-90 active:scale-95 transition-all disabled:opacity-40"
               >
                 {busyId === (detailTarget?.id ?? detailTarget?._id) ? '...' : 'Accepter'}
               </button>
@@ -582,7 +582,7 @@ export default function DemandesPage() {
                 type="button"
                 onClick={closeRefuse}
                 disabled={refusing}
-                className="px-4 py-2 text-sm font-semibold text-[#00478d] hover:bg-[#00478d]/10 rounded-lg transition-colors disabled:opacity-50"
+                className="px-4 py-2 text-sm font-semibold text-[#006A8C] hover:bg-[#006A8C]/10 rounded-lg transition-colors disabled:opacity-50"
               >
                 Annuler
               </button>
@@ -613,7 +613,7 @@ export default function DemandesPage() {
                 autoFocus
                 placeholder="Expliquez pourquoi cette demande est refusée..."
                 className="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm
-                  focus:outline-none focus:ring-2 focus:ring-[#00478d]/30 focus:border-[#00478d] transition-shadow"
+                  focus:outline-none focus:ring-2 focus:ring-[#006A8C]/30 focus:border-[#006A8C] transition-shadow"
               />
             </div>
           </div>

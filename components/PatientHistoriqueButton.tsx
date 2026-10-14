@@ -95,7 +95,7 @@ export default function PatientHistoriqueButton({ entries, className = '' }: Pat
           subtitle={`${detail.anapathId ? `${detail.anapathId} — ` : ''}${formatDate(detail.createdAt)}`}
           maxWidthPx={576}
           heightPct={0.85}
-          headerClassName="bg-gradient-to-r from-[#00478d] to-[#00284d]"
+          headerClassName="bg-gradient-to-r from-[#006A8C] to-[#00284d]"
           bodyClassName="p-5 space-y-4 text-sm"
         >
           {detailsOf(detail) ? (

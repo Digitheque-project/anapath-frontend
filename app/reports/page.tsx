@@ -36,7 +36,7 @@ import {
   Legend, ResponsiveContainer,
 } from 'recharts';
 
-const COLORS = ['#00478d', '#2563eb', '#10b981',
+const COLORS = ['#006A8C', '#2563eb', '#10b981',
   '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'];
 
 type Period = 'week' | 'month' | 'quarter' | 'semester' | 'year';
@@ -336,7 +336,7 @@ export default function ReportsPage() {
 
   const sexeData = [
     { name: 'Féminin', value: tableau2.filter((r) => r.sexe === 'F').length, color: '#ec4899' },
-    { name: 'Masculin', value: tableau2.filter((r) => r.sexe === 'M').length, color: '#00478d' },
+    { name: 'Masculin', value: tableau2.filter((r) => r.sexe === 'M').length, color: '#006A8C' },
     { name: 'Non renseigné', value: tableau2.filter((r) => r.sexe !== 'M' && r.sexe !== 'F').length, color: '#94a3b8' },
   ].filter((d) => d.value > 0);
 
@@ -351,7 +351,7 @@ export default function ReportsPage() {
   const chartBtn = (active: boolean) =>
     `px-4 py-2 rounded-lg text-xs font-semibold transition-all ${
       active
-        ? 'bg-[#00478d] text-white shadow-sm'
+        ? 'bg-[#006A8C] text-white shadow-sm'
         : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
     }`;
 
@@ -496,7 +496,7 @@ export default function ReportsPage() {
               <button
                 type="button"
                 onClick={openReportSection}
-                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#00478d] to-[#005eb8] text-white rounded-lg text-sm font-semibold shadow hover:opacity-90 transition-all"
+                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#006A8C] to-[#0A7EA4] text-white rounded-lg text-sm font-semibold shadow hover:opacity-90 transition-all"
               >
                 <span className="material-symbols-outlined text-base">event_note</span>
                 Créer un rapport
@@ -547,7 +547,7 @@ export default function ReportsPage() {
                     <XAxis dataKey="label" />
                     <YAxis allowDecimals={false} />
                     <Tooltip />
-                    <Bar dataKey="count" fill="#00478d" radius={[6, 6, 0, 0]} name="Examens" />
+                    <Bar dataKey="count" fill="#006A8C" radius={[6, 6, 0, 0]} name="Examens" />
                   </BarChart>
                 ) : (
                   <LineChart data={volumeChartData}>
@@ -555,7 +555,7 @@ export default function ReportsPage() {
                     <XAxis dataKey="label" interval={period === 'month' ? 1 : 0} />
                     <YAxis allowDecimals={false} />
                     <Tooltip />
-                    <Line type="monotone" dataKey="count" stroke="#00478d" strokeWidth={2} dot={{ r: 3 }} name="Examens" />
+                    <Line type="monotone" dataKey="count" stroke="#006A8C" strokeWidth={2} dot={{ r: 3 }} name="Examens" />
                   </LineChart>
                 )}
               </ResponsiveContainer>
@@ -633,7 +633,7 @@ export default function ReportsPage() {
                     <XAxis dataKey="type" tick={{ fontSize: 10 }} />
                     <YAxis />
                     <Tooltip />
-                    <Bar dataKey="count" fill="#00478d" radius={[6, 6, 0, 0]} />
+                    <Bar dataKey="count" fill="#006A8C" radius={[6, 6, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               )}
@@ -727,7 +727,7 @@ export default function ReportsPage() {
                     <button
                       type="button"
                       onClick={handleExportMajorPDF}
-                      className="flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-[#00478d] to-[#005eb8] text-white rounded-lg text-sm font-semibold shadow hover:opacity-90 transition-all"
+                      className="flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-[#006A8C] to-[#0A7EA4] text-white rounded-lg text-sm font-semibold shadow hover:opacity-90 transition-all"
                     >
                       <span className="material-symbols-outlined text-base">picture_as_pdf</span>
                       PDF
@@ -900,7 +900,7 @@ export default function ReportsPage() {
                     <YAxis allowDecimals={false} />
                     <Tooltip />
                     <Legend wrapperStyle={{ fontSize: 11 }} />
-                    <Bar dataKey="Prise en charge (PEC)" fill="#00478d" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="Prise en charge (PEC)" fill="#006A8C" radius={[4, 4, 0, 0]} />
                     <Bar dataKey="Résultats en cours" fill="#f59e0b" radius={[4, 4, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
@@ -942,7 +942,7 @@ export default function ReportsPage() {
         </div>
       </main>
 
-      <button onClick={exportToPDF} className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-[#00478d] to-[#005eb8] text-white rounded-full font-bold text-sm shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200">
+      <button onClick={exportToPDF} className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-[#006A8C] to-[#0A7EA4] text-white rounded-full font-bold text-sm shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200">
         <span className="material-symbols-outlined text-base">download</span>
         Exporter le rapport (PDF)
       </button>

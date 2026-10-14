@@ -60,7 +60,7 @@ export default function FloatingModal({
   subtitle,
   icon,
   closeIcon = 'close',
-  headerClassName = 'bg-gradient-to-r from-[#00284d] to-[#00478d]',
+  headerClassName = 'bg-gradient-to-r from-[#00284d] to-[#006A8C]',
   children,
   footer,
   zIndex = 50,
