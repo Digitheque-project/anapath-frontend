@@ -24,6 +24,8 @@ RUN npm run build
 FROM node:22-alpine
 WORKDIR /app
 ENV NODE_ENV=production
+# `next start` écoute sur $PORT : l'hébergeur (Render : 10000) l'impose, 3031 sinon.
+ENV PORT=3031
 
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/node_modules ./node_modules
@@ -31,6 +33,5 @@ COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/next.config.ts ./next.config.ts
 
-# Écoute sur $PORT fourni par l'hébergeur (Render), 3031 par défaut.
 EXPOSE 3031
-CMD ["sh", "-c", "exec npx next start -H 0.0.0.0 -p ${PORT:-3031}"]
+CMD ["npm", "run", "start"]
