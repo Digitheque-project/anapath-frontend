@@ -3,12 +3,10 @@ import { AUTH_COOKIE_NAME } from '@/lib/authCookie';
 import { decodeJwtPayload } from '@/lib/jwt';
 import { isTechnicienRole, isMajorRole, isChefRole } from '@/lib/roles';
 import { estServiceAnapath } from '@/lib/anapathService';
+import { publicUrl } from '@/lib/publicUrl';
 
 const LOGIN_URL = process.env.NEXT_PUBLIC_LOGIN_URL || '';
 
-// Sur Render, l'app écoute sur un port interne (3031) : request.url pointe vers
-// localhost. APP_BASE_URL (domaine public) force les redirections vers le bon hôte.
-const APP_BASE_URL = process.env.APP_BASE_URL;
 
 const PROTECTED_ROUTES: Array<{
   path: string;
@@ -45,7 +43,7 @@ export function middleware(request: NextRequest) {
   // valide le jeton et pose le cookie de session. Sans ça : boucle de login.
   const incomingToken = request.nextUrl.searchParams.get('accessToken');
   if (incomingToken) {
-    const ssoUrl = new URL('/auth/sso', APP_BASE_URL || request.url);
+    const ssoUrl = publicUrl(request, '/auth/sso');
     ssoUrl.search = request.nextUrl.search;
     return NextResponse.redirect(ssoUrl);
   }
@@ -84,7 +82,7 @@ export function middleware(request: NextRequest) {
     if (pathname.startsWith(route.path)) {
       if (isConsultationProfile && route.blockedForMajor) {
         return NextResponse.redirect(
-          new URL('/dashboard', APP_BASE_URL || request.url),
+          publicUrl(request, '/dashboard'),
         );
       }
       if (route.technicienOnly && !technicien) {
@@ -92,7 +90,7 @@ export function middleware(request: NextRequest) {
         // réservées au technicien/histotechnicien : un pathologiste ne peut
         // pas les traiter et n'a pas à les voir.
         return NextResponse.redirect(
-          new URL('/worklist', APP_BASE_URL || request.url),
+          publicUrl(request, '/worklist'),
         );
       }
       const requiredPermissions = Array.isArray(route.permission)
@@ -105,7 +103,7 @@ export function middleware(request: NextRequest) {
       }
       if (!requiredPermissions.some((p) => userPermissions.includes(p))) {
         return NextResponse.redirect(
-          new URL('/dashboard', APP_BASE_URL || request.url),
+          publicUrl(request, '/dashboard'),
         );
       }
       break;

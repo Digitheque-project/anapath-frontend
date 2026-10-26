@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { AUTH_COOKIE_NAME } from '@/lib/authCookie';
 import { decodeJwtPayload } from '@/lib/jwt';
 import { estServiceAnapath } from '@/lib/anapathService';
+import { publicUrl } from '@/lib/publicUrl';
 
 const LOGIN_URL =
   process.env.NEXT_PUBLIC_LOGIN_URL || '';
@@ -23,10 +24,8 @@ export async function GET(request: NextRequest) {
     ? Math.max(0, payload.exp - Math.floor(Date.now() / 1000))
     : 60 * 60 * 24;
 
-  // Sur Render, l'app écoute sur un port interne (3031) donc request.url pointe
-  // vers localhost. On force le domaine public via APP_BASE_URL quand il est défini.
-  const appBase = process.env.APP_BASE_URL || request.url;
-  const response = NextResponse.redirect(new URL('/dashboard', appBase));
+  // Domaine public (pas l'adresse interne vue derrière le proxy de Render).
+  const response = NextResponse.redirect(publicUrl(request, '/dashboard'));
   response.cookies.set(AUTH_COOKIE_NAME, token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
