@@ -1,11 +1,8 @@
 import type { NextConfig } from "next";
 import path from "path";
 
-// Backend anapath (même défaut que app/api/[...path]/route.ts).
-const BACKEND_URL = (
-  process.env.API_PROXY_TARGET ||
-  "https://anapath-backend-ar7u-uj8n.onrender.com"
-).replace(/\/$/, "");
+// Backend Anapath joint par la passerelle du CHU (comme app/api/[...path]/route.ts).
+const BACKEND_URL = `${(process.env.NEXT_PUBLIC_GATEWAY_URL || "").replace(/\/$/, "")}/anapath`;
 
 const nextConfig: NextConfig = {
   // Corrige la détection de racine quand un package-lock.json existe dans le dossier utilisateur

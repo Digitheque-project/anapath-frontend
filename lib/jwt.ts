@@ -9,6 +9,7 @@ export interface ChuInfo {
 }
 
 export interface AnapathServiceClaim {
+  serviceName?: string;
   serviceId: string;
   roleId: string;
   roleName: string;

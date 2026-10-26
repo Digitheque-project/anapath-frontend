@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { AUTH_COOKIE_NAME } from '@/lib/authCookie';
 
-// Fallback : le service back_anapath a été recréé sous un nouveau nom Render
-// (anapath-backend-ar7u seul n'est plus joignable) — l'ancien défaut menait dans le mur.
-const BACKEND_URL = (process.env.API_PROXY_TARGET || 'https://anapath-backend-ar7u-uj8n.onrender.com').replace(/\/$/, '');
+// Backend Anapath joint par la passerelle du CHU (routes sous /anapath/api).
+// Aucune adresse de repli dans le code : NEXT_PUBLIC_GATEWAY_URL uniquement.
+const BACKEND_URL = `${(process.env.NEXT_PUBLIC_GATEWAY_URL || '').replace(/\/$/, '')}/anapath`;
 
 // Documentation de l'API servie publiquement par le backend : les outils
 // externes (vérificateur d'écosystème) sondent {baseUrl}/api/docs sans session.

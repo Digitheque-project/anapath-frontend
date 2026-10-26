@@ -30,8 +30,7 @@ interface AuthContextValue {
 }
 
 const LOGIN_URL =
-  process.env.NEXT_PUBLIC_AUTH_LOGIN_URL ||
-  'https://authentification-front.vercel.app/login';
+  process.env.NEXT_PUBLIC_LOGIN_URL || '';
 
 const AuthContext = createContext<AuthContextValue>({
   user: null,
