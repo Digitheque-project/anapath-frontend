@@ -31,6 +31,6 @@ COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/next.config.ts ./next.config.ts
 
-# `next start --port 3031` (défini dans le script start)
+# Écoute sur $PORT fourni par l'hébergeur (Render), 3031 par défaut.
 EXPOSE 3031
-CMD ["npm", "run", "start"]
+CMD ["sh", "-c", "exec npx next start -H 0.0.0.0 -p ${PORT:-3031}"]
