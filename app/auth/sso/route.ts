@@ -1,16 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { AUTH_COOKIE_NAME } from '@/lib/authCookie';
 import { decodeJwtPayload } from '@/lib/jwt';
+import { estServiceAnapath } from '@/lib/anapathService';
 
 const LOGIN_URL =
   process.env.NEXT_PUBLIC_LOGIN_URL || '';
-// Accès Anapath reconnu par le NOM du service dans le jeton (« Anatomie
-// pathologique (Anapath) »), sans identifiant écrit en dur ;
-// AUTH_ANAPATH_SERVICE_ID reste accepté s'il est fourni.
-const ANAPATH_SERVICE_ID = process.env.AUTH_ANAPATH_SERVICE_ID || '';
-const estServiceAnapath = (s: { serviceId?: string; serviceName?: string }) =>
-  (!!ANAPATH_SERVICE_ID && s.serviceId === ANAPATH_SERVICE_ID) ||
-  (s.serviceName ?? '').toLowerCase().includes('anapath');
 
 export async function GET(request: NextRequest) {
   const token = request.nextUrl.searchParams.get('accessToken');

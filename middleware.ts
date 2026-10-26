@@ -2,16 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { AUTH_COOKIE_NAME } from '@/lib/authCookie';
 import { decodeJwtPayload } from '@/lib/jwt';
 import { isTechnicienRole, isMajorRole, isChefRole } from '@/lib/roles';
+import { estServiceAnapath } from '@/lib/anapathService';
 
-const LOGIN_URL =
-  process.env.NEXT_PUBLIC_AUTH_LOGIN_URL ||
-  'https://authentification-front.vercel.app/login';
-
-// Fallback en dur si AUTH_ANAPATH_SERVICE_ID n'est pas configuré sur l'environnement de déploiement
-// (Render) : sans repli, aucune permission n'est jamais trouvée et toutes les pages protégées
-// redirigent (même symptôme que "toujours expulsé après connexion").
-const ANAPATH_SERVICE_ID =
-  process.env.AUTH_ANAPATH_SERVICE_ID || '9e73904c-71e5-4477-9280-513e4112a468';
+const LOGIN_URL = process.env.NEXT_PUBLIC_LOGIN_URL || '';
 
 // Sur Render, l'app écoute sur un port interne (3031) : request.url pointe vers
 // localhost. APP_BASE_URL (domaine public) force les redirections vers le bon hôte.
@@ -74,9 +67,7 @@ export function middleware(request: NextRequest) {
     return res;
   }
 
-  const entry = payload?.services?.find(
-    (s: any) => s.serviceId === ANAPATH_SERVICE_ID,
-  );
+  const entry = payload?.services?.find(estServiceAnapath);
   const userPermissions: string[] = entry?.permissions ?? [];
   // Profil « consultation » (major ou chef de service) : il ne traite ni les
   // nouvelles demandes ni le fil de travail, mais consulte archives et rapports.

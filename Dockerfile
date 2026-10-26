@@ -8,7 +8,7 @@ RUN npm ci
 COPY . .
 
 # Les variables NEXT_PUBLIC_* sont figées au build. Passe-les en build args si besoin :
-#   docker build --build-arg NEXT_PUBLIC_AUTH_LOGIN_URL=... .
+#   docker build --build-arg NEXT_PUBLIC_LOGIN_URL=... .
 # NEXT_PUBLIC_GATEWAY_URL : passerelle du CHU (le backend Anapath est joint par
 # elle, routes /anapath/api) ; NEXT_PUBLIC_LOGIN_URL : portail de connexion.
 ARG NEXT_PUBLIC_GATEWAY_URL
