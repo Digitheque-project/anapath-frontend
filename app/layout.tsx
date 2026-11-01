@@ -6,6 +6,7 @@ import { SearchProvider } from '../components/SearchContext'; // ← ajout
 import { AuthProvider } from '../components/AuthProvider';
 import { ToastProvider } from '../components/ToastContext';
 
+import Script from "next/script";
 const inter = Inter({ 
   subsets: ["latin"], 
   variable: "--font-inter",
@@ -57,6 +58,14 @@ export default function RootLayout({
             </SearchProvider>
           </AuthProvider>
         </ThemeProvider>
+      
+        {/* Messagerie du CHU : bulle en bas à droite (service-messagerie, via la passerelle). */}
+        {process.env.NEXT_PUBLIC_GATEWAY_URL ? (
+          <Script
+            src={`${process.env.NEXT_PUBLIC_GATEWAY_URL.replace(/\/+$/, "")}/messagerie/widget.js?auto&bas=104`}
+            strategy="afterInteractive"
+          />
+        ) : null}
       </body>
     </html>
   );
