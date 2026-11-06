@@ -58,11 +58,11 @@ export default function ExamenSpeculumForm({
   const [prelevementDetails, setPrelevementDetails] = useState(initialData?.prelevementDetails ?? '');
   const [dateExamen, setDateExamen] = useState(initialData?.dateExamen ?? today());
   const [fixation, setFixation] = useState(initialData?.fixation ?? '');
-  // Prescripteur et préleveur sont renseignés AUTOMATIQUEMENT : le prescripteur
-  // est l'auteur de la prescription, le préleveur est l'utilisateur courant
-  // (technicien/histotechnicien) qui valide l'examen au spéculum. Non modifiables.
-  const [prescripteurSignature] = useState(
-    initialData?.prescripteurSignature ?? prescripteurNom ?? '—',
+  // Le prescripteur (auteur de la prescription) est pré-rempli et reste
+  // corrigeable : son nom peut manquer (médecin externe, compte introuvable).
+  // Le préleveur est l'utilisateur courant, non modifiable.
+  const [prescripteurSignature, setPrescripteurSignature] = useState(
+    initialData?.prescripteurSignature || prescripteurNom || '',
   );
   const [preleveurSignature] = useState(
     (initialData?.preleveurSignature ?? buildNomComplet(user)) || '—',
@@ -94,6 +94,7 @@ export default function ExamenSpeculumForm({
         prelevementDetails,
         dateExamen,
         fixation,
+        prescripteurSignature: prescripteurSignature.trim() || undefined,
       });
       onSaved();
     } catch (error) {
@@ -151,7 +152,7 @@ export default function ExamenSpeculumForm({
 
           <div class="sig-row">
             <div class="sig">
-              <div class="sig-line">${escapeHtml(prescripteurSignature)}</div>
+              <div class="sig-line">${escapeHtml(prescripteurSignature || '—')}</div>
               <div class="sig-label">Le prescripteur</div>
             </div>
             <div class="sig">
@@ -267,9 +268,9 @@ export default function ExamenSpeculumForm({
             <input
               type="text"
               value={prescripteurSignature}
-              readOnly
-              title="Renseigné automatiquement"
-              className="w-full h-11 px-3 bg-white border border-slate-200 rounded-lg text-sm text-slate-700 outline-none cursor-not-allowed"
+              onChange={(e) => setPrescripteurSignature(e.target.value)}
+              placeholder="Nom du médecin prescripteur"
+              className="w-full h-11 px-3 bg-white border border-outline-variant rounded-lg text-sm text-on-surface focus:ring-2 focus:ring-primary/20 outline-none"
             />
           </div>
           <div className="flex flex-col gap-1.5">

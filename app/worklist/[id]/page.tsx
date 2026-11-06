@@ -868,7 +868,7 @@ export default function WorklistDetailPage() {
           anapathId={request.anapathId}
           patientName={patient?.nomComplet || patient?.nom || request.patientId}
           initialData={request.examenSpeculum}
-          prescripteurNom={(request.metadata?.prescripteurNom as string | undefined) ?? null}
+          prescripteurNom={((request.metadata?.prescripteurNom as string | undefined) || (request.metadata?.nomMedecinPrescripteur as string | undefined)) ?? null}
           onClose={() => setShowSpeculum(false)}
           onSaved={async () => {
             setShowSpeculum(false);

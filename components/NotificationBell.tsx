@@ -22,7 +22,7 @@ import { typeExamenLabel } from '@/lib/statusLabels';
 import PrescriptionDetails from '@/components/PrescriptionDetails';
 import FloatingModal from '@/components/FloatingModal';
 import { type PatientInfo } from '@/components/PatientIdentitySection';
-import { getPatientForExamen, getPrescriptionExterneDetails } from '@/lib/api';
+import { getPatientPourPrescription, getPrescriptionExterneDetails } from '@/lib/api';
 import { getMondayOfWeek, formatWeekLabel } from '@/lib/weekUtils';
 
 // URL de la Gateway socket.io du backend (namespace /anapath). En local :
@@ -525,7 +525,7 @@ export default function NotificationBell() {
     if (!pid) { setModalPatient(null); return; }
     let cancelled = false;
     setModalPatientLoading(true);
-    getPatientForExamen(pid)
+    getPatientPourPrescription(detailNotif)
       .then(p => { if (!cancelled) setModalPatient(p as PatientInfo); })
       .catch(() => {})
       .finally(() => { if (!cancelled) setModalPatientLoading(false); });

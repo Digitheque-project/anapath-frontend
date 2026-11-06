@@ -530,7 +530,7 @@ export default function WorklistPage() {
           anapathId={speculumRequest.anapathId}
           patientName={patientDisplayName(speculumRequest)}
           initialData={speculumRequest.examenSpeculum}
-          prescripteurNom={(speculumRequest.metadata?.prescripteurNom as string | undefined) ?? null}
+          prescripteurNom={((speculumRequest.metadata?.prescripteurNom as string | undefined) || (speculumRequest.metadata?.nomMedecinPrescripteur as string | undefined)) ?? null}
           onClose={() => setSpeculumRequest(null)}
           onSaved={async () => {
             setSpeculumRequest(null);

@@ -8,7 +8,7 @@ import FilterButton from '@/components/FilterButton';
 import { useSearch } from '@/components/SearchContext';
 import { useToast } from '@/components/ToastContext';
 import StatCountdown from '@/components/StatCountdown';
-import { accepterPrescriptionNotif, refuserPrescriptionNotif, getPatientForExamen, API_BASE } from '@/lib/api';
+import { accepterPrescriptionNotif, refuserPrescriptionNotif, getPatientPourPrescription, API_BASE } from '@/lib/api';
 import { formatDate, formatDateTime, formatRelativeTime } from '@/lib/dateFormat';
 import { getUrgenceLevel, sortByUrgencyThenArrival, type UrgenceLevel } from '@/lib/urgencySort';
 import { typeExamenLabel, prescripteurLabel, TYPE_EXAMEN_LABELS } from '@/lib/statusLabels';
@@ -155,7 +155,7 @@ export default function DemandesPage() {
     if (!pid) { setModalPatient(null); return; }
     let cancelled = false;
     setModalPatientLoading(true);
-    getPatientForExamen(pid)
+    getPatientPourPrescription(detailTarget)
       .then(p => { if (!cancelled) setModalPatient(p as PatientInfo); })
       .catch(() => {})
       .finally(() => { if (!cancelled) setModalPatientLoading(false); });

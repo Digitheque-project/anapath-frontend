@@ -22,6 +22,32 @@ export async function getPatientForExamen(examId: string): Promise<any> {
   }
 }
 
+/**
+ * Identité du patient d'une prescription reçue : par l'examen s'il existe déjà
+ * (prescription acceptée), sinon directement par le patient (prescription
+ * encore en attente — aucun examen, l'adresse par examen répondait 404).
+ */
+export async function getPatientPourPrescription(n: any): Promise<any> {
+  const examenId = n?.enriched?.id ?? n?.metadata?.anapathRequestId;
+  if (examenId) {
+    const p = await getPatientForExamen(String(examenId));
+    if (p && p._source !== 'fallback') return p;
+  }
+  const patientId = n?.enriched?.patientId ?? n?.metadata?.patientId ?? n?.patientId;
+  if (!patientId) return null;
+  const chuId = n?.metadata?.chuId ? `?chuId=${encodeURIComponent(String(n.metadata.chuId))}` : '';
+  try {
+    const res = await fetch(
+      `${API_BASE}/anapath/patients/${encodeURIComponent(String(patientId))}/identite${chuId}`,
+      { cache: 'no-store' },
+    );
+    if (!res.ok) return null;
+    return res.json();
+  } catch {
+    return null;
+  }
+}
+
 export async function getPriseEnChargeById(id: string): Promise<any> {
   try {
     const { data } = await api.get(`/anapath/prise-en-charge/${id}`);
