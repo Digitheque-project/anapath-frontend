@@ -18,7 +18,8 @@ import { useToast } from '@/components/ToastContext';
 import axios from 'axios';
 import { getPatientForExamen, marquerNotifLue, API_BASE } from '@/lib/api';
 import { formatDateLong } from '@/lib/dateFormat';
-import { statusLabel, statusColors } from '@/lib/statusLabels';
+import { statusLabel, statusColors, typeExamenLabel, prescripteurLabel } from '@/lib/statusLabels';
+import { getUrgenceLevel } from '@/lib/urgencySort';
 import { isSecretaireUser, isTechnicienUser, isPathologisteUser } from '@/lib/roles';
 import { useMiseAJour } from '@/lib/tempsReel';
 
@@ -445,6 +446,50 @@ export default function WorklistDetailPage() {
         </header>
 
         <div className="flex-1 p-6 w-full max-w-5xl mx-auto">
+          {/* Toujours visible pendant la saisie : qui est le patient, quel examen. */}
+          {(() => {
+            const urgence = getUrgenceLevel(request as never);
+            const nomPatient =
+              patient?.nomComplet?.trim() ||
+              [patient?.nom, patient?.prenom].filter(Boolean).join(' ').trim() ||
+              (patientLoading ? 'Chargement…' : 'Patient non identifié');
+            const infos: [string, string][] = [
+              ['Âge', patient?.age != null ? `${patient.age} ans` : '—'],
+              ['Sexe', patient?.sexe || '—'],
+              ['Service demandeur', String(request.metadata?.serviceNom ?? '—')],
+              ['Prescripteur', prescripteurLabel(request.metadata) || '—'],
+              ['Reçue le', formatDateLong(request.createdAt)],
+              ['N° examen', String(request.anapathId ?? '—')],
+            ];
+            return (
+              <section className="mb-5 rounded-xl border border-[#E2E8F0] bg-white p-4 shadow-sm">
+                <div className="flex flex-wrap items-center gap-3">
+                  <PatientAvatar nom={patient?.nom} prenom={patient?.prenom} />
+                  <div className="min-w-0">
+                    <p className="truncate text-lg font-extrabold text-[#0F172A]">{nomPatient}</p>
+                    <div className="mt-0.5 flex flex-wrap items-center gap-2">
+                      <span className="rounded-full bg-[#006A8C]/10 px-2.5 py-0.5 text-xs font-bold text-[#006A8C]">
+                        {typeExamenLabel(request.typeExamen)}
+                      </span>
+                      {urgence !== 'NORMALE' && (
+                        <span className={`rounded-full px-2.5 py-0.5 text-xs font-bold ${urgence === 'STAT' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}`}>
+                          {urgence === 'STAT' ? 'Très urgent' : 'Urgent'}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                <dl className="mt-3 grid grid-cols-2 gap-x-6 gap-y-2 text-sm sm:grid-cols-3">
+                  {infos.map(([label, valeur]) => (
+                    <div key={label} className="min-w-0">
+                      <dt className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">{label}</dt>
+                      <dd className="truncate font-medium text-[#191c21]" title={valeur}>{valeur}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </section>
+            );
+          })()}
           <div className="mb-6">
             <button
               type="button"

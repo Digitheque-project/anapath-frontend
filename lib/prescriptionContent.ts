@@ -247,6 +247,82 @@ export function contentEntriesOf(request: PrescriptionLike): FieldEntry[] {
     if (renseg) out.push({ label: 'Renseignements cliniques', value: renseg });
   }
 
+  // Tout ce qui a été écrit dans la prescription doit se voir : les champs
+  // remplis hors de la liste ci-dessus suivent, sauf ceux d'un AUTRE type
+  // d'examen (le formulaire partage un seul objet entre les onglets).
+  const autres = autresChamps(request, raw, details, config);
+  if (autres.length > 0) {
+    out.push({ group: 'AUTRES INFORMATIONS DE LA PRESCRIPTION', label: '', value: '' });
+    out.push(...autres);
+  }
+
+  return out;
+}
+
+/** Préfixe des clés propres à chaque type d'examen dans le formulaire. */
+const PREFIXE_TYPE: Record<string, string> = {
+  FCV_PAP: 'fcv',
+  BIOPSIE: 'bio',
+  POS: 'bio',
+  POC: 'bio',
+  CYT0PONCTION: 'cyto',
+  LIQUIDE: 'liq',
+  EXTEMPORANE_STAT: 'ext',
+};
+const PREFIXES = [...new Set(Object.values(PREFIXE_TYPE))];
+
+/** Clés techniques (identifiants, routage) : jamais affichées. */
+const CLES_TECHNIQUES = new Set([
+  'id', 'details', 'type', 'typeExamen', 'patientId', 'prescripteurId', 'prescriptionId',
+  'demandeId', 'chuId', 'serviceId', 'serviceIdSource', 'serviceIdDest', 'statut', 'status',
+  'createdAt', 'updatedAt', 'userId', 'medecinId', 'anapathId', 'requestId', 'position',
+]);
+
+function libelleDeCle(cle: string, prefixe: string): string {
+  const sansPrefixe = prefixe && cle.startsWith(prefixe) && /[A-Z]/.test(cle.charAt(prefixe.length))
+    ? cle.slice(prefixe.length)
+    : cle;
+  const mots = sansPrefixe.replace(/[_-]+/g, ' ').replace(/([a-z])([A-Z])/g, '$1 $2').trim().toLowerCase();
+  return mots.charAt(0).toUpperCase() + mots.slice(1);
+}
+
+function valeurAffichable(valeur: unknown): string {
+  if (typeof valeur === 'string') return formatDate(valeur.trim());
+  if (typeof valeur === 'number') return String(valeur);
+  if (typeof valeur === 'boolean') return valeur ? 'Oui' : 'Non';
+  if (Array.isArray(valeur)) {
+    return valeur.filter((v) => ['string', 'number'].includes(typeof v) && String(v).trim()).join(', ');
+  }
+  return '';
+}
+
+function autresChamps(
+  request: PrescriptionLike,
+  raw: Record<string, any>,
+  details: Record<string, any>,
+  config: ContentBlock[],
+): FieldEntry[] {
+  const deja = new Set<string>();
+  for (const block of config) {
+    for (const field of block.type === 'group' ? block.fields : [block.field]) {
+      field.keys.forEach((k) => deja.add(k));
+      field.otherKeys?.forEach((k) => deja.add(k));
+    }
+  }
+  const prefixe = PREFIXE_TYPE[typeOf(request)] ?? '';
+  const autreType = (cle: string) =>
+    PREFIXES.some((p) => p !== prefixe && cle.startsWith(p) && /[A-Z]/.test(cle.charAt(p.length)));
+  const out: FieldEntry[] = [];
+  const vus = new Set<string>();
+  for (const source of [details, raw]) {
+    for (const [cle, valeur] of Object.entries(source)) {
+      if (vus.has(cle) || deja.has(cle) || CLES_TECHNIQUES.has(cle) || autreType(cle)) continue;
+      const v = valeurAffichable(valeur);
+      if (!v) continue;
+      vus.add(cle);
+      out.push({ label: libelleDeCle(cle, prefixe), value: v });
+    }
+  }
   return out;
 }
 

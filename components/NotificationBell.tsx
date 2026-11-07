@@ -260,9 +260,6 @@ export default function NotificationBell() {
   const [inlineError, setInlineError] = useState<string | null>(null);
   const [inlineErrorId, setInlineErrorId] = useState<string | null>(null);
   const [visibleCount, setVisibleCount] = useState(3);
-  // Par défaut, la liste ne garde que ce qui reste à traiter (non lu, ou demande
-  // encore à accepter/refuser) : une notification ouverte en sort.
-  const [showUnreadOnly, setShowUnreadOnly] = useState(true);
   const known = useRef<Set<string>>(new Set());
   const extemporaneTimers =
     useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
@@ -582,15 +579,14 @@ export default function NotificationBell() {
   useEffect(() => {
     if (!open) {
       setVisibleCount(3);
-      setShowUnreadOnly(false);
     }
   }, [open]);
 
   const unreadCount = notifs.filter(n => !isLue(n)).length;
 
-  const filteredNotifs = showUnreadOnly
-    ? notifs.filter(n => !isLue(n) || isPrescriptionEnAttente(n))
-    : notifs;
+  // Une notification lue disparaît de la cloche ; seule une demande encore à
+  // accepter/refuser y reste tant qu'elle n'est pas traitée.
+  const filteredNotifs = notifs.filter(n => !isLue(n) || isPrescriptionEnAttente(n));
 
   const maxUrg = notifs
     .filter(n => !isLue(n))
@@ -858,21 +854,10 @@ export default function NotificationBell() {
                   Notifications
                 </h3>
                 {unreadCount > 0 && (
-                  <button
-                    onClick={() => setShowUnreadOnly(v => !v)}
-                    title={showUnreadOnly
-                      ? 'Afficher toutes les notifications'
-                      : 'Afficher uniquement les non lues'}
-                    className={`text-xs font-bold px-2 py-0.5 rounded-full transition-colors ${
-                      showUnreadOnly
-                        ? 'bg-blue-600 text-white hover:bg-blue-700'
-                        : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
-                    }`}
-                  >
+                  <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">
                     {unreadCount} non lue
                     {unreadCount > 1 ? 's' : ''}
-                    {showUnreadOnly ? ' ✕' : ''}
-                  </button>
+                  </span>
                 )}
               </div>
               {unreadCount > 0 && (
@@ -1174,7 +1159,7 @@ export default function NotificationBell() {
                     font-medium hover:bg-gray-50 transition-colors
                     border-t border-gray-100"
                 >
-                  Afficher les anciennes notifications ({remaining} restante{remaining > 1 ? 's' : ''})
+                  Afficher les suivantes ({remaining})
                 </button>
               )}
               {visibleCount > 3 && remaining === 0 && (
@@ -1184,7 +1169,7 @@ export default function NotificationBell() {
                     font-medium hover:bg-gray-50 transition-colors
                     border-t border-gray-100"
                 >
-                  Masquer les anciennes notifications
+                  Réduire la liste
                 </button>
               )}
               </>
