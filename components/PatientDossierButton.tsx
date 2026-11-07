@@ -4,6 +4,23 @@ import { useEffect, useState } from 'react';
 import { API_BASE } from '@/lib/api';
 import { formatDateLong } from '@/lib/dateFormat';
 import FloatingModal from '@/components/FloatingModal';
+import { ObservationHistoryList } from '@/dossier/components/clinical/dossier-patient/ObservationHistoryList';
+import { DiagnosticTab } from '@/dossier/components/clinical/dossier-patient/DiagnosticTab';
+import { SuiviTab } from '@/dossier/components/clinical/dossier-patient/SuiviTab';
+import ResultatsParacliniquesTab from '@/dossier/components/clinical/dossier-patient/ResultatsParacliniquesTab';
+import HistoriqueTab from '@/dossier/components/clinical/dossier-patient/HistoriqueTab';
+
+// Dossier patient complet, en lecture seule, comme dans les autres services :
+// tout ce que les services du CHU ont enregistré pour ce patient.
+const ONGLETS = [
+  { key: 'observations', label: 'Observations', icon: 'stethoscope' },
+  { key: 'diagnostics', label: 'Diagnostics', icon: 'diagnosis' },
+  { key: 'suivi', label: 'Suivi / Évolution', icon: 'monitoring' },
+  { key: 'resultats', label: 'Résultats paracliniques', icon: 'biotech' },
+  { key: 'examens', label: 'Examens complémentaires', icon: 'lab_profile' },
+  { key: 'historique', label: 'Historique', icon: 'history' },
+] as const;
+type Onglet = (typeof ONGLETS)[number]['key'];
 
 /** Examen complémentaire enregistré par un service du CHU dans le dossier-patient. */
 export interface DossierExamen {
@@ -38,6 +55,7 @@ export default function PatientDossierButton({ patientId, chuId, className = '' 
   const [loading, setLoading] = useState(false);
   const [examens, setExamens] = useState<DossierExamen[] | null>(null);
   const [detail, setDetail] = useState<DossierExamen | null>(null);
+  const [onglet, setOnglet] = useState<Onglet>('observations');
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -89,11 +107,11 @@ export default function PatientDossierButton({ patientId, chuId, className = '' 
       <button
         type="button"
         onClick={() => setOpen(true)}
-        title="Voir tous les examens de ce patient dans le CHU"
+        title="Voir le dossier patient complet (tous les services du CHU)"
         className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-semibold hover:bg-primary/20 transition-colors shrink-0 ${className}`}
       >
         <span className="material-symbols-outlined text-base">folder_shared</span>
-        Dossier patient{examens ? ` (${sorted.length})` : ''}
+        Dossier patient
       </button>
 
       {open && (
@@ -102,10 +120,33 @@ export default function PatientDossierButton({ patientId, chuId, className = '' 
           onClose={() => setOpen(false)}
           icon="folder_shared"
           title="Dossier patient — CHU"
-          maxWidthPx={512}
-          heightPct={0.8}
+          subtitle="Lecture seule : tout ce que les services du CHU ont enregistré"
+          maxWidthPx={1100}
+          heightPct={0.9}
           bodyClassName="p-4 space-y-2"
         >
+          <div className="flex flex-wrap gap-1.5 border-b border-outline-variant/30 pb-3 mb-3">
+            {ONGLETS.map((o) => (
+              <button
+                key={o.key}
+                type="button"
+                onClick={() => setOnglet(o.key)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${
+                  onglet === o.key ? 'bg-primary text-white' : 'bg-primary/10 text-primary hover:bg-primary/20'
+                }`}
+              >
+                <span className="material-symbols-outlined text-base">{o.icon}</span>
+                {o.label}
+                {o.key === 'examens' && examens ? ` (${sorted.length})` : ''}
+              </button>
+            ))}
+          </div>
+          {onglet === 'observations' && <ObservationHistoryList patientId={patientId} chuId={chuId} />}
+          {onglet === 'diagnostics' && <DiagnosticTab patientId={patientId} chuId={chuId} />}
+          {onglet === 'suivi' && <SuiviTab patientId={patientId} chuId={chuId} />}
+          {onglet === 'resultats' && <ResultatsParacliniquesTab patientId={patientId} />}
+          {onglet === 'historique' && <HistoriqueTab patientId={patientId} chuId={chuId} />}
+          {onglet === 'examens' && <>
           {loading && <p className="text-sm text-slate-400 italic">Chargement du dossier…</p>}
           {!loading && error && <p className="text-sm text-red-500">{error}</p>}
           {!loading && !error && sorted.length === 0 && (
@@ -145,6 +186,7 @@ export default function PatientDossierButton({ patientId, chuId, className = '' 
               </button>
             );
           })}
+          </>}
         </FloatingModal>
       )}
 
