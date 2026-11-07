@@ -5,6 +5,7 @@ import Link from 'next/link';
 import NotificationBell from './NotificationBell';
 import { useSearch } from './SearchContext';
 import { useAuth } from './AuthProvider';
+import PointServeur from "@/components/PointServeur";
 
 function getGreeting(name: string): string {
   const hour = new Date().getHours();
@@ -43,7 +44,7 @@ export default function TopBar() {
     <header className="w-full sticky top-0 z-50 bg-white/80 backdrop-blur-xl shadow-sm shadow-blue-900/5">
       <div className="flex justify-between items-center px-6 py-3">
         <div className="flex items-center gap-4 flex-1">
-          <h2 className="text-lg font-black text-blue-900 tracking-tight whitespace-nowrap">{getGreeting(displayName)}</h2>
+          <h2 className="text-lg font-black text-blue-900 tracking-tight whitespace-nowrap"><PointServeur />{getGreeting(displayName)}</h2>
           
           <div className="h-6 w-[1px] bg-outline-variant/30"></div>
           
