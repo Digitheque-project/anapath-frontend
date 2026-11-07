@@ -296,12 +296,8 @@ export default function WorklistDetailPage() {
       alert('Veuillez saisir le résultat et la conclusion.');
       return;
     }
-    if (!ippNumber.trim()) {
-      alert('Veuillez saisir le numéro de dossier (IPP).');
-      return;
-    }
     if (!signature.signature.trim() || !signature.ordreProfessionnelNumber.trim()) {
-      alert('Veuillez remplir les champs de signature.');
+      alert("Votre nom ou votre n° d'ordre professionnel manque dans votre compte utilisateur : à faire renseigner par l'administrateur.");
       return;
     }
 
@@ -376,7 +372,6 @@ export default function WorklistDetailPage() {
     return (
       resultData.details.trim() !== '' &&
       resultData.conclusion.trim() !== '' &&
-      ippNumber.trim() !== '' &&
       signature.signature.trim() !== '' &&
       signature.ordreProfessionnelNumber.trim() !== ''
     );
@@ -801,6 +796,30 @@ export default function WorklistDetailPage() {
                   </button>
                 )}
               </div>
+              {/* Étape suivante, en clair : qui agit, et ce qui manque pour valider. */}
+              {request.statut !== 'VALIDE' && (() => {
+                if (!canSign) {
+                  return (
+                    <p className="mx-auto mb-4 max-w-2xl rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-center text-sm text-blue-900">
+                      Résultat enregistré automatiquement. <strong>Étape suivante : le pathologiste</strong> ouvre
+                      cette demande dans son <strong>Fil de travail</strong>, vérifie le résultat et la conclusion, puis
+                      clique « Valider le résultat ». Il en est prévenu par une notification.
+                    </p>
+                  );
+                }
+                const manque = [
+                  !resultData.details.trim() && 'le résultat',
+                  !resultData.conclusion.trim() && 'la conclusion',
+                  !signature.signature.trim() && 'votre nom (compte utilisateur)',
+                  !signature.ordreProfessionnelNumber.trim() &&
+                    "votre n° d'ordre professionnel (à renseigner dans votre compte par l'administrateur)",
+                ].filter(Boolean);
+                return manque.length > 0 ? (
+                  <p className="mx-auto mb-4 max-w-2xl rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-center text-sm text-amber-900">
+                    Pour valider, il manque : {manque.join(', ')}.
+                  </p>
+                ) : null;
+              })()}
             </>
           )}
         </div>
