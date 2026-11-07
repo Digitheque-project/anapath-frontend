@@ -2,8 +2,6 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Sidebar from '@/components/Sidebar';
-import TopBar from '@/components/TopBar';
 import { useAuth } from '@/components/AuthProvider';
 import { useToast } from '@/components/ToastContext';
 import { API_BASE } from '@/lib/api';
@@ -123,11 +121,9 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="flex min-h-screen bg-transparent text-[#191c21]">
+    <div className="flex min-h-[calc(100vh-4rem)] bg-transparent text-[#191c21]">
       <div className="fixed inset-0 grain-overlay z-[60] pointer-events-none"></div>
-      <Sidebar />
-      <main className="flex-1 ml-64 min-h-screen flex flex-col w-[calc(100%-256px)]">
-        <TopBar />
+      <main className="flex-1 min-h-[calc(100vh-4rem)] flex flex-col w-full">
         <div className="flex-1 p-6 w-full max-w-3xl mx-auto">
           <button
             type="button"

@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import Sidebar from '@/components/Sidebar';
 import PatientAvatar from '@/components/PatientAvatar';
 import PrescriptionDetails from '@/components/PrescriptionDetails';
 import FloatingModal from '@/components/FloatingModal';
@@ -21,6 +20,7 @@ import { getPatientForExamen, marquerNotifLue, API_BASE } from '@/lib/api';
 import { formatDateLong } from '@/lib/dateFormat';
 import { statusLabel, statusColors } from '@/lib/statusLabels';
 import { isSecretaireUser, isTechnicienUser, isPathologisteUser } from '@/lib/roles';
+import { useMiseAJour } from '@/lib/tempsReel';
 
 interface AnapathRequest {
   id: string;
@@ -113,6 +113,17 @@ export default function WorklistDetailPage() {
     const conclusion = req.resultat?.conclusion ?? (req as any).resultatConclusion ?? '';
     setResultData({ details, conclusion });
   };
+
+  // Temps réel : statut à jour (ex. validé par le pathologiste) sans recharger
+  // la page ni écraser le résultat en cours de saisie.
+  useMiseAJour((info) => {
+    if (info.type !== 'examen' && info.type !== 'reconnexion') return;
+    if (info.id && request?.id && info.id !== request.id) return;
+    axios
+      .get(`${API_BASE}/anapath/${id}`)
+      .then((r) => setRequest((avant) => (avant ? { ...avant, ...r.data } : r.data)))
+      .catch(() => {});
+  });
 
   const loadExamen = async () => {
     try {
@@ -379,9 +390,8 @@ export default function WorklistDetailPage() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen bg-transparent">
-        <Sidebar />
-        <main className="flex-1 ml-64 flex items-center justify-center">
+      <div className="flex min-h-[calc(100vh-4rem)] bg-transparent">
+        <main className="flex-1 flex items-center justify-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
         </main>
       </div>
@@ -390,9 +400,8 @@ export default function WorklistDetailPage() {
 
   if (!request) {
     return (
-      <div className="flex min-h-screen bg-transparent">
-        <Sidebar />
-        <main className="flex-1 ml-64 flex items-center justify-center">
+      <div className="flex min-h-[calc(100vh-4rem)] bg-transparent">
+        <main className="flex-1 flex items-center justify-center">
           <p className="text-slate-500">Demande non trouvée</p>
         </main>
       </div>
@@ -415,12 +424,11 @@ export default function WorklistDetailPage() {
   const speculumDone = Boolean(request?.examenSpeculum);
 
   return (
-    <div className="flex min-h-screen bg-transparent text-[#191c21]">
+    <div className="flex min-h-[calc(100vh-4rem)] bg-transparent text-[#191c21]">
       <div className="fixed inset-0 grain-overlay z-[60] pointer-events-none"></div>
-      <Sidebar />
 
-      <main className="flex-1 ml-64 min-h-screen flex flex-col w-[calc(100%-256px)]">
-        <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl flex justify-between items-center px-6 py-3 shadow-sm">
+      <main className="flex-1 min-h-[calc(100vh-4rem)] flex flex-col w-full">
+        <header className="sticky top-16 z-30 bg-white/80 backdrop-blur-xl flex justify-between items-center px-6 py-3 shadow-sm">
           <div className="flex items-center gap-4">
             <Link href="/worklist" className="flex items-center gap-2 text-primary text-sm hover:underline">
               <span className="material-symbols-outlined text-base">arrow_back</span>

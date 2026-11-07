@@ -1,8 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Sidebar from '@/components/Sidebar';
-import TopBar from '@/components/TopBar';
 import UrgenceStatsCards from '@/components/UrgenceStatsCards';
 import LocalSearchBox from '@/components/LocalSearchBox';
 import FilterButton from '@/components/FilterButton';
@@ -16,6 +14,7 @@ import { filterAndSortAnapathRequests, matchesAnapathSearch } from '@/lib/search
 import { formatDateTime, formatRelativeTime, formatDateLong } from '@/lib/dateFormat';
 import { typeExamenLabel, prescripteurLabel, TYPE_EXAMEN_LABELS } from '@/lib/statusLabels';
 import FloatingModal from '@/components/FloatingModal';
+import { useMiseAJour } from '@/lib/tempsReel';
 
 interface AnapathRequest {
   id: string;
@@ -67,6 +66,9 @@ export default function ArchivesPage() {
     fetchData();
   }, []);
 
+  // Temps réel : rechargée sans écran de chargement à chaque changement.
+  useMiseAJour(() => { void fetchData(true); });
+
   useEffect(() => {
     let filtered = requests;
     if (filterTypes.length > 0) filtered = filtered.filter((req) => filterTypes.includes(req.typeExamen));
@@ -102,9 +104,9 @@ export default function ArchivesPage() {
       .catch(() => setPatientHistorique([]));
   }, [selectedRequest?.patientId, selectedRequest?.id]);
 
-  const fetchData = async () => {
+  const fetchData = async (silencieux = false) => {
     try {
-      setLoading(true);
+      if (silencieux !== true) setLoading(true);
       const response = await axios.get(`${API_BASE}/anapath`);
       const validatedRequests = response.data.filter((req: AnapathRequest) => req.statut === 'VALIDE');
       setRequests(validatedRequests);
@@ -162,9 +164,8 @@ export default function ArchivesPage() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen bg-transparent">
-        <Sidebar />
-        <main className="flex-1 ml-64 flex items-center justify-center">
+      <div className="flex min-h-[calc(100vh-4rem)] bg-transparent">
+        <main className="flex-1 flex items-center justify-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
         </main>
       </div>
@@ -172,10 +173,8 @@ export default function ArchivesPage() {
   }
 
   return (
-    <div className="flex min-h-screen bg-[#F8FAFC] text-[#191c21]">
-      <Sidebar />
-      <main className="flex-1 ml-64 min-h-screen flex flex-col w-[calc(100%-256px)]">
-        <TopBar />
+    <div className="flex min-h-[calc(100vh-4rem)] bg-[#F8FAFC] text-[#191c21]">
+      <main className="flex-1 min-h-[calc(100vh-4rem)] flex flex-col w-full">
         <div className="flex-1 p-6 w-full">
           <div className="mb-6">
             <h2 className="text-2xl font-extrabold text-[#191c21] tracking-tight">Examens archivés</h2>

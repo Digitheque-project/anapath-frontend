@@ -1,8 +1,6 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import Sidebar from '@/components/Sidebar';
-import TopBar from '@/components/TopBar';
 import LocalSearchBox from '@/components/LocalSearchBox';
 import FilterButton from '@/components/FilterButton';
 import { useSearch } from '@/components/SearchContext';
@@ -15,6 +13,7 @@ import { typeExamenLabel, prescripteurLabel, TYPE_EXAMEN_LABELS } from '@/lib/st
 import PrescriptionDetails from '@/components/PrescriptionDetails';
 import FloatingModal from '@/components/FloatingModal';
 import { type PatientInfo } from '@/components/PatientIdentitySection';
+import { useMiseAJour } from '@/lib/tempsReel';
 
 /* ---- Helpers (mêmes règles que la cloche de notification) ---- */
 const isPending = (n: any) =>
@@ -201,6 +200,9 @@ export default function DemandesPage() {
     fetchData();
   }, [fetchData]);
 
+  // Temps réel : nouvelles demandes, acceptées, refusées — sans F5.
+  useMiseAJour(() => { void loadOnce().catch(() => {}); });
+
   // Alerte à l'arrivée d'un examen STAT (TRES URGENT) : la première remontée
   // hydrate silencieusement, puis chaque nouveau STAT réellement reçu déclenche
   // une notification dans la cloche.
@@ -317,10 +319,8 @@ export default function DemandesPage() {
   };
 
   return (
-    <div className="flex min-h-screen bg-[#F8FAFC] text-[#191c21]">
-      <Sidebar />
-      <main className="flex-1 ml-64 min-h-screen flex flex-col w-[calc(100%-256px)]">
-        <TopBar />
+    <div className="flex min-h-[calc(100vh-4rem)] bg-[#F8FAFC] text-[#191c21]">
+      <main className="flex-1 min-h-[calc(100vh-4rem)] flex flex-col w-full">
         <div className="flex-1 p-6 w-full">
           <div className="mb-6 flex items-center gap-3">
             <div className="w-1.5 h-10 rounded-full bg-gradient-to-b from-[#00284d] to-[#006A8C]" />

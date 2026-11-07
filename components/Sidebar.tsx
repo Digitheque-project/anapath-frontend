@@ -85,33 +85,10 @@ export default function Sidebar() {
   });
 
   return (
-    <aside
-      className="w-64 h-screen fixed left-0 top-0 flex flex-col
-        text-white z-40"
-      style={{
-        backgroundImage: `linear-gradient(
-          to bottom,
-          rgba(0,40,80,0.85),
-          rgba(0,30,60,0.92)
-        ), url('/assets/bg-sidebar.jpg')`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-      }}
-    >
-      <div className="flex flex-col items-center px-4 pt-6 pb-4">
-        <img
-          src={user?.chu?.logo ? `/api/anapath/files/${encodeURIComponent(user.chu.logo)}` : '/assets/logo-chu.png'}
-          alt={user?.chu?.name ? `Logo ${user.chu.name}` : 'Logo CHU'}
-          onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/assets/logo-chu.png'; }}
-          className="w-20 h-20 object-contain drop-shadow-lg mb-3"
-        />
-        <h1 className="text-lg font-bold text-white text-center
-          leading-tight drop-shadow-sm">
-          Service d&apos;Anatomie Pathologique
-        </h1>
-      </div>
-
-      <nav className="flex-1 space-y-1 px-4">
+    // Menu blanc commun aux services (consultation externe, bloc, labo), sous la
+    // barre du haut — le logo et le nom du service y sont désormais.
+    <aside className="print:hidden sticky top-16 mt-2 flex h-[calc(100vh-4.5rem)] w-[260px] shrink-0 flex-col overflow-y-auto rounded-tr-[24px] border-r border-[#F1F5F9] bg-white shadow-[1px_0px_5px_rgba(0,0,0,0.01)] z-40">
+      <nav className="flex-1 space-y-1.5 px-4 py-5">
         {visibleNavigation.map((item) => {
           const active =
             pathname === item.href ||
@@ -121,33 +98,32 @@ export default function Sidebar() {
             <Link
               key={item.name}
               href={item.href}
-              className={`flex items-center gap-3 px-4 py-3
-                rounded-lg transition-all duration-200 ${
+              className={`flex items-center gap-4 rounded-[12px] px-4 py-3.5 transition-colors duration-200 ${
                 active
-                  ? 'text-white font-semibold border-r-4 border-white/80 bg-white/15'
-                  : 'text-white/80 hover:text-white hover:bg-white/10'
+                  ? 'bg-[#F0F7FF] font-bold text-[#006A8C]'
+                  : 'font-medium text-[#475569] hover:bg-gray-50'
               }`}
             >
-              <span className="material-symbols-outlined">
+              <span className={`material-symbols-outlined text-[20px] ${active ? 'text-[#006A8C]' : 'text-[#64748B]'}`}>
                 {item.icon}
               </span>
-              <span className="text-sm font-medium">{item.name}</span>
+              <span className="text-[14px]">{item.name}</span>
             </Link>
           );
         })}
       </nav>
 
-      <div className="mt-auto px-4 py-4 border-t border-white/20">
-        <div className="rounded-xl bg-white/5 p-3 mb-2">
-          <p className="text-[10px] font-bold uppercase tracking-wider text-white/60">
+      <div className="mt-auto space-y-4 px-5 py-6">
+        <div className="rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] p-3">
+          <p className="text-[10px] font-bold uppercase tracking-wider text-[#64748B]">
             Numéro flotte personnel
           </p>
-          <p className="mt-0.5 text-[11px] leading-tight text-white/70">
+          <p className="mt-0.5 text-[11px] leading-tight text-[#94A3B8]">
             Liste de contact de personnel
           </p>
           <button
             onClick={() => setShowContacts(true)}
-            className="mt-2 w-full flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 transition-colors text-white text-xs font-semibold"
+            className="mt-2 w-full flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#006A8C]/10 hover:bg-[#006A8C]/20 transition-colors text-[#006A8C] text-xs font-semibold"
           >
             <span className="material-symbols-outlined text-sm">groups</span>
             voir
@@ -155,14 +131,12 @@ export default function Sidebar() {
         </div>
         <button
           onClick={() => setConfirmLogoutOpen(true)}
-          className="w-full flex items-center gap-3 px-3 py-2.5
-            rounded-lg text-white/90 hover:bg-white/10
-            hover:text-white transition-colors text-sm font-medium"
+          className="flex w-full items-center gap-3 px-4 text-[#E11D48] transition-colors hover:text-red-700"
         >
-          <span className="material-symbols-outlined text-base">
+          <span className="material-symbols-outlined text-[18px]">
             logout
           </span>
-          Déconnexion
+          <span className="text-[13px] font-bold">Déconnexion</span>
         </button>
       </div>
 

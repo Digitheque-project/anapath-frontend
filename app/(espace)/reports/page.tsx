@@ -1,8 +1,6 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import Sidebar from '@/components/Sidebar';
-import TopBar from '@/components/TopBar';
 import FilterButton from '@/components/FilterButton';
 import { useSearch } from '@/components/SearchContext';
 import { useAuth } from '@/components/AuthProvider';
@@ -35,6 +33,7 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip,
   Legend, ResponsiveContainer,
 } from 'recharts';
+import { useMiseAJour } from '@/lib/tempsReel';
 
 const COLORS = ['#006A8C', '#2563eb', '#10b981',
   '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'];
@@ -164,6 +163,9 @@ export default function ReportsPage() {
   const [majorStart, setMajorStart] = useState(() => toInputDate(getMondayOfWeek(new Date())));
   const [majorEnd, setMajorEnd] = useState(() => toInputDate(new Date()));
 
+  // Temps réel : chiffres rechargés sans écran de chargement à chaque changement.
+  useMiseAJour(() => { void fetchData(true); });
+
   useEffect(() => {
     fetchData();
     axios.get(`${API_BASE}/anapath/report-settings`)
@@ -186,9 +188,9 @@ export default function ReportsPage() {
     calculateStatistics(filtered);
   }, [searchQuery, requests]);
 
-  const fetchData = async () => {
+  const fetchData = async (silencieux = false) => {
     try {
-      setLoading(true);
+      if (silencieux !== true) setLoading(true);
       const response = await axios.get(`${API_BASE}/anapath`);
       const data = response.data;
       setRequests(data);
@@ -452,9 +454,8 @@ export default function ReportsPage() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen bg-transparent">
-        <Sidebar />
-        <main className="flex-1 ml-64 flex items-center justify-center">
+      <div className="flex min-h-[calc(100vh-4rem)] bg-transparent">
+        <main className="flex-1 flex items-center justify-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
         </main>
       </div>
@@ -462,11 +463,9 @@ export default function ReportsPage() {
   }
 
   return (
-    <div className="flex min-h-screen bg-[#F8FAFC] text-[#191c21]">
-      <Sidebar />
+    <div className="flex min-h-[calc(100vh-4rem)] bg-[#F8FAFC] text-[#191c21]">
 
-      <main className="flex-1 ml-64 min-h-screen flex flex-col w-[calc(100%-256px)]">
-        <TopBar />
+      <main className="flex-1 min-h-[calc(100vh-4rem)] flex flex-col w-full">
 
         <div className="flex-1 p-6 w-full">
           <div className="mb-6"><h2 className="text-2xl font-extrabold text-[#191c21] tracking-tight">Analyse de performance</h2><p className="text-slate-500 text-sm mt-1">Statistiques et indicateurs clés</p></div>

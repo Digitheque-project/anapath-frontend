@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import Sidebar from '@/components/Sidebar';
 import PatientIdentitySection, { PatientInfo } from '@/components/PatientIdentitySection';
 import PatientAvatar from '@/components/PatientAvatar';
 import axios from 'axios';
@@ -110,9 +109,8 @@ export default function ArchiveDetailPage() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen bg-transparent">
-        <Sidebar />
-        <main className="flex-1 ml-64 flex items-center justify-center">
+      <div className="flex min-h-[calc(100vh-4rem)] bg-transparent">
+        <main className="flex-1 flex items-center justify-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
         </main>
       </div>
@@ -121,9 +119,8 @@ export default function ArchiveDetailPage() {
 
   if (!request) {
     return (
-      <div className="flex min-h-screen bg-transparent">
-        <Sidebar />
-        <main className="flex-1 ml-64 flex items-center justify-center">
+      <div className="flex min-h-[calc(100vh-4rem)] bg-transparent">
+        <main className="flex-1 flex items-center justify-center">
           <p className="text-slate-500">Résultat non trouvé</p>
         </main>
       </div>
@@ -137,12 +134,11 @@ export default function ArchiveDetailPage() {
   };
 
   return (
-    <div className="flex min-h-screen bg-transparent text-[#191c21]">
+    <div className="flex min-h-[calc(100vh-4rem)] bg-transparent text-[#191c21]">
       <div className="fixed inset-0 grain-overlay z-[60] pointer-events-none"></div>
-      <Sidebar />
 
-      <main className="flex-1 ml-64 min-h-screen flex flex-col w-[calc(100%-256px)]">
-        <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl flex justify-between items-center px-6 py-3 shadow-sm">
+      <main className="flex-1 min-h-[calc(100vh-4rem)] flex flex-col w-full">
+        <header className="sticky top-16 z-30 bg-white/80 backdrop-blur-xl flex justify-between items-center px-6 py-3 shadow-sm">
           <div className="flex items-center gap-4">
             <Link href="/archives" className="flex items-center gap-2 text-primary text-sm hover:underline">
               <span className="material-symbols-outlined text-base">arrow_back</span>

@@ -2,8 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Sidebar from '@/components/Sidebar';
-import TopBar from '@/components/TopBar';
 import UrgenceStatsCards from '@/components/UrgenceStatsCards';
 import LocalSearchBox from '@/components/LocalSearchBox';
 import FilterButton from '@/components/FilterButton';
@@ -24,6 +22,7 @@ import { statusLabel, statusColors, typeExamenLabel, prescripteurLabel, TYPE_EXA
 import { siteOf } from '@/lib/prescriptionContent';
 import FloatingModal from '@/components/FloatingModal';
 import { isTechnicienUser, isSecretaireUser, isPathologisteUser } from '@/lib/roles';
+import { useMiseAJour } from '@/lib/tempsReel';
 
 interface AnapathRequest {
   id: string;
@@ -124,6 +123,9 @@ export default function WorklistPage() {
     fetchData();
   }, []);
 
+  // Temps réel : rechargée sans écran de chargement à chaque changement.
+  useMiseAJour(() => { void fetchData(true); });
+
   useEffect(() => {
     let filtered = requests.filter((req) => visibleStatuts.includes(req.statut));
     if (searchQuery.trim()) {
@@ -158,9 +160,9 @@ export default function WorklistPage() {
       .finally(() => setModalPatientLoading(false));
   }, [selectedRequest?.id, selectedRequest?.patientInfo]);
 
-  const fetchData = async () => {
+  const fetchData = async (silencieux = false) => {
     try {
-      setLoading(true);
+      if (silencieux !== true) setLoading(true);
       const response = await axios.get(`${API_BASE}/anapath`);
       setRequests(response.data);
       setFilteredRequests(response.data);
@@ -271,9 +273,8 @@ export default function WorklistPage() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen bg-transparent">
-        <Sidebar />
-        <main className="flex-1 ml-64 flex items-center justify-center">
+      <div className="flex min-h-[calc(100vh-4rem)] bg-transparent">
+        <main className="flex-1 flex items-center justify-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
         </main>
       </div>
@@ -281,10 +282,8 @@ export default function WorklistPage() {
   }
 
   return (
-    <div className="flex min-h-screen bg-[#F8FAFC] text-[#191c21]">
-      <Sidebar />
-      <main className="flex-1 ml-64 min-h-screen flex flex-col w-[calc(100%-256px)]">
-        <TopBar />
+    <div className="flex min-h-[calc(100vh-4rem)] bg-[#F8FAFC] text-[#191c21]">
+      <main className="flex-1 min-h-[calc(100vh-4rem)] flex flex-col w-full">
         <div className="flex-1 p-6 w-full">
           <div className="mb-6">
             <h2 className="text-2xl font-extrabold text-[#191c21] tracking-tight">
@@ -300,7 +299,7 @@ export default function WorklistPage() {
           </div>
 
           {!isTechnicien && !isSecretaire && (
-            <div className="sticky top-[60px] z-40 w-fit mb-4 flex gap-1 p-1 bg-slate-100 rounded-xl shadow-md ring-1 ring-slate-300/50">
+            <div className="sticky top-[76px] z-30 w-fit mb-4 flex gap-1 p-1 bg-slate-100 rounded-xl shadow-md ring-1 ring-slate-300/50">
               <button
                 type="button"
                 onClick={() => setTab('suivre')}

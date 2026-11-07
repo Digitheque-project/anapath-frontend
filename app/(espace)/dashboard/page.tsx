@@ -3,8 +3,6 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import Sidebar from '@/components/Sidebar';
-import TopBar from '@/components/TopBar';
 import PrescriptionDetails from '@/components/PrescriptionDetails';
 import PatientHistoriqueButton from '@/components/PatientHistoriqueButton';
 import { PatientInfo } from '@/components/PatientIdentitySection';
@@ -17,6 +15,7 @@ import { formatDateTime, formatDateLong, formatRelativeTime } from '@/lib/dateFo
 import { statusLabel, statusColors, PENDING_STATUSES, typeExamenLabel, prescripteurLabel } from '@/lib/statusLabels';
 import FloatingModal from '@/components/FloatingModal';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
+import { useMiseAJour } from '@/lib/tempsReel';
 
 interface AnapathRequest {
   id: string;
@@ -67,6 +66,9 @@ export default function DashboardPage() {
     fetchData();
   }, []);
 
+  // Temps réel : rechargée sans écran de chargement à chaque changement.
+  useMiseAJour(() => { void fetchData(true); });
+
   useEffect(() => {
     setFilteredRequests(filterAndSortAnapathRequests(requests, searchQuery));
   }, [searchQuery, requests]);
@@ -85,9 +87,9 @@ export default function DashboardPage() {
       .finally(() => setModalPatientLoading(false));
   }, [selectedRequest?.id, selectedRequest?.patientInfo]);
 
-  const fetchData = async () => {
+  const fetchData = async (silencieux = false) => {
     try {
-      setLoading(true);
+      if (silencieux !== true) setLoading(true);
       const response = await axios.get(`${API_BASE}/anapath`);
       setRequests(response.data);
       setFilteredRequests(response.data);
@@ -126,9 +128,8 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen bg-transparent">
-        <Sidebar />
-        <main className="flex-1 ml-64 flex items-center justify-center">
+      <div className="flex min-h-[calc(100vh-4rem)] bg-transparent">
+        <main className="flex-1 flex items-center justify-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
         </main>
       </div>
@@ -138,11 +139,9 @@ export default function DashboardPage() {
   const isTerminee = (statut: string) => STATUTS_TERMINES.includes(statut);
 
   return (
-    <div className="flex min-h-screen bg-transparent text-[#191c21]">
+    <div className="flex min-h-[calc(100vh-4rem)] bg-transparent text-[#191c21]">
       <div className="fixed inset-0 grain-overlay z-[60] pointer-events-none"></div>
-      <Sidebar />
-      <main className="flex-1 ml-64 min-h-screen flex flex-col w-[calc(100%-256px)]">
-        <TopBar />
+      <main className="flex-1 min-h-[calc(100vh-4rem)] flex flex-col w-full">
         <div className="flex-1 p-6 w-full">
           <div className="mb-6">
             <h2 className="text-2xl font-extrabold text-[#191c21] tracking-tight">Tableau de bord</h2>
@@ -217,7 +216,7 @@ export default function DashboardPage() {
                     <tr><th className="p-4 text-left">Patient</th><th className="p-4 text-left">Type examen</th><th className="p-4 text-left">Statut</th><th className="p-4 text-left">Date</th></tr>
                   </thead>
                   <tbody className="divide-y divide-[#006A8C]/40">
-                    {filteredRequests.slice(0, 10).map((req) => (
+                    {filteredRequests.filter((r) => !isTerminee(r.statut)).slice(0, 10).map((req) => (
                       <tr
                         key={req.id}
                         className={`transition-colors ${

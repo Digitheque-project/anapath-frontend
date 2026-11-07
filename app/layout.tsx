@@ -77,8 +77,11 @@ export default function RootLayout({
         {process.env.NEXT_PUBLIC_GATEWAY_URL ? (
           // Chargée par un petit script qui réessaie : si la passerelle refuse le
           // chargement (blocage momentané), la bulle n'était jamais affichée.
+          // Le jeton de l'anapath est dans un cookie httpOnly que la bulle ne peut
+          // pas lire : il lui est donné par la route du temps réel (ws-ticket),
+          // relue toutes les 5 minutes (connexion / changement de compte).
           <Script id="chu-messagerie" strategy="afterInteractive">
-            {`(function(){var src=${JSON.stringify(`${process.env.NEXT_PUBLIC_GATEWAY_URL.replace(/\/+$/, "")}/messagerie/widget.js?auto&bas=104`)},essai=0;function charger(){var s=document.createElement("script");s.src=src+(essai?"&essai="+essai:"");s.async=true;s.onerror=function(){s.remove();if(++essai<8)setTimeout(charger,Math.min(60000,5000*essai));};document.body.appendChild(s);}charger();})();`}
+            {`(function(){var src=${JSON.stringify(`${process.env.NEXT_PUBLIC_GATEWAY_URL.replace(/\/+$/, "")}/messagerie/widget.js?bas=104`)},ticket=${JSON.stringify(`${process.env.NEXT_PUBLIC_API_URL || "/api"}/anapath/notifications/ws-ticket`)},essai=0;function lireJeton(){return fetch(ticket,{cache:"no-store"}).then(function(r){return r.ok?r.json():null;}).then(function(d){window.__chuJetonMessagerie=(d&&d.token)||null;}).catch(function(){});}function monter(){if(window.ChuMessagerie)window.ChuMessagerie.monter({jeton:function(){return window.__chuJetonMessagerie||null;}});}function charger(){var s=document.createElement("script");s.src=src+(essai?"&essai="+essai:"");s.async=true;s.onload=function(){lireJeton().then(monter);setInterval(lireJeton,300000);};s.onerror=function(){s.remove();if(++essai<8)setTimeout(charger,Math.min(60000,5000*essai));};document.body.appendChild(s);}charger();})();`}
           </Script>
         ) : null}
       </body>

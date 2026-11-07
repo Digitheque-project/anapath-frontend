@@ -24,6 +24,7 @@ import FloatingModal from '@/components/FloatingModal';
 import { type PatientInfo } from '@/components/PatientIdentitySection';
 import { getPatientPourPrescription, getPrescriptionExterneDetails } from '@/lib/api';
 import { getMondayOfWeek, formatWeekLabel } from '@/lib/weekUtils';
+import { signalerMiseAJour, type MiseAJour } from '@/lib/tempsReel';
 
 // URL de la Gateway socket.io du backend (namespace /anapath). En local :
 // http://localhost:3334. Sur Render : https://anapath-backend-ar7u-uj8n.onrender.com.
@@ -259,7 +260,9 @@ export default function NotificationBell() {
   const [inlineError, setInlineError] = useState<string | null>(null);
   const [inlineErrorId, setInlineErrorId] = useState<string | null>(null);
   const [visibleCount, setVisibleCount] = useState(3);
-  const [showUnreadOnly, setShowUnreadOnly] = useState(false);
+  // Par défaut, la liste ne garde que ce qui reste à traiter (non lu, ou demande
+  // encore à accepter/refuser) : une notification ouverte en sort.
+  const [showUnreadOnly, setShowUnreadOnly] = useState(true);
   const known = useRef<Set<string>>(new Set());
   const extemporaneTimers =
     useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
@@ -476,7 +479,14 @@ export default function NotificationBell() {
       });
       socketRef.current = s;
 
-      s.on('notification:new', (payload: any) => ingest(payload));
+      s.on('notification:new', (payload: any) => {
+        ingest(payload);
+        signalerMiseAJour({ type: 'notification' });
+      });
+      // Un examen ou une demande a changé : les pages se rechargent seules.
+      s.on('anapath:maj', (info: MiseAJour) => signalerMiseAJour(info));
+      // Après une coupure, rattraper ce qui a pu changer entre-temps.
+      s.io.on('reconnect', () => signalerMiseAJour({ type: 'reconnexion' }));
 
       s.on('connect_error', () => {
         // Le ticket a pu expirer : on le rafraîchit pour la reconnexion suivante.
@@ -578,13 +588,8 @@ export default function NotificationBell() {
 
   const unreadCount = notifs.filter(n => !isLue(n)).length;
 
-  // Le filtre « non lues » se désactive seul quand il n'y a plus rien à voir
-  useEffect(() => {
-    if (showUnreadOnly && unreadCount === 0) setShowUnreadOnly(false);
-  }, [showUnreadOnly, unreadCount]);
-
   const filteredNotifs = showUnreadOnly
-    ? notifs.filter(n => !isLue(n))
+    ? notifs.filter(n => !isLue(n) || isPrescriptionEnAttente(n))
     : notifs;
 
   const maxUrg = notifs
@@ -603,6 +608,13 @@ export default function NotificationBell() {
     // Arrêt de la boucle d'alarme extemporanée si l'utilisateur clique sur une
     // notification (ouverture de la demande = « prise en compte »).
     stopExtemporaneAlarm();
+    // Ouverte = lue : elle sort de la liste (une demande à accepter/refuser y
+    // reste tant qu'elle n'est pas traitée).
+    const notifId = n.id ?? n._id;
+    if (notifId && !isLue(n)) {
+      setNotifs(prev => prev.map(x => ((x.id ?? x._id) === notifId ? { ...x, read: true } : x)));
+      void markNotificationAsRead(notifId).catch(() => {});
+    }
     // Rapport hebdomadaire : génère et télécharge automatiquement le fichier Excel
     // du rapport de la semaine en cours, sans quitter la page.
     const type = n.type ?? n.enriched?.type ?? '';
