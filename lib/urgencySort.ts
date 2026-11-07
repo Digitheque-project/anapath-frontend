@@ -31,7 +31,7 @@ function sortPriority(req: UrgenceAware): number {
   return URGENCE_PRIORITY[getUrgenceLevel(req)];
 }
 
-/** Trie par priorité (extemporané > STAT > URGENTE > NORMALE), puis par heure d'arrivée (la plus ancienne d'abord). */
+/** Trie par priorité (extemporané > STAT > URGENTE > NORMALE), puis la plus récente en haut. */
 export function sortByUrgencyThenArrival<T extends UrgenceAware>(requests: T[]): T[] {
   return [...requests].sort((a, b) => {
     const pa = sortPriority(a);
@@ -39,6 +39,6 @@ export function sortByUrgencyThenArrival<T extends UrgenceAware>(requests: T[]):
     if (pa !== pb) return pa - pb;
     const ta = a.createdAt ? new Date(a.createdAt).getTime() : 0;
     const tb = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-    return ta - tb;
+    return tb - ta;
   });
 }
