@@ -1,5 +1,6 @@
 'use client';
 
+import { ActionsCompte } from "@/components/ActionsCompte";
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -129,6 +130,7 @@ export default function Sidebar() {
             voir
           </button>
         </div>
+        <ActionsCompte className="flex w-full items-center gap-3 px-4 text-slate-500 transition-colors hover:text-slate-900" classeLibelle="text-[13px] font-bold" />
         <button
           onClick={() => setConfirmLogoutOpen(true)}
           className="flex w-full items-center gap-3 px-4 text-[#E11D48] transition-colors hover:text-red-700"
