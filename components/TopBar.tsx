@@ -1,5 +1,6 @@
 'use client';
 
+import { PastilleAutresServices } from "@/components/ActionsCompte";
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import NotificationBell from './NotificationBell';
@@ -81,6 +82,7 @@ export default function TopBar() {
           <div className="text-xs font-bold tabular-nums text-sky-500">{timeLabel}</div>
         </div>
 
+        <PastilleAutresServices />
         <NotificationBell />
 
         <Link href="/profile" title="Mon profil" className="flex min-w-0 items-center gap-3">
