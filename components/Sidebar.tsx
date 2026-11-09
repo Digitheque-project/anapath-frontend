@@ -72,7 +72,9 @@ export default function Sidebar() {
     // le flag allowedForMajor exprime les pages auxquelles ils accèdent.
     const isConsultationProfile =
       isMajor || isChefRole(user?.roleName);
-    if (isConsultationProfile && !item.allowedForMajor) return false;
+    // Le chef de service valide : il accède en plus au Fil de travail.
+    const ouvertAuChef = item.href === '/worklist' && isChefRole(user?.roleName);
+    if (isConsultationProfile && !item.allowedForMajor && !ouvertAuChef) return false;
     if ('technicienOnly' in item && item.technicienOnly && !isTechnicienUser(user)) {
       return false;
     }

@@ -66,8 +66,8 @@ export function isMajorRole(roleName?: string | null): boolean {
 }
 
 /**
- * Le « chef de service » est un profil de CONSULTATION (archives, statistiques,
- * rapports) : il ne traite ni les demandes, ni les examens, ni les validations.
+ * Le « chef de service » consulte (archives, statistiques, rapports) et valide depuis le
+ * Fil de travail ; il ne traite ni les nouvelles demandes, ni la saisie des examens.
  */
 export function isChefRole(roleName?: string | null): boolean {
   return !!roleName && /chef/i.test(roleName);
