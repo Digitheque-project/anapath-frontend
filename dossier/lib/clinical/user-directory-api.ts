@@ -15,7 +15,8 @@ export interface DirectoryUser {
 const userDirectoryApi = axios.create({
   timeout: 20_000,
   headers: { 'Content-Type': 'application/json' },
-  baseURL: '/api/users',
+  // Relais même origine (le jeton vit dans le cookie de session).
+  baseURL: '/api/passerelle/users',
 })
 
 userDirectoryApi.interceptors.request.use((config) => {
