@@ -46,7 +46,6 @@ export default function ArchivesTable() {
         <thead>
           <tr className="text-[11px] font-bold text-on-surface-variant/60 uppercase tracking-[0.15em] bg-surface-container/30">
             <th className="px-6 py-4">Date d'archivage</th>
-            <th className="px-6 py-4">ID PARA</th>
             <th className="px-6 py-4">Patient</th>
             <th className="px-6 py-4">Diagnostic (conclusion)</th>
             <th className="px-6 py-4 text-center">CIM-10</th>
@@ -58,7 +57,6 @@ export default function ArchivesTable() {
           {archivesData.map((row, idx) => (
             <tr key={idx} className="hover:bg-primary/5 transition-colors group">
               <td className="px-6 py-5 font-medium text-slate-500">{row.date}</td>
-              <td className="px-6 py-5 font-mono text-primary font-bold">{row.id}</td>
               <td className="px-6 py-5">
                 <div className="font-bold text-on-surface">{row.patient}</div>
                 <div className="text-[10px] text-slate-400">Né le {row.birthDate}</div>
