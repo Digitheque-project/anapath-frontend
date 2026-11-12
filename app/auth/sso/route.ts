@@ -28,7 +28,9 @@ export async function GET(request: NextRequest) {
   const response = NextResponse.redirect(publicUrl(request, '/dashboard'));
   response.cookies.set(AUTH_COOKIE_NAME, token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    // Cookie « Secure » seulement en HTTPS : au CHU (HTTP en réseau local) le
+    // navigateur rejette un cookie Secure et la session ne tient jamais.
+    secure: (request.headers.get("x-forwarded-proto") ?? new URL(request.url).protocol.replace(":", "")) === "https",
     sameSite: 'lax',
     path: '/',
     maxAge,
