@@ -22,6 +22,16 @@ export async function GET(request: NextRequest) {
     email: payload.email,
     roleName: entry.roleName,
     permissions: entry.permissions,
-    chu: entry.chu ?? null,
+    chu: avecNomDuLogo(entry.chu),
   });
+}
+
+// Le jeton allégé ne porte plus chu.logo (nom du fichier), seulement chu.logoUrl :
+// on en déduit le nom du fichier, servi ensuite par /api/anapath/files/<nom>.
+function avecNomDuLogo(chu: unknown) {
+  if (!chu || typeof chu !== 'object') return null;
+  const c = chu as { logo?: string | null; logoUrl?: string | null };
+  if (c.logo || !c.logoUrl) return c;
+  const nom = c.logoUrl.split('?')[0].split('/').filter(Boolean).pop();
+  return nom ? { ...c, logo: decodeURIComponent(nom) } : c;
 }
