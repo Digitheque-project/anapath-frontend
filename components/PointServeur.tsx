@@ -14,7 +14,7 @@ function lire(): boolean {
   return !!(window as unknown as { __chuServeur?: { pret: boolean } }).__chuServeur?.pret;
 }
 
-export default function PointServeur({ className = "" }: { className?: string }) {
+export default function PointServeur({ className = "", style }: { className?: string; style?: React.CSSProperties }) {
   const pret = useSyncExternalStore(abonner, lire, () => false);
   return (
     <span
@@ -31,6 +31,7 @@ export default function PointServeur({ className = "" }: { className?: string })
         marginRight: 6,
         background: pret ? "#10b981" : "#fb923c",
         boxShadow: "0 0 0 2px #fff",
+        ...style,
       }}
     />
   );

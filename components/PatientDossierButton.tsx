@@ -162,7 +162,7 @@ export default function PatientDossierButton({ patientId, chuId, className = '' 
                 type="button"
                 disabled={!hasReport}
                 onClick={() => setDetail(examen)}
-                className={`w-full text-left p-3 rounded-lg border border-outline-variant/20 ${
+                className={`w-full text-left p-3 rounded-lg border border-[#F1F5F9] ${
                   hasReport
                     ? 'bg-surface-container-low hover:bg-surface-container hover:border-primary/30 transition-colors'
                     : 'bg-surface-container-low opacity-70 cursor-default'
@@ -178,7 +178,7 @@ export default function PatientDossierButton({ patientId, chuId, className = '' 
                   {hasReport ? (
                     <span className="material-symbols-outlined text-primary text-base shrink-0">description</span>
                   ) : (
-                    <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-gray-100 text-gray-600 shrink-0">
+                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-gray-100 text-gray-600 shrink-0">
                       En cours
                     </span>
                   )}
@@ -201,7 +201,7 @@ export default function PatientDossierButton({ patientId, chuId, className = '' 
           subtitle={formatDateLong(detail.dateExamen ?? '')}
           maxWidthPx={576}
           heightPct={0.85}
-          headerClassName="bg-gradient-to-r from-[#006A8C] to-[#00284d]"
+          headerClassName="bg-[#006A8C]"
           bodyClassName="p-5 space-y-4 text-sm"
         >
           {detail.prescripteur?.trim() && (

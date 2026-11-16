@@ -34,8 +34,9 @@ const config: Config = {
         purple: { 100: '#d6eef3', 700: '#004a66' },
       },
       fontFamily: {
-        headline: ["var(--font-manrope)", "Manrope"],
-        body: ["var(--font-inter)", "Inter"],
+        sans: ["var(--font-sans)", "Manrope", "ui-sans-serif", "system-ui", "sans-serif"],
+        headline: ["var(--font-sans)", "Manrope", "sans-serif"],
+        body: ["var(--font-sans)", "Manrope", "sans-serif"],
       },
     },
   },

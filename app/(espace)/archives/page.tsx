@@ -124,7 +124,7 @@ export default function ArchivesPage() {
     const colors: Record<string, string> = {
       BIOPSIE: 'bg-blue-100 text-blue-700',
       FCV_PAP: 'bg-purple-100 text-purple-700',
-      CYT0PONCTION: 'bg-green-100 text-green-700',
+      CYT0PONCTION: 'bg-green-100 text-emerald-700',
       LIQUIDE: 'bg-yellow-100 text-yellow-700',
       EXTEMPORANE_STAT: 'bg-red-100 text-red-700',
       POS: 'bg-indigo-100 text-indigo-700',
@@ -166,19 +166,19 @@ export default function ArchivesPage() {
     return (
       <div className="flex min-h-[calc(100vh-4rem)] bg-transparent">
         <main className="flex-1 flex items-center justify-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#006A8C]"></div>
         </main>
       </div>
     );
   }
 
   return (
-    <div className="flex min-h-[calc(100vh-4rem)] bg-[#F8FAFC] text-[#191c21]">
+    <div className="flex min-h-[calc(100vh-4rem)] bg-[#F8F9FB] text-[#0F172A]">
       <main className="flex-1 min-h-[calc(100vh-4rem)] flex flex-col w-full">
         <div className="flex-1 p-6 w-full">
           <div className="mb-6">
-            <h2 className="text-2xl font-extrabold text-[#191c21] tracking-tight">Examens archivés</h2>
-            <p className="text-slate-500 text-sm mt-1">Registre des comptes-rendus validés</p>
+            <h2 className="text-2xl font-black text-[#004A66] tracking-tight">Examens archivés</h2>
+            <p className="text-[#64748B] text-sm mt-1">Registre des comptes-rendus validés</p>
           </div>
 
           <UrgenceStatsCards requests={filteredRequests} />
@@ -200,38 +200,38 @@ export default function ArchivesPage() {
             />
           </div>
 
-          <div className="bg-white rounded-[12px] shadow-sm overflow-hidden border-2 border-[#006A8C] mx-[30px]">
+          <div className="bg-white rounded-2xl shadow-[0_1px_3px_rgba(15,23,42,0.04)] overflow-hidden border border-[#F1F5F9]">
             <div className="overflow-x-auto">
-              <table className="w-full text-sm text-[#1E293B]">
-                <thead className="bg-[#1E293B] text-[11px] font-bold text-white/90 uppercase">
+              <table className="w-full text-sm text-[#0F172A]">
+                <thead className="bg-[#F8FAFC] text-[11px] font-bold text-[#64748B] uppercase tracking-wider border-b border-[#F1F5F9]">
                   <tr>
-                    <th className="p-4 text-left">Patient</th>
-                    <th className="p-4 text-left">Type examen</th>
-                    <th className="p-4 text-left">Diagnostic</th>
-                    <th className="p-4 text-left">Validé par</th>
-                    <th className="p-4 text-left">Date validation</th>
-                    <th className="p-4 text-center">Actions</th>
+                    <th className="px-4 py-3 text-left">Patient</th>
+                    <th className="px-4 py-3 text-left">Type examen</th>
+                    <th className="px-4 py-3 text-left">Diagnostic</th>
+                    <th className="px-4 py-3 text-left">Validé par</th>
+                    <th className="px-4 py-3 text-left">Date validation</th>
+                    <th className="px-4 py-3 text-center">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#006A8C]/40">
+                <tbody className="divide-y divide-[#F1F5F9]">
                   {filteredRequests.map((req) => (
                     <tr
                       key={req.id}
                       onClick={() => setSelectedRequest(req)}
                       className="hover:bg-[#006A8C]/5 transition-colors group cursor-pointer"
                     >
-                      <td className="p-4 font-medium">{patientDisplayName(req)}</td>
-                      <td className="p-4">
-                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${getTypeBadge(req.typeExamen)}`}>
+                      <td className="px-4 py-3.5 font-medium">{patientDisplayName(req)}</td>
+                      <td className="px-4 py-3.5">
+                        <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${getTypeBadge(req.typeExamen)}`}>
                           {getTypeLabel(req.typeExamen)}
                         </span>
                         {prescripteurLabel(req.metadata) && (
                           <span className="block mt-1 text-[10px] font-semibold text-slate-500">{prescripteurLabel(req.metadata)}</span>
                         )}
                       </td>
-                      <td className="p-4 max-w-xs truncate text-slate-600">{req.resultat?.conclusion || '-'}</td>
-                       <td className="p-4 text-slate-500 text-xs">{req.validatedByName || req.validatedByUserId || '-'}</td>
-                      <td className="p-4 text-slate-500 text-xs">
+                      <td className="px-4 py-3.5 max-w-xs truncate text-slate-600">{req.resultat?.conclusion || '-'}</td>
+                       <td className="px-4 py-3.5 text-slate-500 text-xs">{req.validatedByName || '-'}</td>
+                      <td className="px-4 py-3.5 text-slate-500 text-xs">
                         {req.validatedAt ? (
                           <>
                             <div>{formatDateTime(req.validatedAt)}</div>
@@ -239,7 +239,7 @@ export default function ArchivesPage() {
                           </>
                         ) : '-'}
                       </td>
-                      <td className="p-4 text-center">
+                      <td className="px-4 py-3.5 text-center">
                         <button
                           type="button"
                           onClick={(e) => handleDownloadPDF(req, e)}
@@ -281,10 +281,10 @@ export default function ArchivesPage() {
             historiqueButton={<PatientHistoriqueButton entries={patientHistorique} />}
           />
 
-              <div className="bg-green-50 border border-green-100 rounded-lg p-4 mt-5">
+              <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-4 mt-5">
                 <div className="flex items-center gap-2 mb-3">
-                  <span className="material-symbols-outlined text-green-700">verified</span>
-                  <h4 className="font-bold text-green-800">Résultat d'examen</h4>
+                  <span className="material-symbols-outlined text-emerald-700">verified</span>
+                  <h4 className="font-bold text-emerald-800">Résultat d'examen</h4>
                 </div>
                 <div className="mb-3">
                   <p className="text-xs text-slate-500">Conclusion</p>
@@ -297,7 +297,7 @@ export default function ArchivesPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <p className="text-xs text-slate-500">Validé par</p>
-                    <p className="font-medium text-on-surface">{selectedRequest.validatedByName || selectedRequest.validatedByUserId || '—'}</p>
+                    <p className="font-medium text-on-surface">{selectedRequest.validatedByName || '—'}</p>
                   </div>
                   <div>
                     <p className="text-xs text-slate-500">Date de validation</p>
@@ -312,7 +312,7 @@ export default function ArchivesPage() {
                 <button
                   onClick={handleExportModalPDF}
                   disabled={exportingModal}
-                  className="flex items-center gap-2 px-6 py-2.5 bg-blue-700 text-white rounded-full hover:bg-blue-800 transition-colors font-semibold disabled:opacity-50"
+                  className="flex items-center gap-2 px-6 py-2.5 bg-[#006A8C] text-white rounded-xl hover:bg-[#005a76] transition-colors font-bold disabled:opacity-50"
                 >
                   <span className="material-symbols-outlined text-base">
                     {exportingModal ? 'progress_activity' : 'picture_as_pdf'}

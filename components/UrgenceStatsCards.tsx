@@ -21,7 +21,7 @@ export default function UrgenceStatsCards({ requests }: { requests: UrgenceAware
 
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-      <div className="relative overflow-hidden bg-gradient-to-br from-primary to-blue-900 p-4 rounded-xl shadow-sm flex justify-between items-center text-white">
+      <div className="relative overflow-hidden bg-[#006A8C] p-4 rounded-2xl shadow-sm flex justify-between items-center text-white">
         <div className="relative z-10">
           <p className="text-[11px] font-bold uppercase tracking-wider text-white/80">Total examens</p>
           <p className="text-4xl font-extrabold mt-0.5">{total}</p>
@@ -31,7 +31,7 @@ export default function UrgenceStatsCards({ requests }: { requests: UrgenceAware
       {subCards.map((c) => (
         <div
           key={c.label}
-          className="bg-white p-4 rounded-xl shadow-sm border border-outline-variant/20 flex justify-between items-start"
+          className="bg-white p-4 rounded-2xl shadow-[0_1px_3px_rgba(15,23,42,0.04)] border border-[#F1F5F9] flex justify-between items-start"
         >
           <div>
             <p className="text-[11px] font-bold text-on-surface-variant uppercase tracking-wider">{c.label}</p>

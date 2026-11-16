@@ -70,13 +70,13 @@ export default function PatientHistoriqueButton({ entries, className = '' }: Pat
               type="button"
               onClick={() => setDetail(entry)}
               title="Voir le compte-rendu de cet examen"
-              className="w-full text-left flex items-center justify-between gap-3 p-3 rounded-lg bg-surface-container-low border border-outline-variant/20 hover:bg-surface-container hover:border-primary/30 transition-colors"
+              className="w-full text-left flex items-center justify-between gap-3 p-3 rounded-lg bg-surface-container-low border border-[#F1F5F9] hover:bg-surface-container hover:border-primary/30 transition-colors"
             >
               <div>
                 <p className="font-medium text-on-surface text-sm">{getTypeLabel(entry.typeExamen)}</p>
                 <p className="text-xs text-slate-400 mt-0.5">{formatDate(entry.createdAt)}</p>
               </div>
-              <span className={`px-2 py-0.5 rounded text-[10px] font-bold shrink-0 ${statusColors[entry.statut] || 'bg-gray-100 text-gray-700'}`}>
+              <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold shrink-0 ${statusColors[entry.statut] || 'bg-gray-100 text-gray-700'}`}>
                 {statusLabel(entry.statut)}
               </span>
             </button>
@@ -95,7 +95,7 @@ export default function PatientHistoriqueButton({ entries, className = '' }: Pat
           subtitle={`${detail.anapathId ? `${detail.anapathId} — ` : ''}${formatDate(detail.createdAt)}`}
           maxWidthPx={576}
           heightPct={0.85}
-          headerClassName="bg-gradient-to-r from-[#006A8C] to-[#00284d]"
+          headerClassName="bg-[#006A8C]"
           bodyClassName="p-5 space-y-4 text-sm"
         >
           {detailsOf(detail) ? (

@@ -121,8 +121,7 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="flex min-h-[calc(100vh-4rem)] bg-transparent text-[#191c21]">
-      <div className="fixed inset-0 grain-overlay z-[60] pointer-events-none"></div>
+    <div className="flex min-h-[calc(100vh-4rem)] bg-transparent text-[#0F172A]">
       <main className="flex-1 min-h-[calc(100vh-4rem)] flex flex-col w-full">
         <div className="flex-1 p-6 w-full max-w-3xl mx-auto">
           <button
@@ -133,10 +132,10 @@ export default function ProfilePage() {
             <span className="material-symbols-outlined text-base">arrow_back</span>
             Retour
           </button>
-          <h2 className="text-2xl font-extrabold text-[#191c21] tracking-tight mb-1">Mon profil</h2>
+          <h2 className="text-2xl font-black text-[#004A66] tracking-tight mb-1">Mon profil</h2>
           <p className="text-slate-500 text-sm mb-6">Photo et présentation personnelle</p>
 
-          <div className="bg-white rounded-xl shadow-sm border border-outline-variant/20 p-6">
+          <div className="bg-white rounded-2xl shadow-[0_1px_3px_rgba(15,23,42,0.04)] border border-[#F1F5F9] p-6">
             {/* En-tête : avatar + identité */}
             <div className="flex items-center gap-5">
               <div className="relative">
@@ -179,7 +178,7 @@ export default function ProfilePage() {
             </div>
 
             {/* Bio */}
-            <div className="mt-6 pt-6 border-t border-outline-variant/20">
+            <div className="mt-6 pt-6 border-t border-[#F1F5F9]">
               <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">
                 Bio
               </label>
@@ -190,7 +189,7 @@ export default function ProfilePage() {
                 rows={4}
                 maxLength={500}
                 placeholder="Quelques mots sur vous (spécialité, fonction, etc.)"
-                className="mt-2 w-full rounded-lg border border-slate-200 p-3 text-sm focus:ring-2 focus:ring-primary/20 outline-none resize-y"
+                className="mt-2 w-full rounded-xl border border-[#E2E8F0] p-3 text-sm focus:ring-2 focus:ring-primary/20 outline-none resize-y"
               />
               <div className="mt-2 flex items-center justify-between">
                 <span className="text-[11px] text-slate-400">{bio.length}/500</span>
@@ -198,7 +197,7 @@ export default function ProfilePage() {
                   type="button"
                   onClick={handleSaveBio}
                   disabled={savingBio || loading}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-primary text-white text-sm font-semibold shadow-sm hover:bg-primary/90 active:scale-95 transition disabled:opacity-60"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#006A8C] text-white text-sm font-bold shadow-sm hover:bg-[#005a76] active:scale-95 transition disabled:opacity-60"
                 >
                   <span className="material-symbols-outlined text-base">save</span>
                   {savingBio ? 'Enregistrement…' : 'Enregistrer'}

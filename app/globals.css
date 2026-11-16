@@ -6,24 +6,24 @@
 @layer base {
   :root {
     --primary: #006A8C;
-    --primary-container: #0A7EA4;
-    --surface: #f9f9ff;
+    --primary-container: #005a76;
+    --surface: #F8F9FB;
     --surface-container-lowest: #ffffff;
-    --surface-container-low: #f2f3fb;
-    --surface-container: #ecedf6;
-    --surface-container-high: #e7e8f0;
-    --surface-container-highest: #e1e2ea;
-    --on-surface: #191c21;
-    --on-surface-variant: #424752;
-    --outline-variant: #c2c6d4;
-    --tertiary: #950000;
-    --tertiary-container: #c20000;
-    --secondary: #4a5f83;
-    --error: #ba1a1a;
-    --error-container: #ffdad6;
-    --primary-fixed: #d6e3ff;
-    --secondary-fixed: #d6e3ff;
-    --tertiary-fixed: #ffdad4;
+    --surface-container-low: #F8FAFC;
+    --surface-container: #F1F5F9;
+    --surface-container-high: #E2E8F0;
+    --surface-container-highest: #CBD5E1;
+    --on-surface: #0F172A;
+    --on-surface-variant: #475569;
+    --outline-variant: #E2E8F0;
+    --tertiary: #E11D48;
+    --tertiary-container: #BE123C;
+    --secondary: #475569;
+    --error: #E11D48;
+    --error-container: #FFE4E6;
+    --primary-fixed: #F0F7FF;
+    --secondary-fixed: #F0F7FF;
+    --tertiary-fixed: #FFE4E6;
   }
 
   * {
@@ -31,7 +31,7 @@
   }
 
   body {
-    font-family: 'Inter', sans-serif;
+    font-family: var(--font-sans), 'Manrope', ui-sans-serif, system-ui, sans-serif;
     background-color: var(--surface);
     color: var(--on-surface);
     -webkit-font-smoothing: antialiased;
@@ -45,7 +45,7 @@
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Manrope', sans-serif;
+    font-family: var(--font-sans), 'Manrope', sans-serif;
   }
 
   /* Dark theme variable overrides - used when html has class 'dark' or data-theme='dark' */
@@ -74,8 +74,8 @@
 
   /* Custom scrollbar avec flèches haut/bas */
   ::-webkit-scrollbar {
-    width: 13px;
-    height: 13px;
+    width: 10px;
+    height: 10px;
   }
   ::-webkit-scrollbar-track {
     background: var(--surface-container);

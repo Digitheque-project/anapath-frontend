@@ -393,7 +393,7 @@ export default function WorklistDetailPage() {
     return (
       <div className="flex min-h-[calc(100vh-4rem)] bg-transparent">
         <main className="flex-1 flex items-center justify-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#006A8C]"></div>
         </main>
       </div>
     );
@@ -425,8 +425,7 @@ export default function WorklistDetailPage() {
   const speculumDone = Boolean(request?.examenSpeculum);
 
   return (
-    <div className="flex min-h-[calc(100vh-4rem)] bg-transparent text-[#191c21]">
-      <div className="fixed inset-0 grain-overlay z-[60] pointer-events-none"></div>
+    <div className="flex min-h-[calc(100vh-4rem)] bg-transparent text-[#0F172A]">
 
       <main className="flex-1 min-h-[calc(100vh-4rem)] flex flex-col w-full">
         <header className="sticky top-16 z-30 bg-white/80 backdrop-blur-xl flex justify-between items-center px-6 py-3 shadow-sm">
@@ -435,7 +434,7 @@ export default function WorklistDetailPage() {
               <span className="material-symbols-outlined text-base">arrow_back</span>
               Retour
             </Link>
-            <h2 className="text-lg font-black text-blue-900">Détail de la prescription</h2>
+            <h2 className="text-lg font-black text-[#004A66]">Détail de la prescription</h2>
             <span className={`px-3 py-1 rounded-full text-xs font-bold ${statusColors[request.statut] || 'bg-gray-100 text-gray-700'}`}>
               {statusLabel(request.statut)}
             </span>
@@ -483,7 +482,7 @@ export default function WorklistDetailPage() {
                   {infos.map(([label, valeur]) => (
                     <div key={label} className="min-w-0">
                       <dt className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">{label}</dt>
-                      <dd className="truncate font-medium text-[#191c21]" title={valeur}>{valeur}</dd>
+                      <dd className="truncate font-medium text-[#0F172A]" title={valeur}>{valeur}</dd>
                     </div>
                   ))}
                 </dl>
@@ -497,7 +496,7 @@ export default function WorklistDetailPage() {
               aria-pressed={showPrescriptionDetails}
               className={`flex items-center gap-2.5 px-4 py-2 rounded-full border font-bold text-xs shadow-sm transition-all mb-4 ${
                 showPrescriptionDetails
-                  ? 'bg-gradient-to-r from-[#00284d] to-[#006A8C] text-white border-[#006A8C] hover:opacity-90'
+                  ? 'bg-[#006A8C] text-white border-[#006A8C] hover:opacity-90'
                   : 'bg-white text-[#006A8C] border-[#006A8C]/50 hover:bg-[#006A8C]/5'
               }`}
             >
@@ -524,7 +523,7 @@ export default function WorklistDetailPage() {
           {isWorkflowVisible && (
             <>
               {request?.diagnosticCytoponction && (
-                <section className="bg-cyan-50 border border-cyan-200 rounded-xl shadow-sm p-4 mb-6">
+                <section className="bg-cyan-50 border border-cyan-200 rounded-2xl p-4 mb-6">
                   <p className="text-xs font-bold text-cyan-900 uppercase tracking-wider mb-3 flex items-center gap-1.5">
                     <span className="material-symbols-outlined text-sm">biotech</span>
                     Diagnostic cytoponction (pathologiste)
@@ -559,7 +558,7 @@ export default function WorklistDetailPage() {
                   {isPathologisteUser(user) ? (
                     <button
                       onClick={() => setShowDiag(true)}
-                      className="px-8 py-3 bg-cyan-700 text-white font-bold rounded-full shadow-md hover:bg-cyan-800 transition-colors flex items-center gap-2"
+                      className="px-8 py-3 bg-[#006A8C] text-white font-bold rounded-xl shadow-sm hover:bg-[#005a76] transition-colors flex items-center gap-2"
                     >
                       <span className="material-symbols-outlined">biotech</span>
                       Remplir le diagnostic
@@ -572,7 +571,7 @@ export default function WorklistDetailPage() {
                 </div>
               ) : isResultPhase ? (
                 needsSpeculum ? (
-                  <section className="bg-amber-50 border border-amber-200 rounded-xl shadow-sm p-6 text-center">
+                  <section className="bg-amber-50 border border-amber-200 rounded-2xl p-6 text-center">
                     <span className="material-symbols-outlined text-4xl text-amber-600">clinical_notes</span>
                     <p className="font-bold text-amber-800 mt-2">Examen au spéculum requis</p>
                     <p className="text-sm text-amber-700 mt-1">
@@ -600,7 +599,7 @@ export default function WorklistDetailPage() {
                       {request?.typeExamen === 'FCV_PAP' && request?.examenSpeculum && (
                         <span
                           title="L'examen au spéculum a déjà été soumis pour cette demande"
-                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-green-50 text-green-700 text-xs font-semibold"
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-700 text-xs font-semibold"
                         >
                           <span className="material-symbols-outlined text-base">check_circle</span>
                           Examen spéculum
@@ -609,7 +608,7 @@ export default function WorklistDetailPage() {
                       <button
                         type="button"
                         onClick={() => setShowNoteModal(true)}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-indigo-50 text-indigo-700 text-xs font-semibold hover:bg-indigo-100 transition-colors"
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#F0F7FF] text-[#006A8C] text-xs font-semibold hover:bg-[#E0EFFA] transition-colors"
                       >
                         <span className="material-symbols-outlined text-base">
                           {noteText.trim() ? 'sticky_note_2' : 'note_add'}
@@ -630,7 +629,7 @@ export default function WorklistDetailPage() {
                     </div>
 
                     {String(request?.examenTechnique?.compteRendu ?? '').trim() && (
-                      <section className="bg-blue-50 border border-blue-200 rounded-xl shadow-sm p-4">
+                      <section className="bg-blue-50 border border-blue-200 rounded-2xl p-4">
                         <p className="text-xs font-bold text-blue-900 uppercase tracking-wider mb-2 flex items-center gap-1.5">
                           <span className="material-symbols-outlined text-sm">science</span>
                           Compte rendu de l'examen technique
@@ -641,7 +640,7 @@ export default function WorklistDetailPage() {
                       </section>
                     )}
 
-                    <section className="bg-white border border-outline-variant rounded-xl shadow-sm p-4">
+                    <section className="bg-white border border-[#F1F5F9] rounded-2xl shadow-[0_1px_3px_rgba(15,23,42,0.04)] p-4">
                       <div className="flex items-center justify-between mb-2">
                         <p className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">RÉSULTAT : <span className="text-red-500">*</span></p>
                         {canWrite && (
@@ -668,7 +667,7 @@ export default function WorklistDetailPage() {
                           setResultData({ ...resultData, details: e.target.value });
                           setInterimDetails('');
                         }}
-                        className={`w-full p-2 border rounded-lg bg-surface-container-low border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all font-medium text-on-surface ${!canWrite ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        className={`w-full p-2 border rounded-lg bg-surface-container-low border-outline-variant focus:border-primary focus:ring-2 focus:ring-[#006A8C]/20 outline-none transition-all font-medium text-on-surface ${!canWrite ? 'opacity-50 cursor-not-allowed' : ''}`}
                         placeholder="Saisir les résultats de l'examen ici..."
                         rows={12}
                         required
@@ -676,7 +675,7 @@ export default function WorklistDetailPage() {
                       />
                     </section>
 
-                    <section className="bg-white border border-outline-variant rounded-xl shadow-sm p-4">
+                    <section className="bg-white border border-[#F1F5F9] rounded-2xl shadow-[0_1px_3px_rgba(15,23,42,0.04)] p-4">
                       <div className="flex items-center justify-between mb-2">
                         <p className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">CONCLUSION : <span className="text-red-500">*</span></p>
                         {canWrite && (
@@ -703,7 +702,7 @@ export default function WorklistDetailPage() {
                           setResultData({ ...resultData, conclusion: e.target.value });
                           setInterimConclusion('');
                         }}
-                        className={`w-full p-2 border rounded-lg bg-surface-container-low border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all font-medium text-on-surface ${!canWrite ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        className={`w-full p-2 border rounded-lg bg-surface-container-low border-outline-variant focus:border-primary focus:ring-2 focus:ring-[#006A8C]/20 outline-none transition-all font-medium text-on-surface ${!canWrite ? 'opacity-50 cursor-not-allowed' : ''}`}
                         placeholder="Saisir la conclusion ici..."
                         rows={4}
                         required
@@ -749,7 +748,7 @@ export default function WorklistDetailPage() {
                     isTechnicien ? (
                       <button
                         onClick={() => setShowSpeculum(true)}
-                        className="px-8 py-3 bg-[#006A8C] text-white font-bold rounded-full shadow-md hover:opacity-90 transition-colors flex items-center gap-2"
+                        className="px-8 py-3 bg-[#006A8C] text-white font-bold rounded-xl shadow-sm hover:bg-[#005a76] transition-colors flex items-center gap-2"
                       >
                         <span className="material-symbols-outlined">visibility</span>
                         Examen au spéculum (préalable)
@@ -762,7 +761,7 @@ export default function WorklistDetailPage() {
                   ) : (
                     <button
                       onClick={() => setShowTech(true)}
-                      className="px-8 py-3 bg-[#00284d] text-white font-bold rounded-full shadow-md hover:opacity-90 transition-colors flex items-center gap-2"
+                      className="px-8 py-3 bg-[#004A66] text-white font-bold rounded-xl shadow-sm hover:bg-[#003847] transition-colors flex items-center gap-2"
                     >
                       <span className="material-symbols-outlined">science</span>
                       Examen technique
@@ -780,7 +779,7 @@ export default function WorklistDetailPage() {
           {isWorkflowVisible && isResultPhase && !needsSpeculum && canWrite && (
             <>
               {canSign && (
-                <section className="bg-white border border-outline-variant rounded-xl shadow-sm p-4 md:p-6 mt-4">
+                <section className="bg-white border border-[#F1F5F9] rounded-2xl shadow-[0_1px_3px_rgba(15,23,42,0.04)] p-4 md:p-6 mt-4">
                   <div className="text-center">
                     <p className="text-xs text-on-surface-variant mb-4">
                       Fait à Fianarantsoa, le {formatDateLong(new Date())}
@@ -830,7 +829,7 @@ export default function WorklistDetailPage() {
               <div className="flex flex-wrap gap-3 items-center justify-center pt-6 pb-4 border-t border-outline-variant mt-4">
                 <button
                   onClick={handleExportPDF}
-                  className="flex items-center gap-2 px-4 py-2 bg-blue-700 text-white rounded-lg hover:bg-blue-800 transition-colors font-medium"
+                  className="flex items-center gap-2 px-4 py-2 bg-[#006A8C] text-white rounded-xl hover:bg-[#005a76] transition-colors font-bold"
                 >
                   Exporter PDF
                 </button>
@@ -888,7 +887,7 @@ export default function WorklistDetailPage() {
           heightPct={0.85}
           bodyClassName="p-4"
           footer={
-            <div className="flex justify-end gap-2 p-4 border-t border-outline-variant/20">
+            <div className="flex justify-end gap-2 p-4 border-t border-[#F1F5F9]">
               <button
                 type="button"
                 onClick={() => setShowNoteModal(false)}
@@ -925,7 +924,7 @@ export default function WorklistDetailPage() {
             }}
             rows={8}
             placeholder="Écrivez ou dictez votre brouillon ici..."
-            className="w-full p-2 border rounded-lg bg-surface-container-low border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all font-medium text-on-surface"
+            className="w-full p-2 border rounded-lg bg-surface-container-low border-outline-variant focus:border-primary focus:ring-2 focus:ring-[#006A8C]/20 outline-none transition-all font-medium text-on-surface"
           />
           <p className="flex items-center gap-1 text-[11px] text-slate-400 mt-1.5">
             <span className="material-symbols-outlined text-xs">cloud_done</span>

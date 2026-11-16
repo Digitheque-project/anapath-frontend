@@ -269,7 +269,7 @@ export default function ExamenSpeculumForm({
               value={prescripteurSignature || '—'}
               readOnly
               title="Renseigné automatiquement (prescription)"
-              className="w-full h-11 px-3 bg-white border border-slate-200 rounded-lg text-sm text-slate-700 outline-none cursor-not-allowed"
+              className="w-full h-11 px-3 bg-white border border-[#E2E8F0] rounded-xl text-sm text-slate-700 outline-none cursor-not-allowed"
             />
           </div>
           <div className="flex flex-col gap-1.5">
@@ -279,7 +279,7 @@ export default function ExamenSpeculumForm({
               value={preleveurSignature}
               readOnly
               title="Renseigné automatiquement"
-              className="w-full h-11 px-3 bg-white border border-slate-200 rounded-lg text-sm text-slate-700 outline-none cursor-not-allowed"
+              className="w-full h-11 px-3 bg-white border border-[#E2E8F0] rounded-xl text-sm text-slate-700 outline-none cursor-not-allowed"
             />
           </div>
         </div>

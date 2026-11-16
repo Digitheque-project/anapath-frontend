@@ -109,7 +109,7 @@ export default function ExamenTechniqueForm({
           </div>
 
           {alreadyValidated && (
-            <p className="text-xs text-green-700 bg-green-50 border border-green-200 rounded-lg p-2.5 flex items-center gap-1.5">
+            <p className="text-xs text-emerald-700 bg-green-50 border border-green-200 rounded-lg p-2.5 flex items-center gap-1.5">
               <span className="material-symbols-outlined text-sm">check_circle</span>
               Examen technique déjà validé
               {initialData?.validatedByName ? ` par ${initialData.validatedByName}` : ''}

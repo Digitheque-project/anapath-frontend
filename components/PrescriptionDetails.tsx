@@ -69,7 +69,7 @@ function ContentFields({ entries }: { entries: FieldEntry[] }) {
 /** Détails d'une prescription : identité patient, provenance et champs reçus affichés dynamiquement. */
 export default function PrescriptionDetails({ request, patient, patientLoading, historiqueButton }: PrescriptionDetailsProps) {
   return (
-    <div className="bg-white p-6 rounded-xl shadow-sm border border-outline-variant/20">
+    <div className="bg-white p-6 rounded-2xl shadow-[0_1px_3px_rgba(15,23,42,0.04)] border border-[#F1F5F9]">
       <div className="flex items-center gap-2 mb-4">
         <span className="material-symbols-outlined text-primary">description</span>
         <h4 className="text-lg font-bold text-primary">Détails de la prescription</h4>
@@ -98,7 +98,7 @@ export default function PrescriptionDetails({ request, patient, patientLoading, 
           </div>
 
           {/* Provenance de la prescription (métadonnées reçues) */}
-          <div className="bg-white border border-outline-variant/30 rounded-lg p-4">
+          <div className="bg-white border border-[#F1F5F9] rounded-xl p-4">
             <div className="flex items-start gap-2">
               <span className="material-symbols-outlined text-secondary">stethoscope</span>
               <div>
@@ -125,7 +125,7 @@ export default function PrescriptionDetails({ request, patient, patientLoading, 
           </div>
 
           {(request.metadata?.alertes as string)?.trim() && (
-            <div className="bg-white border border-outline-variant/30 rounded-lg p-4">
+            <div className="bg-white border border-[#F1F5F9] rounded-xl p-4">
               <div className="flex items-start gap-2">
                 <span className="material-symbols-outlined text-red-500">warning</span>
                 <div>

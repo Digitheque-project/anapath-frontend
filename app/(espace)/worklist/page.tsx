@@ -275,21 +275,21 @@ export default function WorklistPage() {
     return (
       <div className="flex min-h-[calc(100vh-4rem)] bg-transparent">
         <main className="flex-1 flex items-center justify-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#006A8C]"></div>
         </main>
       </div>
     );
   }
 
   return (
-    <div className="flex min-h-[calc(100vh-4rem)] bg-[#F8FAFC] text-[#191c21]">
+    <div className="flex min-h-[calc(100vh-4rem)] bg-[#F8F9FB] text-[#0F172A]">
       <main className="flex-1 min-h-[calc(100vh-4rem)] flex flex-col w-full">
         <div className="flex-1 p-6 w-full">
           <div className="mb-6">
-            <h2 className="text-2xl font-extrabold text-[#191c21] tracking-tight">
+            <h2 className="text-2xl font-black text-[#004A66] tracking-tight">
               {isTechnicien ? 'Fil de travail technique' : 'Fil de travail'}
             </h2>
-            <p className="text-slate-500 text-sm mt-1">
+            <p className="text-[#64748B] text-sm mt-1">
               {isTechnicien
                 ? "Examens en cours d'examen technique — la validation du compte rendu clôt votre travail et notifie le pathologiste"
                 : isSecretaire
@@ -366,13 +366,13 @@ export default function WorklistPage() {
             />
           </div>
 
-          <div className="bg-white rounded-[12px] shadow-sm overflow-hidden border-2 border-[#006A8C] mx-[30px]">
+          <div className="bg-white rounded-2xl shadow-[0_1px_3px_rgba(15,23,42,0.04)] overflow-hidden border border-[#F1F5F9]">
             <div className="overflow-x-auto">
-              <table className="w-full text-sm text-[#1E293B]">
-                <thead className="bg-[#1E293B] text-[11px] font-bold text-white/90 uppercase">
-                  <tr><th className="p-4 text-left">Patient</th><th className="p-4 text-left">Type examen</th><th className="p-4 text-left">Prélèvement</th><th className="p-4 text-left">Statut</th><th className="p-4 text-left">Date</th><th className="p-4 text-center">Actions</th></tr>
+              <table className="w-full text-sm text-[#0F172A]">
+                <thead className="bg-[#F8FAFC] text-[11px] font-bold text-[#64748B] uppercase tracking-wider border-b border-[#F1F5F9]">
+                  <tr><th className="px-4 py-3 text-left">Patient</th><th className="px-4 py-3 text-left">Type examen</th><th className="px-4 py-3 text-left">Prélèvement</th><th className="px-4 py-3 text-left">Statut</th><th className="px-4 py-3 text-left">Date</th><th className="px-4 py-3 text-center">Actions</th></tr>
                 </thead>
-                <tbody className="divide-y divide-[#006A8C]/40">
+                <tbody className="divide-y divide-[#F1F5F9]">
                   {filteredRequests.map((req) => {
                     const urgence = getUrgenceLevel(req);
                     return (
@@ -387,9 +387,9 @@ export default function WorklistPage() {
                               : 'hover:bg-[#006A8C]/5'
                         }`}
                       >
-                        <td className="p-4 font-medium">{patientDisplayName(req)}</td>
-                        <td className="p-4">
-                          <span className="px-2 py-0.5 rounded bg-blue-50 text-blue-700 text-[10px] font-bold inline-flex items-center gap-1">
+                        <td className="px-4 py-3.5 font-medium">{patientDisplayName(req)}</td>
+                        <td className="px-4 py-3.5">
+                          <span className="px-2 py-0.5 rounded-full bg-[#F0F7FF] text-[#006A8C] text-[10px] font-bold inline-flex items-center gap-1">
                             {getTypeLabel(req.typeExamen)}
                             {urgence === 'STAT' && (
                               <span className="px-1.5 py-px rounded-full bg-red-600 text-white text-[7px] leading-normal font-bold stat-pulse whitespace-nowrap">
@@ -406,7 +406,7 @@ export default function WorklistPage() {
                             <span className="block mt-1 text-[10px] font-semibold text-slate-500">{prescripteurLabel(req.metadata)}</span>
                           )}
                         </td>
-                        <td className="p-4 text-xs text-slate-500">
+                        <td className="px-4 py-3.5 text-xs text-slate-500">
                           {siteOf(req) ? (
                             <div>
                               <span className="font-semibold text-slate-700">{siteOf(req)}</span>
@@ -416,8 +416,8 @@ export default function WorklistPage() {
                             </div>
                           ) : '-'}
                         </td>
-                        <td className="p-4">
-                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                        <td className="px-4 py-3.5">
+                          <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
                             req.statut === 'EN_ATTENTE_VALIDATION'
                               ? 'bg-amber-100 text-amber-800'
                               : statusColors[req.statut] || 'bg-gray-100 text-gray-700'
@@ -425,11 +425,11 @@ export default function WorklistPage() {
                             {statusLabel(req.statut)}
                           </span>
                         </td>
-                        <td className="p-4 text-slate-500 text-xs">
+                        <td className="px-4 py-3.5 text-slate-500 text-xs">
                           <div>{formatDateTime(req.createdAt)}</div>
                           <div className="text-[10px] text-slate-400">{formatRelativeTime(req.createdAt)}</div>
                         </td>
-                        <td className="p-4 text-center">
+                        <td className="px-4 py-3.5 text-center">
                           <div className="flex items-center justify-center gap-1">{renderActions(req)}</div>
                         </td>
                       </tr>
@@ -472,7 +472,7 @@ export default function WorklistPage() {
                   isPathologiste ? (
                     <button
                       onClick={() => openDiagnosticCytoponction(selectedRequest)}
-                      className="px-8 py-3 bg-cyan-700 text-white font-bold rounded-full shadow-md hover:bg-cyan-800 transition-colors flex items-center gap-2"
+                      className="px-8 py-3 bg-[#006A8C] text-white font-bold rounded-xl shadow-sm hover:bg-[#005a76] transition-colors flex items-center gap-2"
                     >
                       <span className="material-symbols-outlined">biotech</span>
                       Remplir le diagnostic
@@ -498,7 +498,7 @@ export default function WorklistPage() {
                       isTechnicien ? (
                         <button
                           onClick={() => openSpeculum(selectedRequest)}
-                          className="px-8 py-3 bg-[#006A8C] text-white font-bold rounded-full shadow-md hover:opacity-90 transition-colors flex items-center gap-2"
+                          className="px-8 py-3 bg-[#006A8C] text-white font-bold rounded-xl shadow-sm hover:bg-[#005a76] transition-colors flex items-center gap-2"
                         >
                           <span className="material-symbols-outlined">visibility</span>
                           Examen au spéculum (préalable)
@@ -511,7 +511,7 @@ export default function WorklistPage() {
                     ) : (
                       <button
                         onClick={() => openExamenTechnique(selectedRequest)}
-                        className="px-8 py-3 bg-[#00284d] text-white font-bold rounded-full shadow-md hover:opacity-90 transition-colors flex items-center gap-2"
+                        className="px-8 py-3 bg-[#004A66] text-white font-bold rounded-xl shadow-sm hover:bg-[#003847] transition-colors flex items-center gap-2"
                       >
                         <span className="material-symbols-outlined">science</span>
                         Examen technique

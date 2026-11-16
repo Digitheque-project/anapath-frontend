@@ -18,7 +18,7 @@ export default function LocalSearchBox({ value, onChange, placeholder }: LocalSe
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder ?? 'Rechercher dans cette page...'}
         title="Rechercher dans cette page"
-        className="pl-9 pr-4 py-2 bg-white rounded-lg border border-outline-variant/20 focus:ring-2 focus:ring-primary/20 w-full text-sm transition-all"
+        className="pl-9 pr-4 py-2 bg-white rounded-xl border border-[#E2E8F0] focus:outline-none focus:border-[#006A8C] focus:ring-2 focus:ring-[#006A8C]/20 w-full text-sm transition-all"
       />
     </div>
   );

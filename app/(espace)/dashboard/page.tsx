@@ -130,7 +130,7 @@ export default function DashboardPage() {
     return (
       <div className="flex min-h-[calc(100vh-4rem)] bg-transparent">
         <main className="flex-1 flex items-center justify-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#006A8C]"></div>
         </main>
       </div>
     );
@@ -139,16 +139,15 @@ export default function DashboardPage() {
   const isTerminee = (statut: string) => STATUTS_TERMINES.includes(statut);
 
   return (
-    <div className="flex min-h-[calc(100vh-4rem)] bg-transparent text-[#191c21]">
-      <div className="fixed inset-0 grain-overlay z-[60] pointer-events-none"></div>
+    <div className="flex min-h-[calc(100vh-4rem)] bg-transparent text-[#0F172A]">
       <main className="flex-1 min-h-[calc(100vh-4rem)] flex flex-col w-full">
         <div className="flex-1 p-6 w-full">
           <div className="mb-6">
-            <h2 className="text-2xl font-extrabold text-[#191c21] tracking-tight">Tableau de bord</h2>
-            <p className="text-slate-500 text-sm mt-1">Vue d'ensemble de l'activité du laboratoire</p>
+            <h2 className="text-2xl font-black text-[#004A66] tracking-tight">Tableau de bord</h2>
+            <p className="text-[#64748B] text-sm mt-1">Vue d'ensemble de l'activité du laboratoire</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
-            <div className="relative overflow-hidden bg-gradient-to-br from-primary to-blue-900 p-6 rounded-xl shadow-md flex justify-between items-center text-white">
+            <div className="relative overflow-hidden bg-[#006A8C] p-6 rounded-2xl shadow-sm flex justify-between items-center text-white">
               <div className="relative z-10">
                 <p className="text-xs font-bold uppercase tracking-wider text-white/80">Total examens</p>
                 <p className="text-5xl font-extrabold mt-1">{totalExamens}</p>
@@ -159,7 +158,7 @@ export default function DashboardPage() {
               </div>
               <span className="material-symbols-outlined text-white/15 text-8xl absolute -right-3 -bottom-4">biotech</span>
             </div>
-            <div className="bg-white p-5 rounded-xl shadow-sm border border-outline-variant/20 flex justify-between items-start">
+            <div className="bg-white p-5 rounded-2xl shadow-[0_1px_3px_rgba(15,23,42,0.04)] border border-[#F1F5F9] flex justify-between items-start">
               <div>
                 <p className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">En attente</p>
                 <p className="text-3xl font-extrabold text-tertiary mt-1">{enAttenteSTAT}</p>
@@ -174,7 +173,7 @@ export default function DashboardPage() {
               </div>
               <span className="material-symbols-outlined text-tertiary bg-tertiary/10 rounded-full p-2 text-xl">schedule</span>
             </div>
-            <div className="bg-white p-5 rounded-xl shadow-sm border border-outline-variant/20 flex justify-between items-start">
+            <div className="bg-white p-5 rounded-2xl shadow-[0_1px_3px_rgba(15,23,42,0.04)] border border-[#F1F5F9] flex justify-between items-start">
               <div>
                 <p className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Validés</p>
                 <p className="text-3xl font-extrabold text-primary mt-1">{valides}</p>
@@ -198,11 +197,11 @@ export default function DashboardPage() {
             </div>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 items-start">
-            <div className="lg:col-span-2 bg-white rounded-xl shadow-sm overflow-hidden border-2 border-[#006A8C] mx-[30px]">
-              <div className="p-5 border-b border-outline-variant/20 flex items-center justify-between">
+            <div className="lg:col-span-2 bg-white rounded-2xl shadow-[0_1px_3px_rgba(15,23,42,0.04)] overflow-hidden border border-[#F1F5F9]">
+              <div className="p-5 border-b border-[#F1F5F9] flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span className="material-symbols-outlined text-primary bg-primary/10 rounded-full p-1.5 text-lg">history</span>
-                  <h3 className="font-bold text-lg">Dernières demandes</h3>
+                  <h3 className="font-bold text-lg text-[#0F172A]">Dernières demandes</h3>
                 </div>
                 {canClickWorklist && (
                   <Link href="/worklist" className="text-xs font-bold text-primary hover:underline">
@@ -212,10 +211,10 @@ export default function DashboardPage() {
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
-                  <thead className="bg-[#1E293B] text-[11px] font-bold text-white/90 uppercase">
-                    <tr><th className="p-4 text-left">Patient</th><th className="p-4 text-left">Type examen</th><th className="p-4 text-left">Statut</th><th className="p-4 text-left">Date</th></tr>
+                  <thead className="bg-[#F8FAFC] text-[11px] font-bold text-[#64748B] uppercase tracking-wider border-b border-[#F1F5F9]">
+                    <tr><th className="px-4 py-3 text-left">Patient</th><th className="px-4 py-3 text-left">Type examen</th><th className="px-4 py-3 text-left">Statut</th><th className="px-4 py-3 text-left">Date</th></tr>
                   </thead>
-                  <tbody className="divide-y divide-[#006A8C]/40">
+                  <tbody className="divide-y divide-[#F1F5F9]">
                     {filteredRequests.filter((r) => !isTerminee(r.statut)).slice(0, 10).map((req) => (
                       <tr
                         key={req.id}
@@ -228,9 +227,9 @@ export default function DashboardPage() {
                           if (canClickWorklist) setSelectedRequest(req);
                         }}
                       >
-                        <td className="p-4 font-medium">{patientDisplayName(req)}</td>
-                        <td className="p-4">
-                          <span className="px-2 py-0.5 rounded bg-blue-50 text-blue-700 text-[10px] font-bold inline-flex items-center gap-1">
+                        <td className="px-4 py-3.5 font-medium">{patientDisplayName(req)}</td>
+                        <td className="px-4 py-3.5">
+                          <span className="px-2 py-0.5 rounded-full bg-[#F0F7FF] text-[#006A8C] text-[10px] font-bold inline-flex items-center gap-1">
                             {getTypeLabel(req.typeExamen)}
                             {req.isExtemporane && !isTerminee(req.statut) && (
                               <span className="px-1 py-px rounded-full bg-red-600 text-white text-[7px] leading-normal font-bold stat-pulse">TRES URGENT</span>
@@ -240,8 +239,8 @@ export default function DashboardPage() {
                             <span className="block mt-1 text-[10px] font-semibold text-slate-500">{prescripteurLabel(req.metadata)}</span>
                           )}
                         </td>
-                        <td className="p-4"><span className={`px-2 py-0.5 rounded text-[10px] font-bold ${statusColors[req.statut] || 'bg-gray-100 text-gray-700'}`}>{statusLabel(req.statut)}</span></td>
-                        <td className="p-4 text-slate-500 text-xs">
+                        <td className="px-4 py-3.5"><span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${statusColors[req.statut] || 'bg-gray-100 text-gray-700'}`}>{statusLabel(req.statut)}</span></td>
+                        <td className="px-4 py-3.5 text-slate-500 text-xs">
                           <div>{formatDateTime(req.createdAt)}</div>
                           <div className="text-[10px] text-slate-400">{formatRelativeTime(req.createdAt)}</div>
                         </td>
@@ -252,8 +251,8 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            <div className="bg-white rounded-xl shadow-sm border border-outline-variant/20 p-5">
-              <h3 className="font-bold text-lg mb-1">Répartition des examens</h3>
+            <div className="bg-white rounded-2xl shadow-[0_1px_3px_rgba(15,23,42,0.04)] border border-[#F1F5F9] p-5">
+              <h3 className="font-bold text-lg text-[#0F172A] mb-1">Répartition des examens</h3>
               <p className="text-xs text-slate-400 mb-2">Par statut, sur {totalExamens} examen(s)</p>
               {repartitionData.length > 0 ? (
                 <>
@@ -285,7 +284,7 @@ export default function DashboardPage() {
                             <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: entry.color }}></span>
                             <span className="text-slate-600">{entry.name}</span>
                           </div>
-                          <span className="font-bold text-[#191c21]">{entry.value} <span className="text-slate-400 font-normal">({percentage}%)</span></span>
+                          <span className="font-bold text-[#0F172A]">{entry.value} <span className="text-slate-400 font-normal">({percentage}%)</span></span>
                         </div>
                       );
                     })}
@@ -318,10 +317,10 @@ export default function DashboardPage() {
           />
 
               {isTerminee(selectedRequest.statut) ? (
-                <div className="bg-green-50 border border-green-100 rounded-lg p-4 mt-5">
+                <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-4 mt-5">
                   <div className="flex items-center gap-2 mb-3">
-                    <span className="material-symbols-outlined text-green-700">verified</span>
-                    <h4 className="font-bold text-green-800">Résultat d'examen</h4>
+                    <span className="material-symbols-outlined text-emerald-700">verified</span>
+                    <h4 className="font-bold text-emerald-800">Résultat d'examen</h4>
                   </div>
                   <div className="mb-3">
                     <p className="text-xs text-slate-500">Conclusion</p>
@@ -334,7 +333,7 @@ export default function DashboardPage() {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <p className="text-xs text-slate-500">Validé par</p>
-                       <p className="font-medium text-on-surface">{selectedRequest.validatedByName || selectedRequest.validatedByUserId || '—'}</p>
+                       <p className="font-medium text-on-surface">{selectedRequest.validatedByName || '—'}</p>
                     </div>
                     <div>
                       <p className="text-xs text-slate-500">Date de validation</p>
@@ -346,7 +345,7 @@ export default function DashboardPage() {
                   <div className="flex justify-center mt-4">
                     <Link
                       href={`/archives/${selectedRequest.id}`}
-                      className="px-6 py-2 bg-green-700 text-white font-semibold rounded-full shadow-sm hover:opacity-90 transition-colors flex items-center gap-2"
+                      className="px-6 py-2.5 bg-[#006A8C] hover:bg-[#005a76] text-white font-bold rounded-xl shadow-sm hover:opacity-90 transition-colors flex items-center gap-2"
                     >
                       <span className="material-symbols-outlined text-base">description</span>
                       Voir le compte-rendu complet
@@ -358,7 +357,7 @@ export default function DashboardPage() {
                   <div className="flex justify-center mt-6">
                     <button
                       onClick={() => handleSaisirResultat(selectedRequest.id)}
-                      className="px-8 py-3 bg-green-600 text-white font-bold rounded-full shadow-md hover:bg-green-700 transition-colors flex items-center gap-2"
+                      className="px-8 py-3 bg-[#006A8C] text-white font-bold rounded-xl shadow-sm hover:bg-[#005a76] transition-colors flex items-center gap-2"
                     >
                       <span className="material-symbols-outlined">edit_note</span>
                       Saisir le résultat d&apos;examen

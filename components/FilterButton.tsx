@@ -55,7 +55,7 @@ function MultiSelectDropdown({ placeholder, options, value, onChange }: MultiSel
       <button
         type="button"
         onClick={() => setListOpen((o) => !o)}
-        className={`w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg border text-sm text-left transition-colors hover:border-outline-variant focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary ${
+        className={`w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg border text-sm text-left transition-colors hover:border-outline-variant focus:outline-none focus:border-primary focus:ring-2 focus:ring-[#006A8C]/20 ${
           listOpen ? 'border-primary ring-1 ring-primary' : 'border-outline-variant/30 bg-white'
         }`}
       >
@@ -63,7 +63,7 @@ function MultiSelectDropdown({ placeholder, options, value, onChange }: MultiSel
         <span className="material-symbols-outlined text-base text-slate-400">expand_more</span>
       </button>
       {listOpen && (
-        <div className="absolute left-0 right-0 mt-1 max-h-52 overflow-y-auto bg-white rounded-lg shadow-lg border border-outline-variant/20 py-1 z-10">
+        <div className="absolute left-0 right-0 mt-1 max-h-52 overflow-y-auto bg-white rounded-lg shadow-lg border border-[#F1F5F9] py-1 z-10">
           {options.map((o) => (
             <label
               key={o.value}
@@ -138,7 +138,7 @@ export default function FilterButton({ sections, activeCount }: FilterButtonProp
         className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium border transition-all ${
           effectiveCount > 0
             ? 'bg-primary text-white border-primary'
-            : 'bg-white text-slate-600 border-outline-variant/20 hover:bg-slate-50'
+            : 'bg-white text-slate-600 border-[#F1F5F9] hover:bg-slate-50'
         }`}
       >
         <span className="material-symbols-outlined text-base">filter_alt</span>
@@ -150,7 +150,7 @@ export default function FilterButton({ sections, activeCount }: FilterButtonProp
         )}
       </button>
       {open && (
-        <div className="absolute right-0 mt-2 w-80 max-w-[calc(100vw-2rem)] max-h-[70vh] overflow-y-auto bg-white rounded-xl shadow-lg border border-outline-variant/20 p-4 z-30">
+        <div className="absolute right-0 mt-2 w-80 max-w-[calc(100vw-2rem)] max-h-[70vh] overflow-y-auto bg-white rounded-xl shadow-lg border border-[#F1F5F9] p-4 z-30">
           <div className="space-y-4">
             {sections.map((s) => (
               <div key={s.key}>
@@ -166,7 +166,7 @@ export default function FilterButton({ sections, activeCount }: FilterButtonProp
                   <select
                     value={draft[s.key]?.[0] ?? ''}
                     onChange={(e) => setDraftValue(s.key, e.target.value ? [e.target.value] : [])}
-                    className="w-full px-3 py-2 rounded-lg border border-outline-variant/30 bg-white text-sm text-slate-800 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors"
+                    className="w-full px-3 py-2 rounded-xl border border-[#E2E8F0] bg-white text-sm text-slate-800 focus:outline-none focus:border-primary focus:ring-2 focus:ring-[#006A8C]/20 transition-colors"
                   >
                     <option value="">{s.placeholder}</option>
                     {s.options.map((o) => (
@@ -190,7 +190,7 @@ export default function FilterButton({ sections, activeCount }: FilterButtonProp
             <button
               type="button"
               onClick={apply}
-              className="px-4 py-1.5 rounded-lg text-sm font-semibold text-white bg-primary hover:bg-primary-container transition-colors"
+              className="px-4 py-1.5 rounded-xl text-sm font-bold text-white bg-[#006A8C] hover:bg-[#005a76] transition-colors"
             >
               Appliquer
             </button>

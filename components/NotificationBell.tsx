@@ -1296,7 +1296,7 @@ export default function NotificationBell() {
             title="Examen extemporané — à prendre en compte"
             subtitle={getPatientName(alerteExtemporane) || '—'}
             maxWidthPx={520}
-            headerClassName="bg-gradient-to-r from-red-700 to-red-600"
+            headerClassName="bg-[#E11D48]"
             footer={
               <div className="flex items-center justify-end gap-2 px-5 py-4 border-t bg-gray-50">
                 <button

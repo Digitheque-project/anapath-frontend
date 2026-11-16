@@ -60,7 +60,7 @@ export default function FloatingModal({
   subtitle,
   icon,
   closeIcon = 'close',
-  headerClassName = 'bg-gradient-to-r from-[#00284d] to-[#006A8C]',
+  headerClassName = 'bg-[#006A8C]',
   children,
   footer,
   zIndex = 50,
@@ -154,11 +154,11 @@ export default function FloatingModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/40" style={{ zIndex }} onClick={onClose}>
+    <div className="fixed inset-0 bg-[#0F172A]/40" style={{ zIndex }} onClick={onClose}>
       <div
         role="dialog"
         aria-modal="true"
-        className="absolute flex flex-col overflow-hidden rounded-xl shadow-xl bg-white"
+        className="absolute flex flex-col overflow-hidden rounded-2xl shadow-xl bg-white border border-[#F1F5F9]"
         style={{ left: rect.x, top: rect.y, width: rect.w, height: rect.h }}
         onClick={(e) => e.stopPropagation()}
         onPointerMove={onPointerMove}
@@ -167,14 +167,14 @@ export default function FloatingModal({
       >
         {/* Bandeau : préhension du déplacement */}
         <div
-          className={`flex items-center justify-between p-4 shrink-0 cursor-move touch-none select-none ${headerClassName}`}
+          className={`flex items-center justify-between px-5 py-4 shrink-0 cursor-move touch-none select-none ${headerClassName}`}
           onPointerDown={beginMove}
           onDoubleClick={() => setRect(defaultRect())}
         >
           <div className="flex items-center gap-2 min-w-0">
             {icon && <span className="material-symbols-outlined text-white">{icon}</span>}
             <div className="min-w-0">
-              <h3 className="font-bold text-lg text-white truncate">{title}</h3>
+              <h3 className="font-bold text-base sm:text-lg text-white truncate">{title}</h3>
               {subtitle && <p className="text-xs text-white/70 mt-0.5">{subtitle}</p>}
             </div>
           </div>

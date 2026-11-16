@@ -111,7 +111,7 @@ export default function ArchiveDetailPage() {
     return (
       <div className="flex min-h-[calc(100vh-4rem)] bg-transparent">
         <main className="flex-1 flex items-center justify-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#006A8C]"></div>
         </main>
       </div>
     );
@@ -134,8 +134,7 @@ export default function ArchiveDetailPage() {
   };
 
   return (
-    <div className="flex min-h-[calc(100vh-4rem)] bg-transparent text-[#191c21]">
-      <div className="fixed inset-0 grain-overlay z-[60] pointer-events-none"></div>
+    <div className="flex min-h-[calc(100vh-4rem)] bg-transparent text-[#0F172A]">
 
       <main className="flex-1 min-h-[calc(100vh-4rem)] flex flex-col w-full">
         <header className="sticky top-16 z-30 bg-white/80 backdrop-blur-xl flex justify-between items-center px-6 py-3 shadow-sm">
@@ -144,7 +143,7 @@ export default function ArchiveDetailPage() {
               <span className="material-symbols-outlined text-base">arrow_back</span>
               Retour aux archives
             </Link>
-            <h2 className="text-lg font-black text-blue-900">Résultat d'examen</h2>
+            <h2 className="text-lg font-black text-[#004A66]">Résultat d'examen</h2>
             <span className={`px-3 py-1 rounded-full text-xs font-bold ${statusColors[request.statut] || 'bg-gray-100 text-gray-700'}`}>
               {statusLabel(request.statut)}
             </span>
@@ -155,14 +154,14 @@ export default function ArchiveDetailPage() {
         </header>
 
         <div className="flex-1 p-6 w-full max-w-5xl mx-auto">
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-outline-variant/20 mb-6">
+          <div className="bg-white p-6 rounded-2xl shadow-[0_1px_3px_rgba(15,23,42,0.04)] border border-[#F1F5F9] mb-6">
             <PatientIdentitySection
               examen={request}
               patient={patient}
               loading={patientLoading}
               title="👤 Identité Patient"
             />
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm mt-4 pt-4 border-t border-outline-variant/20">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm mt-4 pt-4 border-t border-[#F1F5F9]">
               <div>
                 <label className="text-xs text-slate-400">Type d'examen</label>
                 <p className="font-medium">{getTypeLabel(request.typeExamen)}</p>
@@ -178,7 +177,7 @@ export default function ArchiveDetailPage() {
             </div>
           </div>
 
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-outline-variant/20 mb-6">
+          <div className="bg-white p-6 rounded-2xl shadow-[0_1px_3px_rgba(15,23,42,0.04)] border border-[#F1F5F9] mb-6">
             <div className="flex items-start gap-2">
               <span className="material-symbols-outlined text-secondary">stethoscope</span>
               <div>
@@ -210,7 +209,7 @@ export default function ArchiveDetailPage() {
             </div>
           </div>
 
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-outline-variant/20 mb-6">
+          <div className="bg-white p-6 rounded-2xl shadow-[0_1px_3px_rgba(15,23,42,0.04)] border border-[#F1F5F9] mb-6">
             <h4 className="font-bold text-primary mb-3">🔬 Compte-rendu d'analyse</h4>
             <div className="space-y-4">
               <div className="w-full p-3 bg-[#f2f3fb] border border-outline-variant/30 rounded-lg text-sm whitespace-pre-wrap">
@@ -261,9 +260,9 @@ export default function ArchiveDetailPage() {
           )}
 
           <div className="bg-green-50 p-6 rounded-xl border border-green-200 mb-6">
-            <h4 className="font-bold text-green-700 mb-3">✅ Demande validée</h4>
+            <h4 className="font-bold text-emerald-700 mb-3">✅ Demande validée</h4>
             <p className="text-sm">
-              Validée par: {request.validatedByName ?? request.validatedBySignature ?? request.validatedByUserId ?? '—'}
+              Validée par: {request.validatedByName ?? request.validatedBySignature ?? '—'}
             </p>
             <p className="text-sm">Le: {request.validatedAt ? formatDateTime(request.validatedAt) : '—'}</p>
             <p className="text-xs text-slate-500 mt-2 break-all">
@@ -274,7 +273,7 @@ export default function ArchiveDetailPage() {
           <div className="flex justify-center mt-8">
             <button
               onClick={handleExportPDF}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-700 text-white rounded-lg hover:bg-blue-800 transition-colors font-medium"
+              className="flex items-center gap-2 px-4 py-2 bg-[#006A8C] text-white rounded-xl hover:bg-[#005a76] transition-colors font-bold"
             >
               Exporter PDF
             </button>

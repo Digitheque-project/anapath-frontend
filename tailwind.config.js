@@ -11,54 +11,56 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Surface hierarchy
-        "surface": "#f9f9ff",
+        // Palette commune à la plateforme (modèle : consultation externe)
+        // Surfaces
+        "surface": "#F8F9FB",
         "surface-container-lowest": "#ffffff",
-        "surface-container-low": "#f2f3fb",
-        "surface-container": "#ecedf6",
-        "surface-container-high": "#e7e8f0",
-        "surface-container-highest": "#e1e2ea",
-        // On colors
-        "on-surface": "#191c21",
-        "on-surface-variant": "#424752",
-        // Primary
-        "primary": "#00478d",
-        "primary-container": "#005eb8",
-        "primary-fixed": "#d6e3ff",
+        "surface-container-low": "#F8FAFC",
+        "surface-container": "#F1F5F9",
+        "surface-container-high": "#E2E8F0",
+        "surface-container-highest": "#CBD5E1",
+        // Textes
+        "on-surface": "#0F172A",
+        "on-surface-variant": "#475569",
+        // Primaire
+        "primary": "#006A8C",
+        "primary-container": "#005a76",
+        "primary-fixed": "#F0F7FF",
         "on-primary": "#ffffff",
-        // Secondary
-        "secondary": "#4a5f83",
-        "secondary-container": "#c0d5ff",
-        "secondary-fixed": "#d6e3ff",
+        // Secondaire
+        "secondary": "#475569",
+        "secondary-container": "#E2E8F0",
+        "secondary-fixed": "#F0F7FF",
         "on-secondary": "#ffffff",
-        // Tertiary (Emergency/STAT)
-        "tertiary": "#950000",
-        "tertiary-container": "#c20000",
-        "tertiary-fixed": "#ffdad4",
+        // Tertiaire (urgence / STAT)
+        "tertiary": "#E11D48",
+        "tertiary-container": "#BE123C",
+        "tertiary-fixed": "#FFE4E6",
         "on-tertiary": "#ffffff",
-        // Error
-        "error": "#ba1a1a",
-        "error-container": "#ffdad6",
+        // Erreur
+        "error": "#E11D48",
+        "error-container": "#FFE4E6",
         "on-error": "#ffffff",
-        // Outline
-        "outline": "#727783",
-        "outline-variant": "#c2c6d4",
+        // Bordures
+        "outline": "#64748B",
+        "outline-variant": "#E2E8F0",
         // Inverse
-        "inverse-surface": "#2e3037",
-        "inverse-primary": "#a9c7ff",
-        "inverse-on-surface": "#eff0f8",
-      },
-      borderRadius: {
-        DEFAULT: "0.25rem",
-        sm: "0.5rem",
-        md: "0.75rem",
-        lg: "1rem",
-        xl: "1.5rem",
-        full: "9999px",
+        "inverse-surface": "#0F172A",
+        "inverse-primary": "#7FD4E8",
+        "inverse-on-surface": "#F1F5F9",
+        // Classes Tailwind blue-* / purple-* encore présentes : retintées sur la
+        // palette commune (primaire #006A8C, foncé #004A66).
+        blue: {
+          50: '#F0F7FF', 100: '#E0EFFA', 200: '#CFE9EF', 300: '#7FC3D3',
+          400: '#4AA8BE', 500: '#0A7EA4', 600: '#006A8C', 700: '#005a76',
+          800: '#004A66', 900: '#003847',
+        },
+        purple: { 100: '#E0EFFA', 700: '#004A66' },
       },
       fontFamily: {
-        headline: ["var(--font-manrope)", "Manrope"],
-        body: ["var(--font-inter)", "Inter"],
+        sans: ["var(--font-sans)", "Manrope", "ui-sans-serif", "system-ui", "sans-serif"],
+        headline: ["var(--font-sans)", "Manrope", "sans-serif"],
+        body: ["var(--font-sans)", "Manrope", "sans-serif"],
       },
       animation: {
         'pulse-slow': 'pulse 3s infinite',

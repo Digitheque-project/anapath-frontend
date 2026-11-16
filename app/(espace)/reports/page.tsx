@@ -456,19 +456,19 @@ export default function ReportsPage() {
     return (
       <div className="flex min-h-[calc(100vh-4rem)] bg-transparent">
         <main className="flex-1 flex items-center justify-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#006A8C]"></div>
         </main>
       </div>
     );
   }
 
   return (
-    <div className="flex min-h-[calc(100vh-4rem)] bg-[#F8FAFC] text-[#191c21]">
+    <div className="flex min-h-[calc(100vh-4rem)] bg-[#F8F9FB] text-[#0F172A]">
 
       <main className="flex-1 min-h-[calc(100vh-4rem)] flex flex-col w-full">
 
         <div className="flex-1 p-6 w-full">
-          <div className="mb-6"><h2 className="text-2xl font-extrabold text-[#191c21] tracking-tight">Analyse de performance</h2><p className="text-slate-500 text-sm mt-1">Statistiques et indicateurs clés</p></div>
+          <div className="mb-6"><h2 className="text-2xl font-black text-[#004A66] tracking-tight">Analyse de performance</h2><p className="text-[#64748B] text-sm mt-1">Statistiques et indicateurs clés</p></div>
 
           <div className="flex items-center gap-3 mb-6 flex-wrap">
             <span className="text-sm text-slate-500">
@@ -495,7 +495,7 @@ export default function ReportsPage() {
               <button
                 type="button"
                 onClick={openReportSection}
-                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#006A8C] to-[#0A7EA4] text-white rounded-lg text-sm font-semibold shadow hover:opacity-90 transition-all"
+                className="flex items-center gap-2 px-4 py-2 bg-[#006A8C] hover:bg-[#005a76] text-white rounded-lg text-sm font-semibold shadow hover:opacity-90 transition-all"
               >
                 <span className="material-symbols-outlined text-base">event_note</span>
                 Créer un rapport
@@ -504,31 +504,31 @@ export default function ReportsPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-5 mb-8">
-            <div className="bg-white p-5 rounded-xl shadow-sm border border-outline-variant/20">
+            <div className="bg-white p-5 rounded-2xl shadow-[0_1px_3px_rgba(15,23,42,0.04)] border border-[#F1F5F9]">
               <div className="flex justify-between items-start mb-2"><span className="material-symbols-outlined text-primary text-2xl">analytics</span><span className={`text-xs font-bold px-2 py-0.5 rounded-full ${weekChangeBadgeClass}`}>{weekChangeBadgeText}</span></div>
               <p className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Total examens</p><p className="text-3xl font-extrabold text-primary">{stats.total}</p>
             </div>
-            <div className="bg-white p-5 rounded-xl shadow-sm border border-outline-variant/20">
+            <div className="bg-white p-5 rounded-2xl shadow-[0_1px_3px_rgba(15,23,42,0.04)] border border-[#F1F5F9]">
               <div className="flex justify-between items-start mb-2"><span className="material-symbols-outlined text-tertiary text-2xl">speed</span><span className="text-xs font-bold text-tertiary bg-tertiary/10 px-2 py-0.5 rounded-full">TRES URGENT</span></div>
               <p className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">En attente</p><p className="text-3xl font-extrabold text-tertiary">{Object.entries(stats.byStatus).filter(([s]) => PENDING_STATUSES.includes(s)).reduce((sum, [, c]) => sum + c, 0)}</p>
             </div>
-            <div className="bg-white p-5 rounded-xl shadow-sm border border-outline-variant/20">
+            <div className="bg-white p-5 rounded-2xl shadow-[0_1px_3px_rgba(15,23,42,0.04)] border border-[#F1F5F9]">
               <span className="material-symbols-outlined text-primary text-2xl mb-2">schedule</span>
               <p className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Délai moyen TAT</p><p className="text-3xl font-extrabold text-primary">{stats.tatMoyen.toFixed(1)} <span className="text-base font-normal">jours</span></p>
             </div>
-            <div className="bg-white p-5 rounded-xl shadow-sm border border-outline-variant/20">
+            <div className="bg-white p-5 rounded-2xl shadow-[0_1px_3px_rgba(15,23,42,0.04)] border border-[#F1F5F9]">
               <span className="material-symbols-outlined text-primary text-2xl mb-2">verified</span>
               <p className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Validés</p><p className="text-3xl font-extrabold text-primary">{stats.byStatus['VALIDE'] || 0}</p>
             </div>
-            <div className="bg-white p-5 rounded-xl shadow-sm border border-outline-variant/20">
+            <div className="bg-white p-5 rounded-2xl shadow-[0_1px_3px_rgba(15,23,42,0.04)] border border-[#F1F5F9]">
               <span className="material-symbols-outlined text-red-600 text-2xl mb-2">block</span>
               <p className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Demandes refusées</p><p className="text-3xl font-extrabold text-red-600">{refusedCount}</p>
             </div>
           </div>
 
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-outline-variant/20 mb-8">
+          <div className="bg-white p-6 rounded-2xl shadow-[0_1px_3px_rgba(15,23,42,0.04)] border border-[#F1F5F9] mb-8">
             <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-              <h3 className="font-bold">
+              <h3 className="font-bold text-[#0F172A]">
                 Volume d&apos;examens {period === 'week' || period === 'month' ? '(par jour)' : '(par mois)'}
               </h3>
               {period !== 'month' && (
@@ -563,8 +563,8 @@ export default function ReportsPage() {
             )}
           </div>
 
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-outline-variant/20 mb-8">
-            <h3 className="font-bold mb-4">Examens terminés vs non terminés</h3>
+          <div className="bg-white p-6 rounded-2xl shadow-[0_1px_3px_rgba(15,23,42,0.04)] border border-[#F1F5F9] mb-8">
+            <h3 className="font-bold text-[#0F172A] mb-4">Examens terminés vs non terminés</h3>
             {filteredRequests.length > 0 ? (
               <div className="flex flex-col md:flex-row items-center gap-6">
                 <div className="w-full md:max-w-xs">
@@ -597,7 +597,7 @@ export default function ReportsPage() {
                           <span className="w-3 h-3 rounded-full" style={{ backgroundColor: entry.color }}></span>
                           <span className="text-slate-600">{entry.name}</span>
                         </div>
-                        <span className="font-bold text-[#191c21]">
+                        <span className="font-bold text-[#0F172A]">
                           {entry.value} <span className="text-slate-400 font-normal">({pct}%)</span>
                         </span>
                       </div>
@@ -610,8 +610,8 @@ export default function ReportsPage() {
             )}
           </div>
 
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-outline-variant/20 mb-8">
-              <h3 className="font-bold mb-4">Répartition par type d&apos;examen</h3>
+          <div className="bg-white p-6 rounded-2xl shadow-[0_1px_3px_rgba(15,23,42,0.04)] border border-[#F1F5F9] mb-8">
+              <h3 className="font-bold text-[#0F172A] mb-4">Répartition par type d&apos;examen</h3>
 
               <div className="flex flex-wrap gap-2 mb-4">
                 <button onClick={() => setChartType('bar')} className={chartBtn(chartType === 'bar')}>
@@ -684,10 +684,10 @@ export default function ReportsPage() {
 
                     {/* Rapport hebdomadaire officiel du service (modèle CHU) : les 2 tableaux + représentation statistique + export Excel/PDF. */}
           {canConsultReport && (
-          <div ref={reportSectionRef} className="bg-white p-6 rounded-xl shadow-sm border border-outline-variant/20 mb-8">
+          <div ref={reportSectionRef} className="bg-white p-6 rounded-2xl shadow-[0_1px_3px_rgba(15,23,42,0.04)] border border-[#F1F5F9] mb-8">
             <div className="flex flex-wrap items-center justify-between gap-4 mb-2">
               <div>
-                <h3 className="font-bold text-lg">Rapport hebdomadaire du service (modèle CHU)</h3>
+                <h3 className="font-bold text-lg text-[#0F172A]">Rapport hebdomadaire du service (modèle CHU)</h3>
                 <p className="text-sm text-slate-500 mt-0.5">
                   {isSecretaire
                     ? 'VOLET ACTIVITÉ et PRISE EN CHARGE — la secrétaire envoie le rapport au major (téléchargement réservé au major).'
@@ -726,7 +726,7 @@ export default function ReportsPage() {
                     <button
                       type="button"
                       onClick={handleExportMajorPDF}
-                      className="flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-[#006A8C] to-[#0A7EA4] text-white rounded-lg text-sm font-semibold shadow hover:opacity-90 transition-all"
+                      className="flex items-center gap-2 px-3 py-2 bg-[#006A8C] hover:bg-[#005a76] text-white rounded-lg text-sm font-semibold shadow hover:opacity-90 transition-all"
                     >
                       <span className="material-symbols-outlined text-base">picture_as_pdf</span>
                       PDF
@@ -912,7 +912,7 @@ export default function ReportsPage() {
 
           {canManageAutoReport && (
             <div className="flex justify-end mb-4">
-              <div className="bg-white border border-outline-variant/20 rounded-xl shadow-sm p-4 flex items-center gap-4 max-w-md">
+              <div className="bg-white border border-[#F1F5F9] rounded-2xl shadow-[0_1px_3px_rgba(15,23,42,0.04)] p-4 flex items-center gap-4 max-w-md">
                 <div>
                   <p className="text-sm font-bold text-on-surface">Rapport automatique chaque vendredi à 18h</p>
                   <p className="text-xs text-slate-400 mt-0.5">
@@ -941,7 +941,7 @@ export default function ReportsPage() {
         </div>
       </main>
 
-      <button onClick={exportToPDF} className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-[#006A8C] to-[#0A7EA4] text-white rounded-full font-bold text-sm shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200">
+      <button onClick={exportToPDF} className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-5 py-3 bg-[#006A8C] hover:bg-[#005a76] text-white rounded-full font-bold text-sm shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200">
         <span className="material-symbols-outlined text-base">download</span>
         Exporter le rapport (PDF)
       </button>

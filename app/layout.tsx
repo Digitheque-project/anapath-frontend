@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Manrope } from "next/font/google";
+import { Manrope } from "next/font/google";
 import "./globals.css";
 import ThemeProvider from '../components/ThemeProvider';
 import { SearchProvider } from '../components/SearchContext'; // ← ajout
@@ -7,15 +7,10 @@ import { AuthProvider } from '../components/AuthProvider';
 import { ToastProvider } from '../components/ToastContext';
 
 import Script from "next/script";
-const inter = Inter({ 
-  subsets: ["latin"], 
-  variable: "--font-inter",
-  display: "swap",
-});
-
-const manrope = Manrope({ 
-  subsets: ["latin"], 
-  variable: "--font-manrope",
+// Police commune à toute la plateforme (modèle : consultation externe).
+const manrope = Manrope({
+  subsets: ["latin"],
+  variable: "--font-sans",
   display: "swap",
 });
 
@@ -30,7 +25,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="fr">
+    <html lang="fr" className={`${manrope.variable} font-sans antialiased`}>
       <head>
         <meta charSet="UTF-8" />
         <link 
@@ -38,21 +33,11 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className={`${inter.variable} ${manrope.variable} font-body text-on-surface antialiased`}>
-        <div
-          className="fixed inset-0 -z-20 pointer-events-none"
-          style={{
-            backgroundImage: `url('/assets/bg-lobby.jpg')`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-          }}
-        />
-        <div className="fixed inset-0 -z-20 bg-white/60 pointer-events-none" />
+      <body className="bg-[#F8F9FB] font-sans text-[#0F172A] antialiased">
         <ThemeProvider>
           <AuthProvider>
             <SearchProvider>  {/* ← ajout */}
               <ToastProvider>
-                <div className="grain-overlay"></div>
                 {children}
               </ToastProvider>
             </SearchProvider>

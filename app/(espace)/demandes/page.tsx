@@ -54,9 +54,9 @@ const isToday = (d?: string): boolean => {
 
 const urgenceBadge = (u: string) => {
   const up = u.toUpperCase();
-  if (up.includes('STAT') || up === 'TRES_URGENT') return 'bg-red-100 text-red-700';
+  if (up.includes('STAT') || up === 'TRES_URGENT') return 'bg-[#FFE4E6] text-[#E11D48]';
   if (up.includes('URGENT')) return 'bg-orange-100 text-orange-700';
-  return 'bg-slate-100 text-slate-600';
+  return 'bg-[#F1F5F9] text-[#475569]';
 };
 
 async function fetchJson(url: string): Promise<any> {
@@ -82,7 +82,7 @@ function StatCard({
 }) {
   return (
     <div
-      className="card-rise group bg-white p-5 rounded-xl shadow-sm border border-outline-variant/20
+      className="card-rise group bg-white p-5 rounded-2xl shadow-[0_1px_3px_rgba(15,23,42,0.04)] border border-[#F1F5F9]
         flex justify-between items-center transition-all duration-200
         hover:shadow-lg hover:-translate-y-0.5 hover:border-[#006A8C]/20"
       style={delay ? { animationDelay: `${delay}ms` } : undefined}
@@ -319,23 +319,23 @@ export default function DemandesPage() {
   };
 
   return (
-    <div className="flex min-h-[calc(100vh-4rem)] bg-[#F8FAFC] text-[#191c21]">
+    <div className="flex min-h-[calc(100vh-4rem)] bg-[#F8F9FB] text-[#0F172A]">
       <main className="flex-1 min-h-[calc(100vh-4rem)] flex flex-col w-full">
         <div className="flex-1 p-6 w-full">
           <div className="mb-6 flex items-center gap-3">
-            <div className="w-1.5 h-10 rounded-full bg-gradient-to-b from-[#00284d] to-[#006A8C]" />
+            <div className="w-1.5 h-10 rounded-full bg-[#006A8C]" />
             <div>
-              <h2 className="text-2xl font-extrabold text-[#191c21] tracking-tight">
+              <h2 className="text-2xl font-black text-[#004A66] tracking-tight">
                 Nouvelles demandes
               </h2>
-              <p className="text-slate-500 text-sm mt-1">
+              <p className="text-[#64748B] text-sm mt-1">
                 Prescriptions en attente d&apos;acceptation ou de refus
               </p>
             </div>
           </div>
 
           {loadError && (
-            <div className="mb-6 flex items-center justify-between gap-4 bg-gradient-to-r from-[#00284d] to-[#006A8C] text-white rounded-xl px-5 py-4 shadow-sm modal-in">
+            <div className="mb-6 flex items-center justify-between gap-4 bg-[#004A66] text-white rounded-2xl px-5 py-4 shadow-sm modal-in">
               <div className="flex items-center gap-3">
                 <span className="material-symbols-outlined">cloud_off</span>
                 <div>
@@ -349,7 +349,7 @@ export default function DemandesPage() {
               <button
                 type="button"
                 onClick={fetchData}
-                className="shrink-0 px-4 py-2 bg-white text-[#006A8C] rounded-lg text-sm font-semibold hover:bg-white/90 transition-colors"
+                className="shrink-0 px-4 py-2 bg-white text-[#006A8C] rounded-xl text-sm font-bold hover:bg-white/90 transition-colors"
               >
                 Réessayer
               </button>
@@ -416,20 +416,20 @@ export default function DemandesPage() {
           </div>
 
           {/* Liste des demandes en attente */}
-          <div className="bg-white rounded-[12px] shadow-sm overflow-hidden border-2 border-[#006A8C] mx-[30px]">
+          <div className="bg-white rounded-2xl shadow-[0_1px_3px_rgba(15,23,42,0.04)] overflow-hidden border border-[#F1F5F9]">
             <div className="overflow-x-auto">
-              <table className="w-full text-sm text-[#1E293B]">
-                <thead className="bg-[#1E293B] text-[11px] font-bold text-white/90 uppercase">
+              <table className="w-full text-sm text-[#0F172A]">
+                <thead className="bg-[#F8FAFC] text-[11px] font-bold text-[#64748B] uppercase tracking-wider border-b border-[#F1F5F9]">
                   <tr>
-                    <th className="p-4 text-left">Patient</th>
-                    <th className="p-4 text-left">Type examen</th>
-                    <th className="p-4 text-left">Service demandeur</th>
-                    <th className="p-4 text-left">Urgence</th>
-                    <th className="p-4 text-left">Reçue</th>
-                    <th className="p-4 text-center">Actions</th>
+                    <th className="px-4 py-3 text-left">Patient</th>
+                    <th className="px-4 py-3 text-left">Type examen</th>
+                    <th className="px-4 py-3 text-left">Service demandeur</th>
+                    <th className="px-4 py-3 text-left">Urgence</th>
+                    <th className="px-4 py-3 text-left">Reçue</th>
+                    <th className="px-4 py-3 text-center">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#006A8C]/40">
+                <tbody className="divide-y divide-[#F1F5F9]">
                   {filtered.map((n) => {
                     const id = n.id ?? n._id;
                     const urg = getUrgence(n);
@@ -446,21 +446,21 @@ export default function DemandesPage() {
                               : 'hover:bg-[#006A8C]/5'
                         }`}
                       >
-                        <td className="p-4">
-                          <p className="font-medium text-[#1E293B]">
+                        <td className="px-4 py-3.5">
+                          <p className="font-medium text-[#0F172A]">
                             {getPatientName(n) || '—'}
                           </p>
                         </td>
-                        <td className="p-4">
+                        <td className="px-4 py-3.5">
                           {getTypeExamen(n) || '—'}
                           {prescripteurLabel(n?.metadata) && (
                             <span className="block text-[10px] font-semibold text-slate-500 mt-0.5">{prescripteurLabel(n?.metadata)}</span>
                           )}
                         </td>
-                        <td className="p-4 text-slate-600">{getServiceNom(n)}</td>
-                        <td className="p-4">
+                        <td className="px-4 py-3.5 text-slate-600">{getServiceNom(n)}</td>
+                        <td className="px-4 py-3.5">
                           <div className="flex flex-col items-start gap-0.5">
-                            <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${urgenceBadge(urg)}`}>
+                            <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${urgenceBadge(urg)}`}>
                               {urg === 'STAT' || urg === 'TRES_URGENT'
                                 ? 'TRES URGENT'
                                 : URGENCE_OPTIONS[urg as UrgenceLevel] ?? urg}
@@ -470,19 +470,19 @@ export default function DemandesPage() {
                             )}
                           </div>
                         </td>
-                        <td className="p-4 text-slate-500 text-xs">
+                        <td className="px-4 py-3.5 text-slate-500 text-xs">
                           <div>{formatDate(getCreatedAt(n))}</div>
                           <div className="text-[10px] text-slate-400 mt-0.5">
                             {formatRelativeTime(getCreatedAt(n))}
                           </div>
                         </td>
-                        <td className="p-4">
+                        <td className="px-4 py-3.5">
                           <div className="flex items-center justify-center gap-2">
                             <button
                               type="button"
                               onClick={(e) => { e.stopPropagation(); handleAccept(n); }}
                               disabled={busy}
-                              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-gradient-to-r from-[#006A8C] to-[#0A7EA4] text-white text-xs font-semibold hover:shadow-md active:scale-95 transition-all disabled:opacity-60"
+                              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-[#006A8C] hover:bg-[#005a76] text-white text-xs font-bold active:scale-95 transition-all disabled:opacity-60"
                             >
                               <span className="material-symbols-outlined text-base">check</span>
                               Accepter
@@ -491,7 +491,7 @@ export default function DemandesPage() {
                               type="button"
                               onClick={(e) => { e.stopPropagation(); openRefuse(n); }}
                               disabled={busy}
-                              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-red-50 text-red-700 text-xs font-semibold hover:bg-red-100 active:scale-95 transition disabled:opacity-60"
+                              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-[#FFF1F2] text-[#E11D48] text-xs font-bold hover:bg-[#FFE4E6] active:scale-95 transition disabled:opacity-60"
                             >
                               <span className="material-symbols-outlined text-base">close</span>
                               Refuser
@@ -533,12 +533,12 @@ export default function DemandesPage() {
           title="Détails de la prescription"
           subtitle={`${getTypeExamen(detailTarget) || 'Examen'}${prescripteurLabel(detailTarget?.metadata) ? ` · ${prescripteurLabel(detailTarget?.metadata)}` : ''} — Patient ${getPatientName(detailTarget) || '—'}`}
           footer={
-            <div className="flex items-center justify-end gap-2 px-5 py-4 bg-slate-50 border-t border-slate-100">
+            <div className="flex items-center justify-end gap-2 px-5 py-4 bg-[#F8FAFC] border-t border-[#F1F5F9]">
               <button
                 type="button"
                 onClick={() => { closeDetail(); openRefuse(detailTarget); }}
                 disabled={busyId === (detailTarget?.id ?? detailTarget?._id)}
-                className="px-4 py-2 text-sm font-semibold text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors disabled:opacity-40"
+                className="px-4 py-2 text-sm font-bold text-[#E11D48] bg-[#FFF1F2] hover:bg-[#FFE4E6] rounded-xl transition-colors disabled:opacity-40"
               >
                 Refuser
               </button>
@@ -546,7 +546,7 @@ export default function DemandesPage() {
                 type="button"
                 onClick={() => { closeDetail(); handleAccept(detailTarget); }}
                 disabled={busyId === (detailTarget?.id ?? detailTarget?._id)}
-                className="px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-[#006A8C] to-[#0A7EA4] rounded-lg shadow-sm hover:opacity-90 active:scale-95 transition-all disabled:opacity-40"
+                className="px-4 py-2 text-sm font-bold text-white bg-[#006A8C] hover:bg-[#005a76] rounded-xl shadow-sm active:scale-95 transition-all disabled:opacity-40"
               >
                 {busyId === (detailTarget?.id ?? detailTarget?._id) ? '...' : 'Accepter'}
               </button>
@@ -577,12 +577,12 @@ export default function DemandesPage() {
           icon="block"
           title="Refuser la demande"
           footer={
-            <div className="flex items-center justify-end gap-2 px-5 py-4 bg-slate-50 border-t border-slate-100">
+            <div className="flex items-center justify-end gap-2 px-5 py-4 bg-[#F8FAFC] border-t border-[#F1F5F9]">
               <button
                 type="button"
                 onClick={closeRefuse}
                 disabled={refusing}
-                className="px-4 py-2 text-sm font-semibold text-[#006A8C] hover:bg-[#006A8C]/10 rounded-lg transition-colors disabled:opacity-50"
+                className="px-4 py-2 text-sm font-bold text-[#475569] border border-[#E2E8F0] bg-white hover:bg-[#F8FAFC] rounded-xl transition-colors disabled:opacity-50"
               >
                 Annuler
               </button>
@@ -590,8 +590,8 @@ export default function DemandesPage() {
                 type="button"
                 onClick={confirmRefuse}
                 disabled={refusing || !motifInput.trim()}
-                className="px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-red-600 to-red-700
-                  rounded-lg shadow-sm hover:opacity-90 active:scale-95 transition-all disabled:opacity-50"
+                className="px-4 py-2 text-sm font-bold text-white bg-[#E11D48] hover:bg-[#BE123C]
+                  rounded-xl shadow-sm active:scale-95 transition-all disabled:opacity-50"
               >
                 {refusing ? 'Envoi...' : 'Confirmer le refus'}
               </button>
@@ -600,7 +600,7 @@ export default function DemandesPage() {
         >
           <div className="space-y-3">
             <p className="text-sm text-slate-600">
-              Patient <strong className="text-[#191c21]">{getPatientName(refuseTarget) || '—'}</strong>
+              Patient <strong className="text-[#0F172A]">{getPatientName(refuseTarget) || '—'}</strong>
               {' — '}
               {getTypeExamen(refuseTarget) || '—'}
             </p>
@@ -612,8 +612,8 @@ export default function DemandesPage() {
                 rows={3}
                 autoFocus
                 placeholder="Expliquez pourquoi cette demande est refusée..."
-                className="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm
-                  focus:outline-none focus:ring-2 focus:ring-[#006A8C]/30 focus:border-[#006A8C] transition-shadow"
+                className="mt-1 w-full border border-[#E2E8F0] rounded-xl px-3 py-2 text-sm
+                  focus:outline-none focus:ring-2 focus:ring-[#006A8C]/20 focus:border-[#006A8C] transition-shadow"
               />
             </div>
           </div>

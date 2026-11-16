@@ -26,37 +26,37 @@ export default function ConfirmDialog({
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-[#00203a]/50 backdrop-blur-sm p-4 overlay-in"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-[#0F172A]/40 backdrop-blur-sm p-4 overlay-in"
       onClick={onCancel}
     >
       <div
-        className="bg-white rounded-2xl shadow-2xl max-w-md w-[95vw] overflow-hidden modal-in"
+        className="bg-white rounded-2xl shadow-xl border border-[#F1F5F9] max-w-md w-[95vw] overflow-hidden modal-in"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="bg-gradient-to-r from-[#00284d] to-[#006A8C] px-5 py-4 flex items-center gap-3">
+        <div className="bg-[#006A8C] px-5 py-4 flex items-center gap-3">
           <span className="material-symbols-outlined text-white text-2xl">
             {danger ? 'warning' : 'help'}
           </span>
           <h3 className="text-white font-bold text-base">{title}</h3>
         </div>
         <div className="p-5">
-          <p className="text-sm text-slate-600">{message}</p>
+          <p className="text-sm text-[#475569]">{message}</p>
         </div>
-        <div className="flex items-center justify-end gap-2 px-5 py-4 bg-slate-50 border-t border-slate-100">
+        <div className="flex items-center justify-end gap-2 px-5 py-4 bg-[#F8FAFC] border-t border-[#F1F5F9]">
           <button
             type="button"
             onClick={onCancel}
-            className="px-4 py-2 text-sm font-semibold text-[#006A8C] hover:bg-[#006A8C]/10 rounded-lg transition-colors"
+            className="px-4 py-2 text-sm font-bold text-[#475569] border border-[#E2E8F0] bg-white hover:bg-[#F8FAFC] rounded-xl transition-colors"
           >
             {cancelLabel}
           </button>
           <button
             type="button"
             onClick={onConfirm}
-            className={`px-4 py-2 text-sm font-semibold text-white rounded-lg shadow-sm transition-all hover:shadow-md active:scale-95 ${
+            className={`px-4 py-2 text-sm font-bold text-white rounded-xl shadow-sm transition-all active:scale-95 ${
               danger
-                ? 'bg-gradient-to-r from-red-600 to-red-700 hover:opacity-90'
-                : 'bg-gradient-to-r from-[#006A8C] to-[#0A7EA4] hover:opacity-90'
+                ? 'bg-[#E11D48] hover:bg-[#BE123C]'
+                : 'bg-[#006A8C] hover:bg-[#005a76]'
             }`}
           >
             {confirmLabel}
