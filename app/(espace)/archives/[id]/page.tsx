@@ -9,7 +9,7 @@ import axios from 'axios';
 import { formatDateLong, formatDateTime } from '@/lib/dateFormat';
 import { getPatientForExamen, API_BASE } from '@/lib/api';
 import { getTypeLabel } from '@/lib/generatePDF';
-import { statusLabel, statusColors } from '@/lib/statusLabels';
+import { statusLabel, statusColors, prescripteurLabel } from '@/lib/statusLabels';
 import { getClinicalNotes, getSuspicion, getTreatmentType } from '@/lib/prescriptionFields';
 
 interface AnapathRequest {
@@ -184,6 +184,13 @@ export default function ArchiveDetailPage() {
                 <p className="text-xs text-slate-400">Service demandeur</p>
                 <p className="font-medium">{(request.metadata?.serviceNom as string) ?? '—'}</p>
               </div>
+            <div className="flex items-start gap-2 mt-3">
+              <span className="material-symbols-outlined text-secondary">person</span>
+              <div>
+                <p className="text-xs text-slate-400">Médecin prescripteur</p>
+                <p className="font-medium">{prescripteurLabel(request.metadata) || '—'}</p>
+              </div>
+            </div>
             </div>
             <div className="flex items-start gap-2 mt-3">
               <span className="material-symbols-outlined text-secondary">local_hospital</span>

@@ -6,6 +6,7 @@ import {
   renderHtmlToPdf,
 } from './pdfUtils';
 import { API_BASE } from './api';
+import { prescripteurLabel } from './statusLabels';
 import { getClinicalNotes, getSuspicion } from './prescriptionFields';
 
 const FALLBACK_LOGO = '/assets/logo-chu.png';
@@ -65,8 +66,8 @@ export async function generatePDF(
     || examen?.metadata?.alertes
     || (descPrelevement || '—');
   const suspicionDiagnostique = getSuspicion(examen) || cd.suspicion_diagnostique || '—';
-  const prescripteur = examen?.metadata?.prescripteurNom
-    ?? examen?.metadata?.prescripteurId ?? '—';
+  // Jamais l'identifiant technique : le nom du compte, sinon celui saisi dans la demande.
+  const prescripteur = prescripteurLabel(examen?.metadata) || '—';
   const resultat = examen?.resultat?.details
     ?? examen?.resultatDetails ?? '';
   const conclusion = examen?.resultat?.conclusion
@@ -209,7 +210,7 @@ body{
     </div>
     <div style="display:flex;flex-direction:column;align-items:flex-end;gap:10px;">
       <div class="ref-box">${escapeHtml(String(ippNumber))}</div>
-      <div class="prescripteur-box">Prescripteur : Dr ${escapeHtml(String(prescripteur))}</div>
+      <div class="prescripteur-box">Prescripteur : ${escapeHtml(String(prescripteur))}</div>
     </div>
   </div>
 
