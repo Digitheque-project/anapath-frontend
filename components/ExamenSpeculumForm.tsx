@@ -31,7 +31,7 @@ interface ExamenSpeculumFormProps {
 }
 
 function today(): string {
-  return new Date().toISOString().slice(0, 10);
+  return new Date().toLocaleDateString('sv-SE');
 }
 
 function buildNomComplet(user: {
