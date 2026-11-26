@@ -24,7 +24,8 @@ type TopBarProps = {
 export default function TopBar({ onMenuClick }: TopBarProps) {
   const { searchQuery, setSearchQuery } = useSearch();
   const { user, loading } = useAuth();
-  const [now, setNow] = useState(() => new Date());
+  // Heure seulement dans le navigateur (sinon erreur React 418 sur toutes les pages).
+  const [now, setNow] = useState<Date | null>(null);
   const [logoEnErreur, setLogoEnErreur] = useState(false);
   const displayName = loading
     ? '…'
@@ -40,12 +41,13 @@ export default function TopBar({ onMenuClick }: TopBarProps) {
 
   // Horloge en direct.
   useEffect(() => {
+    setNow(new Date());
     const id = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(id);
   }, []);
 
-  const dateLabel = capitalize(now.toLocaleDateString('fr-FR', DATE_FMT));
-  const timeLabel = now.toLocaleTimeString('fr-FR', TIME_FMT);
+  const dateLabel = now ? capitalize(now.toLocaleDateString('fr-FR', DATE_FMT)) : '';
+  const timeLabel = now ? now.toLocaleTimeString('fr-FR', TIME_FMT) : '';
 
   return (
     <header className="print:hidden sticky top-0 z-50 flex items-center justify-between gap-4 border-b border-[#F1F5F9] bg-white px-4 py-2.5 shadow-[0px_4px_10px_rgba(0,0,0,0.015)] sm:px-6 sm:py-3 lg:px-7">
