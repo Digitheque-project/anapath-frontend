@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import PatientAvatar from '@/components/PatientAvatar';
 import PrescriptionDetails from '@/components/PrescriptionDetails';
@@ -65,6 +65,7 @@ const RESULT_PHASE_STATUSES = ['EN_ATTENTE_PATHOLOGUE', 'EN_ATTENTE_VALIDATION',
 
 export default function WorklistDetailPage() {
   const params = useParams();
+  const router = useRouter();
   const id = params.id as string;
   const { hasPermission, user } = useAuth();
   const toast = useToast();
