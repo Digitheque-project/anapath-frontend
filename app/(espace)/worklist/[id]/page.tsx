@@ -342,7 +342,8 @@ export default function WorklistDetailPage() {
       await marquerNotifLue(request.id);
 
       toast.success('Validé avec succès');
-      await loadExamen();
+      // Retour au fil de travail pour enchaîner avec le patient suivant (28/11/2026).
+      router.push('/worklist');
     } catch (error) {
       console.error('Erreur:', error);
       toast.error('Erreur lors de la validation');

@@ -8,6 +8,7 @@ import PatientHistoriqueButton from '@/components/PatientHistoriqueButton';
 import { PatientInfo } from '@/components/PatientIdentitySection';
 import { useSearch } from '@/components/SearchContext';
 import { useAuth } from '@/components/AuthProvider';
+import { isSecretaireUser, isPathologisteUser } from '@/lib/roles';
 import axios from 'axios';
 import { API_BASE, getPatientForExamen } from '@/lib/api';
 import { filterAndSortAnapathRequests } from '@/lib/searchAnapath';
@@ -58,7 +59,10 @@ export default function DashboardPage() {
   const [selectedRequest, setSelectedRequest] = useState<AnapathRequest | null>(null);
   const [modalPatient, setModalPatient] = useState<PatientInfo | null>(null);
   const [modalPatientLoading, setModalPatientLoading] = useState(false);
-  const { hasPermission, isMajor } = useAuth();
+  const { hasPermission, isMajor, user } = useAuth();
+  // Même règle que la page de saisie : sinon le bouton paraissait actif et ne
+  // menait nulle part (chef de service, 28/11/2026).
+  const peutSaisir = isSecretaireUser(user) || isPathologisteUser(user);
 
   const canClickWorklist = hasPermission('anapath:update') || hasPermission('anapath:observation:write');
 
@@ -355,13 +359,20 @@ export default function DashboardPage() {
               ) : (
                 canClickWorklist ? (
                   <div className="flex justify-center mt-6">
-                    <button
-                      onClick={() => handleSaisirResultat(selectedRequest.id)}
-                      className="px-8 py-3 bg-[#006A8C] text-white font-bold rounded-xl shadow-sm hover:bg-[#005a76] transition-colors flex items-center gap-2"
-                    >
-                      <span className="material-symbols-outlined">edit_note</span>
-                      Saisir le résultat d&apos;examen
-                    </button>
+                    <div className="flex flex-col items-center gap-1.5">
+                      <button
+                        onClick={() => handleSaisirResultat(selectedRequest.id)}
+                        disabled={!peutSaisir}
+                        title={peutSaisir ? undefined : 'Réservé au secrétariat et au pathologiste'}
+                        className="px-8 py-3 bg-[#006A8C] text-white font-bold rounded-xl shadow-sm hover:bg-[#005a76] transition-colors flex items-center gap-2 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500 disabled:shadow-none"
+                      >
+                        <span className="material-symbols-outlined">{peutSaisir ? 'edit_note' : 'lock'}</span>
+                        Saisir le résultat d&apos;examen
+                      </button>
+                      {!peutSaisir && (
+                        <p className="text-xs text-slate-500">Réservé au secrétariat et au pathologiste : vous êtes en consultation seule.</p>
+                      )}
+                    </div>
                   </div>
                 ) : (
                   <div className="flex justify-center mt-6">
